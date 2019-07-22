@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="153.0" prefWidth="215.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.FXMLDocumentConnectGame">
+   <children>
+      <VBox alignment="TOP_CENTER" layoutX="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="132.0" prefWidth="214.0">
+         <children>
+            <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="138.0" prefWidth="207.0">
+              <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="132.0" minWidth="10.0" prefWidth="39.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="241.0" minWidth="10.0" prefWidth="121.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
+              </columnConstraints>
+              <rowConstraints>
+                <RowConstraints maxHeight="83.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="162.0" minHeight="0.0" prefHeight="36.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="209.0" minHeight="10.0" prefHeight="36.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="209.0" minHeight="4.0" prefHeight="33.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="209.0" minHeight="8.0" prefHeight="16.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="10.0" minHeight="10.0" prefHeight="10.0" vgrow="SOMETIMES" />
+              </rowConstraints>
+               <children>
+                  <Label text="IP" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                  <Label text="Port" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                  <TextField fx:id="ipTextField" text="localhost" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <TextField fx:id="portTextField" text="2019" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                  <Button fx:id="buttonConnect" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleButtonConnect" text="Connect" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="4">
+                     <GridPane.margin>
+                        <Insets left="20.0" top="18.0" />
+                     </GridPane.margin></Button>
+                  <Label prefHeight="17.0" prefWidth="58.0" text="New game" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
+                     <GridPane.margin>
+                        <Insets left="19.0" />
+                     </GridPane.margin></Label>
+                  <TextField fx:id="nameTextField" text="YourName" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <Label text="Name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+               </children>
+            </GridPane>
+         </children>
+      </VBox>
+   </children>
+</AnchorPane>

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<StackPane fx:id="topLevelStackPane" maxHeight="965.0" maxWidth="700.0" minHeight="965.0" minWidth="700.0" prefHeight="965.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.FXMLDocumentMainController">
+    <children>
+        <ImageView fx:id="imgView" fitHeight="950.0" fitWidth="700.0" pickOnBounds="true" preserveRatio="true" smooth="false" StackPane.alignment="TOP_CENTER">
+            <StackPane.margin>
+                <Insets top="25.0" />
+            </StackPane.margin>
+         <image>
+            <Image url="@../img/Battleships_Paper_Game.jpg" />
+         </image>
+        </ImageView>
+        <MenuBar fx:id="menuBarItem" StackPane.alignment="TOP_RIGHT">
+            <menus>
+                <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
+                    <items>
+                        <MenuItem fx:id="menuItemCreateServer" mnemonicParsing="false" onAction="#handleMenuItemCreateServer" text="Create server" />
+                  <MenuItem fx:id="menuItemConnect" mnemonicParsing="false" onAction="#handleMenuItemConnectGame" text="Connect" />
+                  <MenuItem fx:id="menuItemDisconnect" disable="true" mnemonicParsing="false" onAction="#handleDisconnectMenuItem" text="Dissconnect" />
+                        <MenuItem fx:id="menuItemExit" mnemonicParsing="false" onAction="#handleMenuItemExit" text="Exit" />
+                    </items>
+                </Menu>
+                <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
+                    <items>
+                        <MenuItem fx:id="menuItemAbout" mnemonicParsing="false" onAction="#handleMenuItemAbout" text="About Battleships" />
+                    </items>
+                </Menu>
+            </menus>
+        </MenuBar>
+        <Label fx:id="labelGameStatus" prefHeight="17.0" prefWidth="195.0" text="Game status: " StackPane.alignment="TOP_LEFT">
+            <StackPane.margin>
+                <Insets left="478.0" top="150.0" />
+            </StackPane.margin>
+        </Label>
+        <ListView fx:id="statusListView" cache="true" editable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="122.0" prefWidth="194.0" StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets right="28.0" top="170.0" />
+            </StackPane.margin>
+        </ListView>
+        <Label fx:id="numRoundLabel" contentDisplay="CENTER" prefHeight="21.0" prefWidth="32.0" StackPane.alignment="TOP_RIGHT">
+            <font>
+                <Font name="Arial" size="18.0" />
+            </font>
+            <StackPane.margin>
+                <Insets right="42.0" top="47.0" />
+            </StackPane.margin>
+        </Label>
+        <Label fx:id="playerMyLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets right="170.0" top="47.0" />
+            </StackPane.margin>
+            <font>
+                <Font name="Tahoma" size="12.0" />
+            </font>
+        </Label>
+      <Label fx:id="playerEnemyLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
+         <font>
+            <Font name="Tahoma" size="12.0" />
+         </font>
+         <StackPane.margin>
+            <Insets right="170.0" top="75.0" />
+         </StackPane.margin>
+      </Label>
+      <Canvas fx:id="canvasGeneral" height="950.0" width="700.0">
+         <StackPane.margin>
+            <Insets top="25.0" />
+         </StackPane.margin>
+      </Canvas>
+      <Canvas fx:id="canvasOverlay" height="950.0" onMouseClicked="#handleToMouseClick" onMouseMoved="#handleOverlayCanvasMouseMoved" width="700.0">
+         <StackPane.margin>
+            <Insets top="25.0" />
+         </StackPane.margin>
+      </Canvas>
+        <Button fx:id="resetFleetButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handleRestFleetButton" text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets right="30.0" top="100.0" />
+            </StackPane.margin>
+        </Button>
+        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER">
+            <children>
+                <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css" text="1  x">
+                    <VBox.margin>
+                        <Insets />
+                    </VBox.margin>
+                    <padding>
+                        <Insets right="85.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="shipType3Button" focusTraversable="false" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css" text="1  x">
+                    <padding>
+                        <Insets right="85.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="shipType2Button" focusTraversable="false" layoutX="10.0" layoutY="23.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css" text="1  x">
+                    <padding>
+                        <Insets right="85.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="shipType1Button" focusTraversable="false" layoutX="10.0" layoutY="36.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css" text="2  x">
+                    <padding>
+                        <Insets right="85.0" />
+                    </padding>
+                </Button>
+                <Button fx:id="shipType0Button" focusTraversable="false" layoutX="10.0" layoutY="49.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css" text="2  x">
+                    <padding>
+                        <Insets right="85.0" />
+                    </padding>
+                </Button>
+            </children>
+            <StackPane.margin>
+                <Insets left="192.0" top="850.0" />
+            </StackPane.margin>
+        </VBox>
+    </children>
+</StackPane>
