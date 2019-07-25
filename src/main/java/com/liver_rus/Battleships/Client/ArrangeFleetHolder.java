@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
 /**
- * Класс Ships отвечающий за оставшиеся корабли
+ * Класс Ships отвечающий за подсчет количества оставшихся кораблей
  */
 
 class ArrangeFleetHolder {
@@ -25,13 +25,9 @@ class ArrangeFleetHolder {
         ships[0] = 2;
     }
 
-    ///возвращает количество кораблей
-
     byte getShipsLeft() {
         return left;
     }
-
-    //извлекает корабль определенного типа из пула кораблей*/
 
     int popShip(int type) {
         if (ships[type] > 0) {

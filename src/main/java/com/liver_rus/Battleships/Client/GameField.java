@@ -119,7 +119,7 @@ class GameField {
         boolean someoneAlive = false;
         Ship ship_for_remove = null;
         for (Ship ship : shipsOnField.getShipsOnField()) {
-            if (ship.getIsShipAlive()) {
+            if (ship.isAlive()) {
                 someoneAlive = true;
                 break;
             } else {

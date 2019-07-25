@@ -1,32 +1,32 @@
 package com.liver_rus.Battleships.Client;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 
-class ShipsOnField {
-    private List<Ship> shipsOnField = new ArrayList<>(ArrangeFleetHolder.TOTAL_SHIPS_AMOUNT);
+class ShipsOnField  {
+    private LinkedHashSet<Ship> shipsList = new LinkedHashSet<>(ArrangeFleetHolder.TOTAL_SHIPS_AMOUNT);
 
     void clear() {
-        shipsOnField.clear();
+        shipsList.clear();
     }
 
     void remove(Ship ship) {
-        shipsOnField.remove(ship);
+        shipsList.remove(ship);
     }
 
     void add(Ship ship) {
-        shipsOnField.add(ship);
+        shipsList.add(ship);
     }
 
-    List<Ship> getShipsOnField() {
-        return shipsOnField;
+    HashSet<Ship> getShipsOnField() {
+        return shipsList;
     }
 
     Ship findShip(FieldCoord shipCoord) {
         Ship findedShip = null;
         label:
         {
-            for (Ship ship : shipsOnField) {
+            for (Ship ship : shipsList) {
                 for (FieldCoord coord : ship.getShipCoord()) {
                     if (coord.getX() - 1 == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
                         findedShip = ship;
@@ -37,4 +37,6 @@ class ShipsOnField {
         }
         return findedShip;
     }
+
+
 }

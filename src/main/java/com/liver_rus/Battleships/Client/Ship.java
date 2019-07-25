@@ -7,6 +7,46 @@ import java.io.IOException;
  */
 
 public class Ship {
+
+    Ship(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
+        int x = fieldCoord.getX() + 1;
+        int y = fieldCoord.getY() + 1;
+        int type = Ship.Type.shipTypeToInt(shipType);
+        shipCoord = new FieldCoord[type + 1];
+        if (orientation == Ship.Orientation.HORIZONTAL) {
+            for (int i = 0; i < shipCoord.length; i++) {
+                shipCoord[i] = new FieldCoord(x + i, y);
+            }
+        } else {
+            for (int i = 0; i < shipCoord.length; i++) {
+                shipCoord[i] = new FieldCoord(x, y + i);
+            }
+        }
+        this.orientation = orientation;
+        this.type = type;
+
+        switch (type) {
+            case 0:
+                name = "Submarine";
+                break;
+            case 1:
+                name = "Destroyer";
+                break;
+            case 2:
+                name = "Cruiser";
+                break;
+            case 3:
+                name = "Battleship";
+                break;
+            case 4:
+                name = "Aircraft Carrier";
+                break;
+            default:
+                name = "unknown";
+                break;
+        }
+    }
+
     public enum Orientation {
         VERTICAL, HORIZONTAL;
 
@@ -71,46 +111,6 @@ public class Ship {
         return shipCoord;
     }
 
-    Ship(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
-        int x = fieldCoord.getX() + 1;
-        int y = fieldCoord.getY() + 1;
-        int type = Ship.Type.shipTypeToInt(shipType);
-        shipCoord = new FieldCoord[type + 1];
-        if (orientation == Ship.Orientation.HORIZONTAL) {
-            for (int i = 0; i < shipCoord.length; i++) {
-                shipCoord[i] = new FieldCoord(x + i, y);
-            }
-        } else {
-            for (int i = 0; i < shipCoord.length; i++) {
-                shipCoord[i] = new FieldCoord(x, y + i);
-            }
-        }
-        this.orientation = orientation;
-        this.type = type;
-
-        switch (type) {
-            case 0:
-                name = "Submarine";
-                break;
-            case 1:
-                name = "Destroyer";
-                break;
-            case 2:
-                name = "Cruiser";
-                break;
-            case 3:
-                name = "Battleship";
-                break;
-            case 4:
-                name = "Aircraft Carrier";
-                break;
-            default:
-                name = "unknown";
-                break;
-        }
-    }
-
-
     @Override
     public String toString() {
         return shipCoord[0].getX() + " " + shipCoord[0].getY() + " " + type + " " + orientation;
@@ -137,7 +137,7 @@ public class Ship {
         }
     }
 
-    boolean getIsShipAlive() {
+    boolean isAlive() {
         boolean isAlive = false;
         for (FieldCoord shipSector : shipCoord) {
             if (!shipSector.getTag()) {

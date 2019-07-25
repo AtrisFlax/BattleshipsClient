@@ -16,6 +16,16 @@ class GameEngine {
     private FieldCoord shootCoord;
     private Ship.Type shipType;
 
+    public boolean isFirstShot() {
+        return firstShot;
+    }
+
+    public void setFirstShot(boolean firstShot) {
+        this.firstShot = firstShot;
+    }
+
+    boolean firstShot = true;
+
     GameEngine() {
         reset();
     }

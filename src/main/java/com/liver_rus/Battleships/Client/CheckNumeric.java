@@ -4,7 +4,7 @@ class CheckNumeric {
     static boolean isNumeric(String strNum) {
         boolean isNum = true;
         try {
-            Double.parseDouble(strNum);
+            Integer.parseInt(strNum);
         } catch (NumberFormatException e) {
             isNum = false;
         }

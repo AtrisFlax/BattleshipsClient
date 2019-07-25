@@ -37,11 +37,11 @@ public class FXMLDocumentConnectGame {
     final private static int MIN_VALUE_PORT = 0;
     final private static int MAX_VALUE_PORT = 65535;
 
-    private static boolean isPort(String str) {
-        if (CheckNumeric.isNumeric(str)) {
+    private static boolean isPort(String strPort) {
+        if (CheckNumeric.isNumeric(strPort)) {
             int intPort = Integer.parseInt(port);
             if (intPort > MIN_VALUE_PORT && intPort <= MAX_VALUE_PORT) {
-                CheckNumeric.isNumeric(str);
+                CheckNumeric.isNumeric(strPort);
                 return true;
             } else {
                 return false;
