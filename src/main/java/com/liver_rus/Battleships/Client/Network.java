@@ -3,6 +3,7 @@ package com.liver_rus.Battleships.Client;
 import com.liver_rus.Battleships.SocketFX.Constants;
 import com.liver_rus.Battleships.SocketFX.FxSocketClient;
 import com.liver_rus.Battleships.SocketFX.FxSocketServer;
+import javafx.collections.ObservableList;
 
 public class Network {
 
@@ -28,8 +29,11 @@ public class Network {
         this.connected = connected;
     }
 
-    public void connectServer(int port) {
-        socketServer = new FxSocketServer(new FxSocketListener(),
+    public void connectServer(int port, ObservableList<String> rcvdMsgsData) {
+        FxSocketListener fxSocketListener = new FxSocketListener();
+        fxSocketListener.setDataReceiver(rcvdMsgsData);
+
+        socketServer = new FxSocketServer(fxSocketListener,
                 port,
                 Constants.instance().DEBUG_NONE);
         socketServer.connect();
@@ -37,7 +41,9 @@ public class Network {
     }
 
     public void connectClient(String host, int port) {
-        socketClient = new FxSocketClient(new FxSocketListener(),
+        FxSocketListener fxSocketListener = new FxSocketListener();
+
+        socketClient = new FxSocketClient(fxSocketListener,
                 host,
                 port,
                 Constants.instance().DEBUG_NONE);

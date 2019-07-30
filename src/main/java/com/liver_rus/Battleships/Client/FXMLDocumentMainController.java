@@ -3,6 +3,7 @@ package com.liver_rus.Battleships.Client;
 import com.liver_rus.Battleships.SocketFX.GenericSocket;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -27,7 +28,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FXMLDocumentMainController implements Initializable {
+public class FXMLDocumentMainController implements Initializable{ //Controller
 
     @FXML
     private Button shipType4Button;
@@ -81,12 +82,13 @@ public class FXMLDocumentMainController implements Initializable {
     private ObservableList<String> rcvdMsgsData;
     private ObservableList<String> sentMsgsData;
 
+
     private final static Logger LOGGER
             = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private final static int NONE_SELECTED = -1;
 
-    private GameEngine gameEngine;
+    private GameEngine gameEngine; //model
 
     public enum ConnectionDisplayState {
         DISCONNECTED, ATTEMPTING, CONNECTED
@@ -125,6 +127,9 @@ public class FXMLDocumentMainController implements Initializable {
         statusListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
         rcvdMsgsData = FXCollections.observableArrayList();
+        rcvdMsgsData.addListener((ListChangeListener<String>) listener -> {
+            resolveSocketAndProceedMassage(rcvdMsgsData.get(rcvdMsgsData.size() - 1));
+        });
         statusListView.setItems(rcvdMsgsData);
         statusListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
@@ -307,7 +312,7 @@ public class FXMLDocumentMainController implements Initializable {
                         gameEngine.getMyGameField().markFieldByShip(myFieldCoord, type, orient);
                         gameEngine.setIsSelected(false);
                     } else {
-                        //TODO ПОСЛЕ НЕПРАВИЛЬНОГО РАЗМЕЩЕНИЕ ЗАМЕНИТЬ НА WARNING MESSAGE BOX!!!
+                        //TODO После накорректоного размещения добавить Warning Message Box
                         Logger logger = Logger.getLogger(getClass().getName());
                         logger.log(Level.SEVERE, "Failed to arrange Ship.");
                     }
@@ -365,7 +370,7 @@ public class FXMLDocumentMainController implements Initializable {
             stage.setOnHidden(close -> {
                 String port = controller.getPort();
                 if (port != null) {
-                    network.connectServer(Integer.parseInt(port));
+                    network.connectServer(Integer.parseInt(port), rcvdMsgsData);
                     gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
                     isClient(false);
                 } else {
@@ -476,6 +481,7 @@ public class FXMLDocumentMainController implements Initializable {
         sendAnswer(line, socket);
     }
 
+    //must be before gui
     void gameEngingeProceed(String line) {
         Constant.NetworkMessage message = Constant.NetworkMessage.getType(line);
         switch (message) {
@@ -534,7 +540,6 @@ public class FXMLDocumentMainController implements Initializable {
                     Draw.LineMyPlayer(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
                 }
                 if (!gameEngine.getMyGameField().isShipsOnFieldAlive()) {
-                    gameEngine.setPhase(GameEngine.Phase.END_GAME);
                     labelGameStatus.setText(Constant.NetworkMessage.YOU_LOSE.toString());
                 }
                 break;

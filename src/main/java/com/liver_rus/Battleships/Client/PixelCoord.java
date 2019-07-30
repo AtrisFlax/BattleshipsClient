@@ -28,8 +28,8 @@ class PixelCoord {
     FieldCoord transformMyFieldPixelCoordToFieldCoord() {
         if (isCoordFromMyPlayerField(x, y)) {
             //TODO LAMBDAS1
-            final int cellX = (int) (Math.floor((x - Constant.LEFT_EDGE_PIXEL_FIRST_PLAYER_X) / Constant.WIDTH_FIRST_PLAYER_CELL));
-            final int cellY = (int) (Math.floor((y - Constant.TOP_EDGE_PIXEL_FIRST_PLAYER_Y) / Constant.WIDTH_FIRST_PLAYER_CELL));
+            final int cellX = (int) (Math.floor((x - Constant.Pixel.LEFT_EDGE_PIXEL_FIRST_PLAYER_X) / Constant.Pixel.WIDTH_FIRST_PLAYER_CELL));
+            final int cellY = (int) (Math.floor((y - Constant.Pixel.TOP_EDGE_PIXEL_FIRST_PLAYER_Y) / Constant.Pixel.WIDTH_FIRST_PLAYER_CELL));
             return new FieldCoord(cellX, cellY);
         } else {
             //TODO LOGGER OR EXCEPTON
@@ -40,8 +40,8 @@ class PixelCoord {
     FieldCoord transformEnemyFieldPixelCoordToFieldCoord() {
         if (isCoordFromEnemyPlayerField(x, y)) {
             //TODO LAMBDAS1
-            final int cellX = (int) (Math.floor((x - Constant.LEFT_EDGE_PIXEL_SECOND_PLAYER_X) / Constant.WIDTH_SECOND_PLAYER_CELL));
-            final int cellY = (int) (Math.floor((y - Constant.TOP_EDGE_PIXEL_SECOND_PLAYER_Y) / Constant.WIDTH_SECOND_PLAYER_CELL));
+            final int cellX = (int) (Math.floor((x - Constant.Pixel.LEFT_EDGE_PIXEL_SECOND_PLAYER_X) / Constant.Pixel.WIDTH_SECOND_PLAYER_CELL));
+            final int cellY = (int) (Math.floor((y - Constant.Pixel.TOP_EDGE_PIXEL_SECOND_PLAYER_Y) / Constant.Pixel.WIDTH_SECOND_PLAYER_CELL));
             return new FieldCoord(cellX, cellY);
         } else {
             //TODO LOGGER OR EXCEPTON
@@ -54,8 +54,8 @@ class PixelCoord {
     }
 
     static private boolean checkBordersMyPlayerField(double x, double y) {
-        return x >= Constant.LEFT_EDGE_PIXEL_FIRST_PLAYER_X && x <= Constant.RIGHT_EDGE_PIXEL_FIRST_PLAYER_X &&
-                y >= Constant.TOP_EDGE_PIXEL_FIRST_PLAYER_Y && y <= Constant.BOTTOM_EDGE_PIXEL_FIRST_PLAYER_Y;
+        return x >= Constant.Pixel.LEFT_EDGE_PIXEL_FIRST_PLAYER_X && x <= Constant.Pixel.RIGHT_EDGE_PIXEL_FIRST_PLAYER_X &&
+                y >= Constant.Pixel.TOP_EDGE_PIXEL_FIRST_PLAYER_Y && y <= Constant.Pixel.BOTTOM_EDGE_PIXEL_FIRST_PLAYER_Y;
     }
 
     static boolean isCoordFromEnemyPlayerField(double x, double y) {
@@ -63,7 +63,7 @@ class PixelCoord {
     }
 
     static private boolean checkBordersEnemyPlayerField(double x, double y) {
-        return x >= Constant.LEFT_EDGE_PIXEL_SECOND_PLAYER_X && x <= Constant.RIGHT_EDGE_PIXEL_SECOND_PLAYER_X &&
-                y >= Constant.TOP_EDGE_PIXEL_SECOND_PLAYER_Y && y <= Constant.BOTTOM_EDGE_PIXEL_SECOND_PLAYER_Y;
+        return x >= Constant.Pixel.LEFT_EDGE_PIXEL_SECOND_PLAYER_X && x <= Constant.Pixel.RIGHT_EDGE_PIXEL_SECOND_PLAYER_X &&
+                y >= Constant.Pixel.TOP_EDGE_PIXEL_SECOND_PLAYER_Y && y <= Constant.Pixel.BOTTOM_EDGE_PIXEL_SECOND_PLAYER_Y;
     }
 }
