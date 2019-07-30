@@ -3,26 +3,32 @@ package com.liver_rus.Battleships.Client;
 import com.liver_rus.Battleships.SocketFX.Constants;
 import com.liver_rus.Battleships.SocketFX.FxSocketClient;
 import com.liver_rus.Battleships.SocketFX.FxSocketServer;
+import com.liver_rus.Battleships.SocketFX.GenericSocket;
 import javafx.collections.ObservableList;
 
 public class Network {
 
     private boolean connected;
 
-    private FxSocketClient socketClient;
-    private FxSocketServer socketServer;
+    private boolean isClient;
 
-    public FxSocketClient getSocketClient() {
-        return socketClient;
+    private GenericSocket socket;
+
+    GenericSocket getSocket() {
+        return socket;
     }
 
-    public FxSocketServer getSocketServer() {
-        return socketServer;
+//    private synchronized void notifyDisconnected() {
+//        connected = false;
+//        notifyAll();
+//    }
+
+    private void setIsClient(boolean isClient) {
+        this.isClient = isClient;
     }
 
-    private synchronized void notifyDisconnected() {
-        connected = false;
-        notifyAll();
+    boolean getIsClient() {
+        return isClient;
     }
 
     public synchronized void setIsConnected(boolean connected) {
@@ -33,26 +39,25 @@ public class Network {
         FxSocketListener fxSocketListener = new FxSocketListener();
         fxSocketListener.setDataReceiver(rcvdMsgsData);
 
-        socketServer = new FxSocketServer(fxSocketListener,
+        socket = new FxSocketServer(fxSocketListener,
                 port,
                 Constants.instance().DEBUG_NONE);
-        socketServer.connect();
-        socketClient = null;
+        socket.connect();
+        setIsClient(false);
     }
 
     public void connectClient(String host, int port) {
         FxSocketListener fxSocketListener = new FxSocketListener();
 
-        socketClient = new FxSocketClient(fxSocketListener,
+        socket = new FxSocketClient(fxSocketListener,
                 host,
                 port,
                 Constants.instance().DEBUG_NONE);
-        socketClient.connect();
-        socketServer = null;
+        socket.connect();
+        setIsClient(true);
     }
 
     void shutdown(){
-        socketClient.shutdown();
-        socketServer.shutdown();
+        socket.shutdown();
     }
 }

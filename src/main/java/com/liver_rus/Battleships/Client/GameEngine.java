@@ -46,8 +46,8 @@ class GameEngine {
         return gamePhase;
     }
 
-    void setIsSelected(boolean isSelectted) {
-        isShipSelected = isSelectted;
+    void setShipSelected(boolean isShipSelected) {
+        this.isShipSelected = isShipSelected;
     }
 
     final boolean getIsShipSelected() {

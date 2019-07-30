@@ -105,15 +105,6 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
 
     private Network network;
 
-    private boolean isClient;
-
-    private void isClient(boolean isClient) {
-        this.isClient = isClient;
-    }
-
-    private boolean getIsClient() {
-        return isClient;
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -155,7 +146,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         shipTypeButtons.add(shipType3Button);
         shipTypeButtons.add(shipType4Button);
 
-        Runtime.getRuntime().addShutdownHook(new ShutDownThread(network.getSocketClient(), network.getSocketServer(), LOGGER));
+        Runtime.getRuntime().addShutdownHook(new ShutDownThread(network.getSocket(), LOGGER));
     }
 
     private void init_typeButton(Button button, Ship.Type type) {
@@ -169,7 +160,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                             int popedShip = gameEngine.getFleetHolder().popShip(Ship.Type.shipTypeToInt(type));
                             if (popedShip >= Constant.NO_MORE_SHIPS) {
                                 button.setText(popedShip + "  x");
-                                gameEngine.setIsSelected(true);
+                                gameEngine.setShipSelected(true);
                             }
                         }
                     }
@@ -310,7 +301,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                         gameEngine.addShipOnField(new Ship(myFieldCoord, type, orient));
                         Draw.ShipMyField(canvasGeneralGraphicsContext, myFieldCoord, gameEngine.getShipType(), gameEngine.getShipOrientation());
                         gameEngine.getMyGameField().markFieldByShip(myFieldCoord, type, orient);
-                        gameEngine.setIsSelected(false);
+                        gameEngine.setShipSelected(false);
                     } else {
                         //TODO После накорректоного размещения добавить Warning Message Box
                         Logger logger = Logger.getLogger(getClass().getName());
@@ -322,13 +313,13 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                     isServerReadyFirst = false;
                     resetFleetButton.setDisable(true);
                     labelGameStatus.setText("Wait for Second Player");
-                    if (getIsClient()) {
+                    if (network.getIsClient()) {
                         labelGameStatus.setText("Make shot");
-                        network.getSocketClient().sendMessage(Constant.NetworkMessage.CLIENT_READY.toString());
-                        network.getSocketClient().sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
+                        network.getSocket().sendMessage(Constant.NetworkMessage.CLIENT_READY.toString());
+                        network.getSocket().sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
                     } else {
-                        network.getSocketServer().sendMessage(Constant.NetworkMessage.SERVER_READY.toString());
-                        network.getSocketServer().sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
+                        network.getSocket().sendMessage(Constant.NetworkMessage.SERVER_READY.toString());
+                        network.getSocket().sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
                     }
                     statusListView.getItems().add("Fleet Arranged");
                     gameEngine.setPhase(GameEngine.Phase.READY);
@@ -339,10 +330,10 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 if (PixelCoord.isCoordFromEnemyPlayerField(scenePixelCoord.getX(), scenePixelCoord.getY())) {
                     FieldCoord shootFieldCoord = scenePixelCoord.transformEnemyFieldPixelCoordToFieldCoord();
                     Draw.LineEnemyPlayer(canvasGeneralGraphicsContext, shootFieldCoord);
-                    if (getIsClient()) {
-                        network.getSocketClient().sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
+                    if (network.getIsClient()) {
+                        network.getSocket().sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
                     } else {
-                        network.getSocketServer().sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
+                        network.getSocket().sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
                     }
                     gameEngine.setShootCoord(shootFieldCoord);
                 }
@@ -372,7 +363,6 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 if (port != null) {
                     network.connectServer(Integer.parseInt(port), rcvdMsgsData);
                     gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
-                    isClient(false);
                 } else {
                     close.consume();
                 }
@@ -410,7 +400,6 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 if (host != null && port != null) {
                     network.connectClient(host, Integer.parseInt(port));
                     gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
-                    isClient(true);
                 } else {
                     close.consume();
                 }
@@ -458,20 +447,20 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     //resolve means client or server socket
     void resolveSocketAndProceedMassage(String line) {
         rcvdMsgsData.add(line);
-        if (getIsClient()) {
+        if (network.getIsClient()) {
             gameEngine.setFirstShot(true);
-            proceedMessage(line, network.getSocketClient());
+            proceedMessage(line, network.getSocket());
         } else {
             if (line.equals(Constant.NetworkMessage.CLIENT_READY) && gameEngine.getPhase() == GameEngine.Phase.READY && gameEngine.isFirstShot()) {
                 gameEngine.setFirstShot(false);
                 if (Math.random() < 0.5) {
                     gameEngine.setPhase(GameEngine.Phase.MAKE_SHOT);
                 } else {
-                    network.getSocketServer().sendMessage(Constant.NetworkMessage.YOU_TURN.toString());
+                    network.getSocket().sendMessage(Constant.NetworkMessage.YOU_TURN.toString());
                     gameEngine.setPhase(GameEngine.Phase.TAKE_SHOT);
                 }
             }
-            proceedMessage(line, network.getSocketServer());
+            proceedMessage(line, network.getSocket());
         }
     }
 
