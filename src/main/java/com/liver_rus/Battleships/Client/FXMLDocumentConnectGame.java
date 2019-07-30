@@ -27,8 +27,7 @@ public class FXMLDocumentConnectGame {
         return myName;
     }
 
-    private static final Pattern IPv4Pattern = Pattern.compile(
-            "^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+    private static final Pattern IPv4Pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
 
     private static boolean isIPAddress(final String ip) {
         return IPv4Pattern.matcher(ip).matches() || ip.equals("localhost");

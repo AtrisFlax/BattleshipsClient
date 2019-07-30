@@ -28,7 +28,7 @@ import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class FXMLDocumentMainController implements Initializable{ //Controller
+public class FXMLDocumentMainController implements Initializable { //Controller
 
     @FXML
     private Button shipType4Button;
@@ -77,18 +77,16 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     @FXML
     private ListView<String> statusListView;
 
-    private int numRound;
 
     private ObservableList<String> rcvdMsgsData;
     private ObservableList<String> sentMsgsData;
 
-
     private final static Logger LOGGER
             = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    private final static int NONE_SELECTED = -1;
-
     private GameEngine gameEngine; //model
+
+    private Network network;
 
     public enum ConnectionDisplayState {
         DISCONNECTED, ATTEMPTING, CONNECTED
@@ -103,14 +101,11 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     private boolean isFirstChangeLastFieldCoord = true;
     private boolean isServerReadyFirst = true;
 
-    private Network network;
-
-
     @Override
     public void initialize(URL url, ResourceBundle rb) {
         network = new Network();
-
         network.setIsConnected(false);
+
         resetFleetButton.setDisable(true);
 
         sentMsgsData = FXCollections.observableArrayList();
@@ -124,8 +119,8 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         statusListView.setItems(rcvdMsgsData);
         statusListView.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-        lastMyFieldCoord = new FieldCoord((byte) NONE_SELECTED, (byte) NONE_SELECTED);
-        lastEnemyFieldCoord = new FieldCoord((byte) NONE_SELECTED, (byte) NONE_SELECTED);
+        lastMyFieldCoord = new FieldCoord((byte) Constant.NONE_SELECTED_FIELD_COORD, (byte) Constant.NONE_SELECTED_FIELD_COORD);
+        lastEnemyFieldCoord = new FieldCoord((byte) Constant.NONE_SELECTED_FIELD_COORD, (byte) Constant.NONE_SELECTED_FIELD_COORD);
 
         gameEngine = new GameEngine();
         gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
@@ -133,11 +128,11 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         canvasGeneralGraphicsContext = canvasGeneral.getGraphicsContext2D();
         canvasOverlayGraphicsContext = canvasOverlay.getGraphicsContext2D();
 
-        init_typeButton(shipType4Button, Ship.Type.AIRCRAFT_CARRIED);
-        init_typeButton(shipType3Button, Ship.Type.BATTLESHIP);
-        init_typeButton(shipType2Button, Ship.Type.CRUISER);
-        init_typeButton(shipType1Button, Ship.Type.DESTROYER);
-        init_typeButton(shipType0Button, Ship.Type.SUBMARINE);
+        setupShipButtonBehavior(shipType4Button, Ship.Type.AIRCRAFT_CARRIED);
+        setupShipButtonBehavior(shipType3Button, Ship.Type.BATTLESHIP);
+        setupShipButtonBehavior(shipType2Button, Ship.Type.CRUISER);
+        setupShipButtonBehavior(shipType1Button, Ship.Type.DESTROYER);
+        setupShipButtonBehavior(shipType0Button, Ship.Type.SUBMARINE);
 
         shipTypeButtons = new ArrayList<>();
         shipTypeButtons.add(shipType0Button);
@@ -149,7 +144,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         Runtime.getRuntime().addShutdownHook(new ShutDownThread(network.getSocket(), LOGGER));
     }
 
-    private void init_typeButton(Button button, Ship.Type type) {
+    private void setupShipButtonBehavior(Button button, Ship.Type type) {
         button.setDisable(true);
         button.setOnMouseClicked(event -> {
                     gameEngine.setType(type);
@@ -198,31 +193,28 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         }
     }
 
-    /*
-     * Отрисовка при передвижени курсора
-     */
-
+    //Отрисовка при передвижени курсора
     @FXML
     void handleOverlayCanvasMouseMoved(MouseEvent event) {
         if (gameEngine.getPhase() == GameEngine.Phase.ARRANGE_FLEET) {
-            PixelCoord scenePixelCoord = new PixelCoord(event.getSceneX(), event.getSceneY());
-            FieldCoord fieldCoord = scenePixelCoord.transformMyFieldPixelCoordToFieldCoord();
-            Ship.Orientation orientation = gameEngine.getShipOrientation();
-            Ship.Type type = gameEngine.getShipType();
+
+            gameEngine.setCurrentState(new FieldCoord(event.getSceneX(), event.getSceneY(), true),
+                    gameEngine.getShipType(),
+                    gameEngine.getShipOrientation()
+            );
             if (gameEngine.getIsShipSelected() &&
-                    PixelCoord.isCoordFromMyPlayerField(scenePixelCoord.getX(), scenePixelCoord.getY()) &&
-                    gameEngine.getMyGameField().isNotIntersectShipWithBorder(fieldCoord, type, orientation)) {
-                if (gameEngine.getMyGameField().isPossibleLocateShip(fieldCoord, type, orientation)) {
+                    PixelCoord.isCoordFromMyPlayerField(event.getSceneX(), event.getSceneY()) &&
+                    gameEngine.getMyField().isNotIntersectShipWithBorder(gameEngine.getCurrentState())) {
+                if (gameEngine.getMyField().isPossibleLocateShip(gameEngine.getCurrentState())) {
                     canvasOverlayGraphicsContext.setStroke(Color.BLACK);
-                    Draw.ShipMyField(canvasOverlayGraphicsContext, fieldCoord, gameEngine.getShipType(), gameEngine.getShipOrientation());
+                    Draw.ShipOnMyField(canvasOverlayGraphicsContext, gameEngine.getCurrentState());
                 } else {
                     canvasOverlayGraphicsContext.setStroke(Color.RED);
-                    Draw.ShipMyField(canvasOverlayGraphicsContext, fieldCoord, gameEngine.getShipType(), gameEngine.getShipOrientation());
+                    Draw.ShipOnMyField(canvasOverlayGraphicsContext, gameEngine.getCurrentState());
                 }
-                if (lastMyFieldCoord.equals(fieldCoord) &&
-                        !isFirstChangeLastFieldCoord) {
+                if (lastMyFieldCoord.equals(gameEngine.getCurrentState().getFieldCoord()) && !isFirstChangeLastFieldCoord) {
                     clearCanvas(canvasOverlayGraphicsContext);
-                    lastMyFieldCoord = fieldCoord;
+                    lastMyFieldCoord = gameEngine.getCurrentState().getFieldCoord();
                 } else {
                     isFirstChangeLastFieldCoord = false;
                 }
@@ -234,11 +226,10 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         // Отрисовка линнии по указанной мышью координате на поле противника
         if (gameEngine.getPhase() == GameEngine.Phase.MAKE_SHOT) {
             labelGameStatus.setText("Make shoot. PixelCoord coordinate");
-            PixelCoord scenePixelConstant = new PixelCoord(event.getSceneX(), event.getSceneY());
-            if (PixelCoord.isCoordFromEnemyPlayerField(scenePixelConstant.getX(), scenePixelConstant.getY())) {
+            if (PixelCoord.isCoordFromEnemyPlayerField(event.getSceneX(), event.getSceneY())) {
                 canvasOverlayGraphicsContext.setStroke(Color.BLACK);
-                FieldCoord fieldCoord = scenePixelConstant.transformEnemyFieldPixelCoordToFieldCoord();
-                Draw.LineEnemyPlayer(canvasOverlayGraphicsContext, fieldCoord);
+                FieldCoord fieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), false);
+                Draw.MissCellOnEnemyField(canvasOverlayGraphicsContext, fieldCoord);
                 if (lastEnemyFieldCoord.equals(fieldCoord) && !isFirstChangeLastFieldCoord) {
                     clearCanvas(canvasOverlayGraphicsContext);
                     lastEnemyFieldCoord = fieldCoord;
@@ -250,11 +241,11 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     }
 
     private void clearCanvas(GraphicsContext context) {
-        context.clearRect(0, 0, Constant.Pixel.WIDTH_WINDOW, Constant.Pixel.HEIGHT_WINDOW);
+        context.clearRect(0, 0, Constant.Window.WIDTH, Constant.Window.HEIGHT);
     }
 
     @FXML
-    void handleRestFleetButton() {
+    void handleResetFleetButton() {
         gameEngine.reset();
         resetFleetButton.setDisable(true);
         clearCanvas(canvasOverlayGraphicsContext);
@@ -268,39 +259,37 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
 
     @FXML
     void handleToMouseClick(MouseEvent event) {
+        //поменять расположения корабля с горизонтального на вертикальное (или наоборот)
         if (event.getButton().equals(MouseButton.MIDDLE)) {
             if (gameEngine.getShipType() != Ship.Type.SUBMARINE) {
-                Ship.Type shipType = gameEngine.getShipType();
-                FieldCoord myFieldCoord = (new PixelCoord(event.getSceneX(), event.getSceneY())).transformEnemyFieldPixelCoordToFieldCoord();
-                if (gameEngine.getShipOrientation() == Ship.Orientation.HORIZONTAL) {
-                    gameEngine.setShipOrientation(Ship.Orientation.VERTICAL);
-                } else {
-                    gameEngine.setShipOrientation(Ship.Orientation.HORIZONTAL);
-                }
-                canvasOverlayGraphicsContext.clearRect(0, 0, Constant.Pixel.WIDTH_WINDOW, Constant.Pixel.HEIGHT_WINDOW);
-                Ship.Orientation orientation = gameEngine.getShipOrientation();
-                if (gameEngine.getMyGameField().isNotIntersectShipWithBorder(myFieldCoord, shipType, orientation) &&
-                        gameEngine.getMyGameField().isPossibleLocateShip(myFieldCoord, shipType, orientation)) {
-                    Draw.ShipMyField(canvasOverlayGraphicsContext, myFieldCoord, gameEngine.getShipType(), gameEngine.getShipOrientation());
+                gameEngine.setCurrentState(new FieldCoord(event.getSceneX(), event.getSceneY(), false),
+                        gameEngine.getShipType(),
+                        gameEngine.changeShipOrientation()
+                );
+                //перерисовка
+                canvasOverlayGraphicsContext.clearRect(0, 0, Constant.Window.WIDTH, Constant.Window.HEIGHT);
+                if (gameEngine.getMyField().isNotIntersectShipWithBorder(gameEngine.getCurrentState()) &&
+                        gameEngine.getMyField().isPossibleLocateShip(gameEngine.getCurrentState())) {
+                    Draw.ShipOnMyField(canvasOverlayGraphicsContext, gameEngine.getCurrentState());
                 }
             }
         }
 
         if (event.getButton().equals(MouseButton.PRIMARY)) {
-            PixelCoord scenePixelCoord = new PixelCoord(event.getSceneX(), event.getSceneY());
             //Размещение корабля, после выбора
             if (gameEngine.getGamePhase() == GameEngine.Phase.ARRANGE_FLEET) {
-                if (PixelCoord.isCoordFromMyPlayerField(scenePixelCoord.getX(), scenePixelCoord.getY()) &&
+                if (PixelCoord.isCoordFromMyPlayerField(event.getSceneX(), event.getSceneY()) &&
                         gameEngine.getIsShipSelected() &&
                         gameEngine.getFleetHolder().getShipsLeft() >= 0) {
                     resetFleetButton.setDisable(false);
-                    FieldCoord myFieldCoord = scenePixelCoord.transformMyFieldPixelCoordToFieldCoord();
-                    Ship.Type type = gameEngine.getShipType();
-                    Ship.Orientation orient = gameEngine.getShipOrientation();
-                    if (gameEngine.getMyGameField().isPossibleLocateShip(myFieldCoord, type, orient)) {
-                        gameEngine.addShipOnField(new Ship(myFieldCoord, type, orient));
-                        Draw.ShipMyField(canvasGeneralGraphicsContext, myFieldCoord, gameEngine.getShipType(), gameEngine.getShipOrientation());
-                        gameEngine.getMyGameField().markFieldByShip(myFieldCoord, type, orient);
+                    gameEngine.setCurrentState(new FieldCoord(event.getSceneX(), event.getSceneY(), false),
+                            gameEngine.getShipType(),
+                            gameEngine.changeShipOrientation()
+                    );
+                    if (gameEngine.getMyField().isPossibleLocateShip(gameEngine.getCurrentState())) {
+                        gameEngine.addShipOnField(new Ship(gameEngine.getCurrentState()));
+                        Draw.ShipOnMyField(canvasGeneralGraphicsContext, gameEngine.getCurrentState());
+                        gameEngine.getMyField().markFieldByShip(gameEngine.getCurrentState());
                         gameEngine.setShipSelected(false);
                     } else {
                         //TODO После накорректоного размещения добавить Warning Message Box
@@ -315,11 +304,11 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                     labelGameStatus.setText("Wait for Second Player");
                     if (network.getIsClient()) {
                         labelGameStatus.setText("Make shot");
-                        network.getSocket().sendMessage(Constant.NetworkMessage.CLIENT_READY.toString());
-                        network.getSocket().sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
+                        network.sendMessage(Constant.NetworkMessage.CLIENT_READY.toString());
+                        network.sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
                     } else {
-                        network.getSocket().sendMessage(Constant.NetworkMessage.SERVER_READY.toString());
-                        network.getSocket().sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
+                        network.sendMessage(Constant.NetworkMessage.SERVER_READY.toString());
+                        network.sendMessage(Constant.NetworkMessage.ENEMY_NAME + playerMyLabel.getText());
                     }
                     statusListView.getItems().add("Fleet Arranged");
                     gameEngine.setPhase(GameEngine.Phase.READY);
@@ -327,13 +316,13 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
             }
             //выстрел в поле противника
             if (gameEngine.getGamePhase() == GameEngine.Phase.MAKE_SHOT) {
-                if (PixelCoord.isCoordFromEnemyPlayerField(scenePixelCoord.getX(), scenePixelCoord.getY())) {
-                    FieldCoord shootFieldCoord = scenePixelCoord.transformEnemyFieldPixelCoordToFieldCoord();
-                    Draw.LineEnemyPlayer(canvasGeneralGraphicsContext, shootFieldCoord);
+                if (PixelCoord.isCoordFromEnemyPlayerField(event.getSceneX(), event.getSceneY())) {
+                    FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), false);
+                    Draw.MissCellOnEnemyField(canvasGeneralGraphicsContext, shootFieldCoord);
                     if (network.getIsClient()) {
-                        network.getSocket().sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
+                        network.sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
                     } else {
-                        network.getSocket().sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
+                        network.sendMessage(Constant.NetworkMessage.SHOT.toString() + shootFieldCoord);
                     }
                     gameEngine.setShootCoord(shootFieldCoord);
                 }
@@ -346,12 +335,11 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             menuItemConnect.setDisable(true);
-            handleRestFleetButton();
+            handleResetFleetButton();
             fxmlLoader.setLocation(getClass().getResource("/fxml/FXMLDocumentCreateGame.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = new Stage();
             stage.setTitle("Create game");
-            gameEngine.reset();
             FXMLDocumentCreateGame controller = fxmlLoader.getController();
             controller.setPortField();
             controller.setMyName();
@@ -370,7 +358,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
             });
             gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
             stage.show();
-            numRoundLabel.setText(Integer.toString(++numRound));
+            numRoundLabel.setText(Integer.toString(gameEngine.getNumRound()));
         } catch (IOException e) {
             Logger logger = Logger.getLogger(getClass().getName());
             logger.log(Level.SEVERE, "Failed to create new Window.", e);
@@ -381,13 +369,12 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     void handleMenuItemConnectGame() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
-            handleRestFleetButton();
+            handleResetFleetButton();
             menuItemConnect.setDisable(true);
             fxmlLoader.setLocation(getClass().getResource("/fxml/FXMLDocumentConnectGame.fxml"));
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = new Stage();
             stage.setTitle("Connect to game");
-            gameEngine.reset();
             FXMLDocumentConnectGame controller = fxmlLoader.getController();
             controller.setIPAndPortFields();
             controller.setMyName();
@@ -407,7 +394,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
             });
             gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
             stage.show();
-            numRoundLabel.setText(Integer.toString(++numRound));
+            numRoundLabel.setText(Integer.toString(gameEngine.newNumRound()));
 
         } catch (IOException e) {
             Logger logger = Logger.getLogger(getClass().getName());
@@ -437,7 +424,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     private FieldCoord getShootCoordOnMessage(String line) {
         line = line.replaceAll("\\D+", Constant.NetworkMessage.EMPTY_STRING.toString());
         int xyInt = Integer.parseInt(line);
-        //TODO смещение координат ????????
+        //TODO найти причину смещение координат ????????
         // компенсация границ поля 12*12
         int x = xyInt / 10;
         int y = xyInt % 10 + 1;
@@ -445,7 +432,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
     }
 
     //resolve means client or server socket
-    void resolveSocketAndProceedMassage(String line) {
+    private void resolveSocketAndProceedMassage(String line) {
         rcvdMsgsData.add(line);
         if (network.getIsClient()) {
             gameEngine.setFirstShot(true);
@@ -456,7 +443,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 if (Math.random() < 0.5) {
                     gameEngine.setPhase(GameEngine.Phase.MAKE_SHOT);
                 } else {
-                    network.getSocket().sendMessage(Constant.NetworkMessage.YOU_TURN.toString());
+                    network.sendMessage(Constant.NetworkMessage.YOU_TURN.toString());
                     gameEngine.setPhase(GameEngine.Phase.TAKE_SHOT);
                 }
             }
@@ -464,14 +451,14 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         }
     }
 
-    void proceedMessage(String line, GenericSocket socket) {
+    private void proceedMessage(String line, GenericSocket socket) {
         gameEngingeProceed(line); //must be before gui
         guiProceed(line);
         sendAnswer(line, socket);
     }
 
     //must be before gui
-    void gameEngingeProceed(String line) {
+    private void gameEngingeProceed(String line) {
         Constant.NetworkMessage message = Constant.NetworkMessage.getType(line);
         switch (message) {
             case DESTROYED:
@@ -479,10 +466,10 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 break;
             case SHOT:
                 gameEngine.setShootCoord(getShootCoordOnMessage(line));
-                if (gameEngine.getMyGameField().setCellAsDamaged(gameEngine.getShootCoord())) {
+                if (gameEngine.getMyField().setCellAsDamaged(gameEngine.getShootCoord())) {
                     Ship ship = gameEngine.getShipsOnField().findShip(gameEngine.getShootCoord());
                     ship.tagShipCell(gameEngine.getShootCoord());
-                    if (!gameEngine.getMyGameField().isShipsOnFieldAlive()) {
+                    if (!gameEngine.getMyField().isShipsOnFieldAlive()) {
                         gameEngine.setPhase(GameEngine.Phase.END_GAME);
                     }
                 }
@@ -502,7 +489,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
         }
     }
 
-    void guiProceed(String line) {
+    private void guiProceed(String line) {
         Constant.NetworkMessage message = Constant.NetworkMessage.getType(line);
         String[] param;
         switch (message) {
@@ -517,18 +504,18 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
             case DESTROYED:
                 param = line.split("\\s+");
                 try {
-                    Draw.ShipEnemyField(canvasGeneralGraphicsContext, new FieldCoord(param[1], param[2]), Ship.Type.shipStrToType(param[3]), Ship.Orientation.strToOrientation(param[4]));
+                    Draw.ShipOnEnemyField(canvasGeneralGraphicsContext, new FieldCoord(param[1], param[2]), Ship.Type.shipStrToType(param[3]), Ship.Orientation.strToOrientation(param[4]));
                 } catch (Exception e) {
                     System.out.println("Can't handle orientation " + e);
                 }
                 break;
             case SHOT:
-                if (gameEngine.getMyGameField().setCellAsDamaged(gameEngine.getShootCoord())) {
-                    Draw.CrossMyPlayer(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
+                if (gameEngine.getMyField().setCellAsDamaged(gameEngine.getShootCoord())) {
+                    Draw.HitCellOnMyField(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
                 } else {
-                    Draw.LineMyPlayer(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
+                    Draw.MissCellOnMyField(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
                 }
-                if (!gameEngine.getMyGameField().isShipsOnFieldAlive()) {
+                if (!gameEngine.getMyField().isShipsOnFieldAlive()) {
                     labelGameStatus.setText(Constant.NetworkMessage.YOU_LOSE.toString());
                 }
                 break;
@@ -539,19 +526,19 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 labelGameStatus.setText(Constant.NetworkMessage.YOU_WIN.toString());
                 break;
             case HIT:
-                Draw.CrossEnemyPlayer(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
+                Draw.HitCellOnEnemyField(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
                 break;
             case MISS:
-                Draw.LineEnemyPlayer(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
+                Draw.MissCellOnEnemyField(canvasGeneralGraphicsContext, gameEngine.getShootCoord());
                 break;
         }
     }
 
-    void sendAnswer(String line, GenericSocket socket) {
+    private void sendAnswer(String line, GenericSocket socket) {
         Constant.NetworkMessage message = Constant.NetworkMessage.getType(line);
         switch (message) {
             case SHOT:
-                if (gameEngine.getMyGameField().setCellAsDamaged(gameEngine.getShootCoord())) {
+                if (gameEngine.getMyField().setCellAsDamaged(gameEngine.getShootCoord())) {
                     Ship ship = gameEngine.getShipsOnField().findShip(gameEngine.getShootCoord());
                     socket.sendMessage(Constant.NetworkMessage.HIT.toString());
                     if (!ship.isAlive()) {
@@ -560,7 +547,7 @@ public class FXMLDocumentMainController implements Initializable{ //Controller
                 } else {
                     socket.sendMessage(Constant.NetworkMessage.MISS.toString());
                 }
-                if (!gameEngine.getMyGameField().isShipsOnFieldAlive()) {
+                if (!gameEngine.getMyField().isShipsOnFieldAlive()) {
                     socket.sendMessage(Constant.NetworkMessage.YOU_WIN.toString());
                 }
                 break;

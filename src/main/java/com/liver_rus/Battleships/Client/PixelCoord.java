@@ -6,56 +6,26 @@ package com.liver_rus.Battleships.Client;
 
 class PixelCoord {
 
-    //TODO залипание нижней строки в поле противника
 
-    final private static int WRONG_COORD = -1;
-
-    final private double x, y;
-
-    PixelCoord(double x, double y) {
-        this.x = x;
-        this.y = y;
-    }
-
-    double getX() {
-        return x;
-    }
-
-    double getY() {
-        return y;
-    }
-
-    FieldCoord transformMyFieldPixelCoordToFieldCoord() {
-        if (isCoordFromMyPlayerField(x, y)) {
-            //TODO LAMBDAS1
-            final int cellX = (int) (Math.floor((x - Constant.Pixel.LEFT_EDGE_PIXEL_FIRST_PLAYER_X) / Constant.Pixel.WIDTH_FIRST_PLAYER_CELL));
-            final int cellY = (int) (Math.floor((y - Constant.Pixel.TOP_EDGE_PIXEL_FIRST_PLAYER_Y) / Constant.Pixel.WIDTH_FIRST_PLAYER_CELL));
-            return new FieldCoord(cellX, cellY);
+    static int transformSceneXtoFieldX(double x, boolean isFirstPlayerCoord) {
+        if (isFirstPlayerCoord) {
+            return (int) (Math.floor((x - Constant.Pixel.FirstPlayer.LEFT_X) / Constant.Pixel.FirstPlayer.WIDTH_CELL));
         } else {
-            //TODO LOGGER OR EXCEPTON
-            return new FieldCoord(WRONG_COORD, WRONG_COORD);
+            return (int) (Math.floor((x - Constant.Pixel.SecondPlayer.LEFT_X) / Constant.Pixel.SecondPlayer.WIDTH_CELL));
         }
     }
 
-    FieldCoord transformEnemyFieldPixelCoordToFieldCoord() {
-        if (isCoordFromEnemyPlayerField(x, y)) {
-            //TODO LAMBDAS1
-            final int cellX = (int) (Math.floor((x - Constant.Pixel.LEFT_EDGE_PIXEL_SECOND_PLAYER_X) / Constant.Pixel.WIDTH_SECOND_PLAYER_CELL));
-            final int cellY = (int) (Math.floor((y - Constant.Pixel.TOP_EDGE_PIXEL_SECOND_PLAYER_Y) / Constant.Pixel.WIDTH_SECOND_PLAYER_CELL));
-            return new FieldCoord(cellX, cellY);
+    static int transformSceneYtoFieldY(double y, boolean isFirstPlayerCoord) {
+        if (isFirstPlayerCoord) {
+            return (int) (Math.floor((y - Constant.Pixel.FirstPlayer.TOP_Y) / Constant.Pixel.FirstPlayer.WIDTH_CELL));
         } else {
-            //TODO LOGGER OR EXCEPTON
-            return new FieldCoord(WRONG_COORD, WRONG_COORD);
+            return (int) (Math.floor((y - Constant.Pixel.SecondPlayer.TOP_Y) / Constant.Pixel.SecondPlayer.WIDTH_CELL));
         }
     }
 
     static boolean isCoordFromMyPlayerField(double x, double y) {
-        return checkBordersMyPlayerField(x, y);
-    }
-
-    static private boolean checkBordersMyPlayerField(double x, double y) {
-        return x >= Constant.Pixel.LEFT_EDGE_PIXEL_FIRST_PLAYER_X && x <= Constant.Pixel.RIGHT_EDGE_PIXEL_FIRST_PLAYER_X &&
-                y >= Constant.Pixel.TOP_EDGE_PIXEL_FIRST_PLAYER_Y && y <= Constant.Pixel.BOTTOM_EDGE_PIXEL_FIRST_PLAYER_Y;
+        return x >= Constant.Pixel.FirstPlayer.LEFT_X && x <= Constant.Pixel.FirstPlayer.RIGHT_X &&
+                y >= Constant.Pixel.FirstPlayer.TOP_Y && y <= Constant.Pixel.FirstPlayer.BOTTOM_Y;
     }
 
     static boolean isCoordFromEnemyPlayerField(double x, double y) {
@@ -63,7 +33,7 @@ class PixelCoord {
     }
 
     static private boolean checkBordersEnemyPlayerField(double x, double y) {
-        return x >= Constant.Pixel.LEFT_EDGE_PIXEL_SECOND_PLAYER_X && x <= Constant.Pixel.RIGHT_EDGE_PIXEL_SECOND_PLAYER_X &&
-                y >= Constant.Pixel.TOP_EDGE_PIXEL_SECOND_PLAYER_Y && y <= Constant.Pixel.BOTTOM_EDGE_PIXEL_SECOND_PLAYER_Y;
+        return x >= Constant.Pixel.SecondPlayer.LEFT_X && x <= Constant.Pixel.SecondPlayer.RIGHT_X &&
+                y >= Constant.Pixel.SecondPlayer.TOP_Y && y <= Constant.Pixel.SecondPlayer.BOTTOM_Y;
     }
 }

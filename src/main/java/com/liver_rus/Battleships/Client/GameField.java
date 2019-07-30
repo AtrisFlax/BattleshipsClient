@@ -93,10 +93,12 @@ class GameField {
         }
     }
 
-    /*
-     *  Отметка попадания в корабль
-     */
+    void markFieldByShip(CurrentState currentState) {
+        markFieldByShip(currentState.getFieldCoord(), currentState.getShipType(), currentState.getShipOrientation());
+    }
 
+
+    //Отметка попадания в корабль
     private void tagShipsByCoord(int x, int y) {
         FieldCoord findedCellForTag = null;
         for (Ship ship : shipsOnField.getShipsOnField()) {
@@ -154,7 +156,11 @@ class GameField {
         }
     }
 
-    boolean isPossibleLocateShip(FieldCoord coord, Ship.Type shipType, Ship.Orientation shipOrientation) {
+    boolean isPossibleLocateShip(CurrentState currentState) {
+        FieldCoord coord = currentState.getFieldCoord();
+        Ship.Type shipType = currentState.getShipType();
+        Ship.Orientation shipOrientation = currentState.getShipOrientation();
+
         boolean isPossibleLocateShipFlag = true;
         int x = coord.getX() + 1;
         int y = coord.getY() + 1;
@@ -180,7 +186,12 @@ class GameField {
         return isPossibleLocateShipFlag;
     }
 
-    boolean isNotIntersectShipWithBorder(FieldCoord coord, Ship.Type shipType, Ship.Orientation shipOrientation) {
+    boolean isNotIntersectShipWithBorder(CurrentState currentState) {
+        FieldCoord coord = currentState.getFieldCoord();
+        Ship.Type shipType = currentState.getShipType();
+        Ship.Orientation shipOrientation = currentState.getShipOrientation();
+
+
         boolean isPossibleLocateShipFlag = true;
         int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
         int x = coord.getX() + 1;

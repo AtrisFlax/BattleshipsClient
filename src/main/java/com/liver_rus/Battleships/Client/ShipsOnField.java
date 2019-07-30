@@ -24,8 +24,7 @@ class ShipsOnField  {
 
     Ship findShip(FieldCoord shipCoord) {
         Ship findedShip = null;
-        label:
-        {
+        label: {
             for (Ship ship : shipsList) {
                 for (FieldCoord coord : ship.getShipCoord()) {
                     if (coord.getX() - 1 == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
@@ -37,6 +36,4 @@ class ShipsOnField  {
         }
         return findedShip;
     }
-
-
 }

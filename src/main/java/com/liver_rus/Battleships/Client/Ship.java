@@ -8,6 +8,11 @@ import java.io.IOException;
 
 public class Ship {
 
+    private FieldCoord[] shipCoord;
+    private Orientation orientation;
+    private int type;
+    private String name;
+
     Ship(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
         int x = fieldCoord.getX() + 1;
         int y = fieldCoord.getY() + 1;
@@ -47,6 +52,10 @@ public class Ship {
         }
     }
 
+    Ship(CurrentState currentState) {
+        this(currentState.getFieldCoord(), currentState.getShipType(), currentState.getShipOrientation());
+    }
+
     public enum Orientation {
         VERTICAL, HORIZONTAL;
 
@@ -62,11 +71,6 @@ public class Ship {
             }
         }
     }
-
-    private FieldCoord[] shipCoord;
-    private Orientation orientation;
-    private int type;
-    private String name;
 
     enum Type {
         AIRCRAFT_CARRIED(4),
@@ -111,24 +115,6 @@ public class Ship {
         return shipCoord;
     }
 
-    @Override
-    public String toString() {
-        return shipCoord[0].getX() + " " + shipCoord[0].getY() + " " + type + " " + orientation;
-    }
-
-    void printShipOnConsole() {
-        System.out.println(name);
-        for (FieldCoord cell : shipCoord) {
-            if (!cell.getTag()) {
-                System.out.print("|#|");
-            } else {
-                System.out.print("|X|");
-            }
-            System.out.print(" ");
-        }
-        System.out.println();
-    }
-
     void tagShipCell(FieldCoord coord) {
         if (orientation == Orientation.HORIZONTAL) {
             this.shipCoord[coord.getX() - shipCoord[0].getX() + 1].setTag();
@@ -147,4 +133,23 @@ public class Ship {
         }
         return isAlive;
     }
+
+    @Override
+    public String toString() {
+        return shipCoord[0].getX() + " " + shipCoord[0].getY() + " " + type + " " + orientation;
+    }
+
+    void printShipOnConsole() {
+        System.out.println(name);
+        for (FieldCoord cell : shipCoord) {
+            if (!cell.getTag()) {
+                System.out.print("|#|");
+            } else {
+                System.out.print("|X|");
+            }
+            System.out.print(" ");
+        }
+        System.out.println();
+    }
+
 }

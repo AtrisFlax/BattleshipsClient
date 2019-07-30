@@ -9,6 +9,12 @@ public class FieldCoord {
 
     private boolean tag;
 
+    FieldCoord() {
+        this.x = 0;
+        this.y = 0;
+        this.tag = false;
+    }
+
     FieldCoord(int x, int y) {
         this.x = x;
         this.y = y;
@@ -21,12 +27,9 @@ public class FieldCoord {
         tag = false;
     }
 
-    boolean getTag() {
-        return tag;
-    }
-
-    void setTag() {
-        tag = true;
+    public FieldCoord(double sceneX, double sceneY, boolean isFirstPlayerCoord) {
+        this.x = PixelCoord.transformSceneXtoFieldX(sceneX, isFirstPlayerCoord);
+        this.y = PixelCoord.transformSceneYtoFieldY(sceneY, isFirstPlayerCoord);
     }
 
     final int getX() {
@@ -35,6 +38,14 @@ public class FieldCoord {
 
     final int getY() {
         return y;
+    }
+
+    boolean getTag() {
+        return tag;
+    }
+
+    void setTag() {
+        tag = true;
     }
 
     @Override

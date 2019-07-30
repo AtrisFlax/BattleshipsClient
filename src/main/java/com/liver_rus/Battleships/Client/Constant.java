@@ -5,20 +5,26 @@ class Constant {
     }
 
     class Pixel {
-        final static int LEFT_EDGE_PIXEL_FIRST_PLAYER_X = 65;
-        final static int TOP_EDGE_PIXEL_FIRST_PLAYER_Y = 157;
-        final static int RIGHT_EDGE_PIXEL_FIRST_PLAYER_X = 301;
-        final static int BOTTOM_EDGE_PIXEL_FIRST_PLAYER_Y = 386;
-        final static double WIDTH_FIRST_PLAYER_CELL = 23.5;
+        class FirstPlayer {
+            final static int LEFT_X = 65;
+            final static int TOP_Y = 157;
+            final static int RIGHT_X = 301;
+            final static int BOTTOM_Y = 386;
+            final static double WIDTH_CELL = 23.5;
+        }
 
-        final static int LEFT_EDGE_PIXEL_SECOND_PLAYER_X = 304;
-        final static int TOP_EDGE_PIXEL_SECOND_PLAYER_Y = 370;
-        final static int RIGHT_EDGE_PIXEL_SECOND_PLAYER_X = 653;
-        final static int BOTTOM_EDGE_PIXEL_SECOND_PLAYER_Y = 719;
-        final static double WIDTH_SECOND_PLAYER_CELL = 35.0;
+        class SecondPlayer {
+            final static int LEFT_X = 304;
+            final static int TOP_Y = 370;
+            final static int RIGHT_X = 653;
+            final static int BOTTOM_Y = 719;
+            final static double WIDTH_CELL = 35.0;
+        }
+    }
 
-        final static int WIDTH_WINDOW = 700;
-        final static int HEIGHT_WINDOW = 950;
+    class Window {
+        final static int WIDTH = 700;
+        final static int HEIGHT = 950;
     }
 
     class AboutInfo {
@@ -28,6 +34,8 @@ class Constant {
     }
 
     final static int NO_MORE_SHIPS = 0;
+
+    final static int NONE_SELECTED_FIELD_COORD = -1;
 
     public enum NetworkMessage {
         ENEMY_NAME("EnemyName "),
@@ -45,7 +53,7 @@ class Constant {
 
         private String typeValue;
 
-        private NetworkMessage(String type) {
+        NetworkMessage(String type) {
             typeValue = type;
         }
 

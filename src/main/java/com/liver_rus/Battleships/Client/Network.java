@@ -57,7 +57,11 @@ public class Network {
         setIsClient(true);
     }
 
-    void shutdown(){
+    void shutdown() {
         socket.shutdown();
+    }
+
+    void sendMessage(String msg) {
+        socket.sendMessage(msg);
     }
 }

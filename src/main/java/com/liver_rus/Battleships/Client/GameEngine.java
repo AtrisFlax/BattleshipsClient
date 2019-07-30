@@ -7,14 +7,36 @@ class GameEngine {
     }
 
     private Phase gamePhase;
-    private GameField myGameField;
+    private GameField gameField; //active player (my field)
     private ArrangeFleetHolder fleetHolder;
     private boolean isShipSelected;
-    private Ship.Orientation shipOrientation;
     private ShipsOnField shipsOnField;
-
     private FieldCoord shootCoord;
-    private Ship.Type shipType;
+    private CurrentState currentState;
+    private int numRound;
+
+
+    public CurrentState getCurrentState() {
+        return currentState;
+    }
+
+    public void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation shipOrientation) {
+        currentState.setFieldCoord(fieldCoord);
+        currentState.setShipType(shipType);
+        currentState.setShipOrientation(shipOrientation);
+    }
+
+    public int getNumRound() {
+        return numRound;
+    }
+
+    public void setNumRound(int numRound) {
+        this.numRound = numRound;
+    }
+
+    public int newNumRound() {
+        return numRound++;
+    }
 
     public boolean isFirstShot() {
         return firstShot;
@@ -55,11 +77,11 @@ class GameEngine {
     }
 
     final Ship.Orientation getShipOrientation() {
-        return shipOrientation;
+        return currentState.shipOrientation;
     }
 
-    void setShipOrientation(Ship.Orientation shipOrientation) {
-        this.shipOrientation = shipOrientation;
+    private void setShipOrientation(Ship.Orientation shipOrientation) {
+        currentState.shipOrientation = shipOrientation;
     }
 
     FieldCoord getShootCoord() {
@@ -71,24 +93,24 @@ class GameEngine {
     }
 
     void reset() {
-        myGameField = new GameField();
+        gameField = new GameField();
         fleetHolder = new ArrangeFleetHolder();
         isShipSelected = false;
-        shipOrientation = Ship.Orientation.HORIZONTAL;
-        shipType = Ship.Type.UNKNOWN;
+        currentState = new CurrentState();
         shipsOnField = new ShipsOnField();
+        numRound = 1;
     }
 
     Ship.Type getShipType() {
-        return shipType;
+        return currentState.shipType;
     }
 
     void setType(Ship.Type shipType) {
-        this.shipType = shipType;
+        currentState.shipType = shipType;
     }
 
-    GameField getMyGameField() {
-        return myGameField;
+    GameField getMyField() {
+        return gameField;
     }
 
     ArrangeFleetHolder getFleetHolder() {
@@ -97,5 +119,15 @@ class GameEngine {
 
     Phase getGamePhase() {
         return gamePhase;
+    }
+
+    Ship.Orientation changeShipOrientation() {
+        if (getShipOrientation() == Ship.Orientation.HORIZONTAL) {
+            setShipOrientation(Ship.Orientation.VERTICAL);
+        } else {
+            setShipOrientation(Ship.Orientation.HORIZONTAL);
+        }
+        return getShipOrientation();
+
     }
 }

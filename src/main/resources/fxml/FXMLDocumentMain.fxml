@@ -78,7 +78,7 @@
             <Insets top="25.0" />
          </StackPane.margin>
       </Canvas>
-        <Button fx:id="resetFleetButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handleRestFleetButton" text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
+        <Button fx:id="resetFleetButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handleResetFleetButton" text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
             <StackPane.margin>
                 <Insets right="30.0" top="100.0" />
             </StackPane.margin>
