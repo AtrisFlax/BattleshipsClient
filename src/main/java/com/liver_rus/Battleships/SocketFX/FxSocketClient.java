@@ -48,6 +48,7 @@ public class FxSocketClient extends GenericSocket
      * JavaFX, this method must be run on the main thread and
      * is accomplished by the Platform.runLater() call.  Failure to do so
      * *will* result in strange errors and exceptions.
+     *
      * @param line Line of text read from the socket.
      */
     @Override
@@ -65,6 +66,7 @@ public class FxSocketClient extends GenericSocket
      * changes.  In JavaFX, this method must be run on the main thread and
      * is accomplished by the Platform.runLater() call.  Failure to do so
      * will* result in strange errors and exceptions.
+     *
      * @param isClosed true if the socket is closed
      */
     @Override
@@ -80,6 +82,7 @@ public class FxSocketClient extends GenericSocket
     /**
      * Initialize the SocketClient up to and including issuing the accept()
      * method on its socketConnection.
+     *
      * @throws java.net.SocketException
      */
     @Override
@@ -112,10 +115,11 @@ public class FxSocketClient extends GenericSocket
      * is null.
      */
     @Override
-    protected void closeAdditionalSockets() {}
-    
+    protected void closeAdditionalSockets() {
+    }
+
     public FxSocketClient(SocketListener fxListener,
-            String host, int port, int debugFlags) {
+                          String host, int port, int debugFlags) {
         super(port, debugFlags);
         this.host = host;
         this.fxListener = fxListener;
@@ -128,7 +132,7 @@ public class FxSocketClient extends GenericSocket
     }
 
     public FxSocketClient(SocketListener fxListener,
-            String host, int port) {
+                          String host, int port) {
         this(fxListener, host, port, Constants.instance().DEBUG_NONE);
     }
 }

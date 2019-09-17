@@ -1,34 +1,3 @@
-/*
- * Copyright (c) 2015, Jim Connors
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following conditions
- * are met:
- *
- *   * Redistributions of source code must retain the above copyright
- *     notice, this list of conditions and the following disclaimer.
- *   * Redistributions in binary form must reproduce the above
- *     copyright notice, this list of conditions and the following
- *     disclaimer in the documentation and/or other materials provided
- *     with the distribution.
- *   * Neither the name of this project nor the names of its
- *     contributors may be used to endorse or promote products derived
- *     from this software without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- * A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
- * OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
- * SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- * DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
- * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- */
-
 package com.liver_rus.Battleships.SocketFX;
 
 import java.io.*;
@@ -38,7 +7,7 @@ import java.net.SocketException;
 import java.util.logging.Logger;
 
 public abstract class GenericSocket implements SocketListener {
-    
+
     private final static Logger LOGGER =
             Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
@@ -50,7 +19,7 @@ public abstract class GenericSocket implements SocketListener {
     private Thread socketReaderThread;
     private Thread setupThread;
     private int debugFlags;
-    
+
     /**
      * Returns true if the specified debug flag is set.
      * @param flag Debug flag in question
@@ -67,7 +36,7 @@ public abstract class GenericSocket implements SocketListener {
     public void setDebugFlags(int flags) {
         debugFlags = flags;
     }
-    
+
     /**
      * Get the current set of debug flags.
      * @return the current debug flag bitmask
@@ -107,7 +76,7 @@ public abstract class GenericSocket implements SocketListener {
             if (debugFlagIsSet(Constants.instance().DEBUG_EXCEPTIONS)) {
                 LOGGER.info(e.getMessage());
             }
-        }  
+        }
     }
 
     /**
@@ -208,6 +177,8 @@ public abstract class GenericSocket implements SocketListener {
      */
     public void sendMessage(String msg) {
         try {
+            System.out.println("sendMessage DEBUG output!=null");
+            System.out.println(output!=null);
             output.write(msg, 0, msg.length());
             output.newLine();
             output.flush();
@@ -262,7 +233,7 @@ public abstract class GenericSocket implements SocketListener {
              * Wait until the socket is set up before beginning to read.
              */
             waitForReady();
-            /* 
+            /*
              * Now that the readerThread has started, it's safe to inform
              * the world that the socket is open, if in fact, it is open.
              * If used in conjunction with JavaFX, use Platform.runLater()
@@ -301,7 +272,7 @@ public abstract class GenericSocket implements SocketListener {
             }
         }
     }
-    
+
     public GenericSocket() {
         this(Constants.instance().DEFAULT_PORT,
                 Constants.instance().DEBUG_NONE);

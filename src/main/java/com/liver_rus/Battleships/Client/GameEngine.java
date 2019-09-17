@@ -15,7 +15,6 @@ class GameEngine {
     private CurrentState currentState;
     private int numRound;
 
-
     public CurrentState getCurrentState() {
         return currentState;
     }

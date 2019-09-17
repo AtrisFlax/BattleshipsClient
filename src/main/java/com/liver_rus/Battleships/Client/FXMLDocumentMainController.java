@@ -81,8 +81,7 @@ public class FXMLDocumentMainController implements Initializable { //Controller
     private ObservableList<String> rcvdMsgsData;
     private ObservableList<String> sentMsgsData;
 
-    private final static Logger LOGGER
-            = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private final static Logger LOGGER = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private GameEngine gameEngine; //model
 
@@ -349,7 +348,7 @@ public class FXMLDocumentMainController implements Initializable { //Controller
             stage.setOnHidden(close -> {
                 String port = controller.getPort();
                 if (port != null) {
-                    network.connectServer(Integer.parseInt(port), rcvdMsgsData);
+                    network.connectAsServer(Integer.parseInt(port), rcvdMsgsData);
                     gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
                 } else {
                     close.consume();
@@ -385,7 +384,7 @@ public class FXMLDocumentMainController implements Initializable { //Controller
                 String host = controller.getHost();
                 String port = controller.getPort();
                 if (host != null && port != null) {
-                    network.connectClient(host, Integer.parseInt(port));
+                    network.connectAsClient(host, Integer.parseInt(port));
                     gameEngine.setPhase(GameEngine.Phase.ARRANGE_FLEET);
                 } else {
                     close.consume();

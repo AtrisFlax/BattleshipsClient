@@ -1,67 +1,96 @@
 package com.liver_rus.Battleships.Client;
 
-import com.liver_rus.Battleships.SocketFX.Constants;
-import com.liver_rus.Battleships.SocketFX.FxSocketClient;
-import com.liver_rus.Battleships.SocketFX.FxSocketServer;
-import com.liver_rus.Battleships.SocketFX.GenericSocket;
+import com.liver_rus.Battleships.SocketFX.*;
 import javafx.collections.ObservableList;
 
-public class Network {
+class Network implements INetwork {
 
-    private boolean connected;
+    private boolean connected = false;
 
-    private boolean isClient;
+    private boolean isClient = false;
 
-    private GenericSocket socket;
+    private GenericSocket socket = null;
 
-    GenericSocket getSocket() {
+    @Override
+    public GenericSocket getSocket() {
         return socket;
     }
 
-//    private synchronized void notifyDisconnected() {
-//        connected = false;
-//        notifyAll();
-//    }
+    private synchronized void notifyDisconnected() {
+        connected = false;
+        notifyAll();
+    }
 
-    private void setIsClient(boolean isClient) {
+    @Override
+    public void setIsClient(boolean isClient) {
         this.isClient = isClient;
     }
 
-    boolean getIsClient() {
+    @Override
+    public boolean getIsClient() {
         return isClient;
     }
 
+    @Override
     public synchronized void setIsConnected(boolean connected) {
         this.connected = connected;
     }
 
-    public void connectServer(int port, ObservableList<String> rcvdMsgsData) {
-        FxSocketListener fxSocketListener = new FxSocketListener();
-        fxSocketListener.setDataReceiver(rcvdMsgsData);
-
-        socket = new FxSocketServer(fxSocketListener,
+    @Override
+    public void connectAsServer(int port, ObservableList<String> rcvdMsgsData) {
+        setIsClient(false);
+        socket = new FxSocketServer(new FxSocketListener(rcvdMsgsData),
                 port,
                 Constants.instance().DEBUG_NONE);
         socket.connect();
-        setIsClient(false);
     }
 
-    public void connectClient(String host, int port) {
-        FxSocketListener fxSocketListener = new FxSocketListener();
-
-        socket = new FxSocketClient(fxSocketListener,
+    @Override
+    public void connectAsClient(String host, int port) {
+        setIsClient(true);
+        socket = new FxSocketClient(new FxSocketListener(),
                 host,
                 port,
                 Constants.instance().DEBUG_NONE);
         socket.connect();
-        setIsClient(true);
     }
 
-    void shutdown() {
+    @Override
+    public void shutdown() {
         socket.shutdown();
     }
 
-    void sendMessage(String msg) {
+    @Override
+    public void sendMessage(String msg) {
         socket.sendMessage(msg);
     }
+
+    class FxSocketListener implements SocketListener {
+
+        ObservableList<String> rcvdMsgsData;
+
+        FxSocketListener() {
+        }
+
+        FxSocketListener(ObservableList<String> rcvdMsgsData) {
+            this.rcvdMsgsData = rcvdMsgsData;
+        }
+
+        @Override
+        public void onMessage(String line) {
+            if (line != null && !line.equals(Constant.NetworkMessage.EMPTY_STRING)) {
+                rcvdMsgsData.add(line);
+            }
+        }
+
+        @Override
+        public void onClosedStatus(boolean isClosed) {
+            if (isClosed) {
+                notifyDisconnected();
+            } else {
+                setIsConnected(true);
+            }
+        }
+    }
+
 }
