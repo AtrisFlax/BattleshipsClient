@@ -4,6 +4,8 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.jupiter.api.Test;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class NetworkTest {
 
     @Test
@@ -18,7 +20,12 @@ class NetworkTest {
         ObservableList<String> rcvdMsgsData = FXCollections.observableArrayList();
         server.connectAsServer(port, rcvdMsgsData);
 
-        server.sendMessage("Test");
+
+        String test_phrase = "Test";
+        server.sendMessage("test_txt");
+        String recived_phrase = rcvdMsgsData.get((rcvdMsgsData.size() - 1));
+
+        assertEquals(test_phrase, recived_phrase);
 
         client.shutdown();
         server.shutdown();
