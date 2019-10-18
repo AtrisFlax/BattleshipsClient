@@ -34,4 +34,9 @@ class CurrentState {
     public void setShipOrientation(Ship.Orientation shipOrientation) {
         this.shipOrientation = shipOrientation;
     }
+
+    @Override
+    public String toString() {
+        return fieldCoord + " " + shipType + " " + shipOrientation;
+    }
 }

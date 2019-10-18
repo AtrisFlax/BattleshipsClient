@@ -3,76 +3,82 @@ package com.liver_rus.Battleships.Client;
 class GameEngine {
 
     enum Phase {
-        ARRANGE_FLEET, READY, TAKE_SHOT, MAKE_SHOT, END_GAME
+        INIT, WAITING_CONNECTION,  ARRANGE_FLEET, FLEET_ARRANGED, TAKE_SHOT, MAKE_SHOT, END_GAME;
     }
 
     private Phase gamePhase;
     private GameField gameField; //active player (my field)
-    private ArrangeFleetHolder fleetHolder;
-    private boolean isShipSelected;
-    private ShipsOnField shipsOnField;
+    private boolean shipSelected;
     private FieldCoord shootCoord;
     private CurrentState currentState;
     private int numRound;
+    //TODO numTurn tracking, incrementing and reseting
+    private int numTurn;
+    private boolean firstShot;
 
-    public CurrentState getCurrentState() {
+    GameEngine() {
+        gameField = new GameField();
+        shipSelected = false;
+        currentState = new CurrentState();
+        numRound = 1;
+        numTurn = 1;
+        firstShot = true;
+        setPhase(GameEngine.Phase.INIT);
+    }
+
+    CurrentState getCurrentState() {
         return currentState;
     }
 
-    public void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation shipOrientation) {
+    void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation shipOrientation) {
         currentState.setFieldCoord(fieldCoord);
         currentState.setShipType(shipType);
         currentState.setShipOrientation(shipOrientation);
     }
 
-    public int getNumRound() {
+    int getNumRound() {
         return numRound;
     }
 
-    public void setNumRound(int numRound) {
+    void setNumRound(int numRound) {
         this.numRound = numRound;
     }
 
-    public int newNumRound() {
+    int newNumRound() {
         return numRound++;
     }
 
-    public boolean isFirstShot() {
+    boolean isFirstShot() {
         return firstShot;
     }
 
-    public void setFirstShot(boolean firstShot) {
+    void setFirstShot(boolean firstShot) {
         this.firstShot = firstShot;
     }
 
-    boolean firstShot = true;
-
-    GameEngine() {
-        reset();
-    }
-
     void addShipOnField(Ship ship) {
-        shipsOnField.add(ship);
+        gameField.getShips().add(ship);
     }
 
     void setPhase(Phase phase) {
+        System.out.println("Phase has been changed to " + phase);
         this.gamePhase = phase;
-    }
-
-    ShipsOnField getShipsOnField() {
-        return shipsOnField;
     }
 
     final Phase getPhase() {
         return gamePhase;
     }
 
-    void setShipSelected(boolean isShipSelected) {
-        this.isShipSelected = isShipSelected;
+    void setShipSelected(boolean shipSelected) {
+        this.shipSelected = shipSelected;
     }
 
-    final boolean getIsShipSelected() {
-        return isShipSelected;
+    boolean getShipSelected() {
+        return shipSelected;
+    }
+
+    final boolean isShipSelected() {
+        return shipSelected;
     }
 
     final Ship.Orientation getShipOrientation() {
@@ -92,11 +98,10 @@ class GameEngine {
     }
 
     void reset() {
+        System.out.println("GameEnging.reset()");
         gameField = new GameField();
-        fleetHolder = new ArrangeFleetHolder();
-        isShipSelected = false;
         currentState = new CurrentState();
-        shipsOnField = new ShipsOnField();
+        shipSelected = false;
         numRound = 1;
     }
 
@@ -112,10 +117,6 @@ class GameEngine {
         return gameField;
     }
 
-    ArrangeFleetHolder getFleetHolder() {
-        return fleetHolder;
-    }
-
     Phase getGamePhase() {
         return gamePhase;
     }
@@ -128,5 +129,15 @@ class GameEngine {
         }
         return getShipOrientation();
 
+    }
+
+    int selectShip(Ship.Type type) {
+        if (gameField.getShips().getShipsLeft() > 0) {
+            setShipSelected(true);
+            currentState.shipType = type;
+            return gameField.getShips().popShip(type);
+        } else {
+            return 0;
+        }
     }
 }

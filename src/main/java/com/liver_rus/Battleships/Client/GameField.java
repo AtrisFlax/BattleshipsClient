@@ -10,19 +10,17 @@ class GameField {
 
     private final static int REAL_FIELD_SIZE = 12;
 
+    private CellStatus[][] field;
+
+    private ShipsOnField ships;
+
     private enum CellStatus {
         CLEAR, MISS, SHIP, NEAR_WITH_SHIP, BORDER, DAMAGED_SHIP
     }
 
-    private ShipsOnField shipsOnField = new ShipsOnField();
-
-    private CellStatus[][] field;
-
     GameField() {
-        reset();
-    }
+        ships = new ShipsOnField();
 
-    private void reset() {
         field = new CellStatus[REAL_FIELD_SIZE][REAL_FIELD_SIZE];
         for (int i = 1; i < REAL_FIELD_SIZE - 1; i++) {
             for (int j = 1; j < REAL_FIELD_SIZE - 1; j++) {
@@ -45,7 +43,11 @@ class GameField {
         for (int i = 0; i < REAL_FIELD_SIZE; i++) {
             field[i][REAL_FIELD_SIZE - 1] = CellStatus.BORDER;
         }
-        shipsOnField.clear();
+        ships.clear();
+    }
+
+    ShipsOnField getShips() {
+        return ships;
     }
 
     private void markShipsCell(int x, int y, int shipType, Ship.Orientation shipOrientation) {
@@ -67,7 +69,7 @@ class GameField {
 
     void markFieldByShip(FieldCoord fieldCoord, Ship.Type type, Ship.Orientation shipOrientation) {
         int intShipType = Ship.Type.shipTypeToInt(type);
-        shipsOnField.add(new Ship(fieldCoord, type, shipOrientation));
+        ships.add(new Ship(fieldCoord, type, shipOrientation));
         int x = fieldCoord.getX() + 1;
         int y = fieldCoord.getY() + 1;
         markShipsCell(x, y, intShipType, shipOrientation);
@@ -101,7 +103,7 @@ class GameField {
     //Отметка попадания в корабль
     private void tagShipsByCoord(int x, int y) {
         FieldCoord findedCellForTag = null;
-        for (Ship ship : shipsOnField.getShipsOnField()) {
+        for (Ship ship : ships.getShipsOnField()) {
             for (FieldCoord shipCoord : ship.getShipCoord()) {
                 if (shipCoord.getX() == x && shipCoord.getY() == y) {
                     findedCellForTag = shipCoord;
@@ -120,7 +122,7 @@ class GameField {
     boolean isShipsOnFieldAlive() {
         boolean someoneAlive = false;
         Ship ship_for_remove = null;
-        for (Ship ship : shipsOnField.getShipsOnField()) {
+        for (Ship ship : ships.getShipsOnField()) {
             if (ship.isAlive()) {
                 someoneAlive = true;
                 break;
@@ -129,7 +131,7 @@ class GameField {
             }
         }
         if (ship_for_remove != null)
-            shipsOnField.remove(ship_for_remove);
+            ships.remove(ship_for_remove);
         return someoneAlive;
     }
 

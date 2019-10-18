@@ -4,6 +4,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 
@@ -64,6 +65,9 @@ public class FXMLDocumentConnectGame {
     private TextField nameTextField;
 
     @FXML
+    private CheckBox checkBox;
+
+    @FXML
     void handleButtonConnect(ActionEvent event) {
         if (portTextField.getText() != null && !portTextField.getText().isEmpty() &&
                 ipTextField.getText() != null && !ipTextField.getText().isEmpty()) {
@@ -120,5 +124,9 @@ public class FXMLDocumentConnectGame {
 
     void setMyName() {
         myName = nameTextField.getText();
+    }
+
+    boolean isServerSelected() {
+        return checkBox.isSelected();
     }
 }

@@ -73,7 +73,7 @@ public class Ship {
     }
 
     enum Type {
-        AIRCRAFT_CARRIED(4),
+        AIRCRAFT_CARRIER(4),
         BATTLESHIP(3),
         CRUISER(2),
         DESTROYER(1),
@@ -88,7 +88,7 @@ public class Ship {
         }
 
         static int shipTypeToInt(Type type) {
-            if (type == AIRCRAFT_CARRIED) return 4;
+            if (type == AIRCRAFT_CARRIER) return 4;
             if (type == BATTLESHIP) return 3;
             if (type == CRUISER) return 2;
             if (type == DESTROYER) return 1;
@@ -97,7 +97,7 @@ public class Ship {
         }
 
         static Type shipIntToType(int intType) {
-            if (intType == 4) return AIRCRAFT_CARRIED;
+            if (intType == 4) return AIRCRAFT_CARRIER;
             if (intType == 3) return BATTLESHIP;
             if (intType == 2) return CRUISER;
             if (intType == 1) return DESTROYER;

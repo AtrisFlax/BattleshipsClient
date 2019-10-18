@@ -12,7 +12,7 @@ class ShipTest {
 
     @BeforeEach
     void createShip() {
-        ship = new Ship(new FieldCoord(2, 2), Ship.Type.AIRCRAFT_CARRIED, Ship.Orientation.VERTICAL);
+        ship = new Ship(new FieldCoord(2, 2), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL);
     }
 
     @Test

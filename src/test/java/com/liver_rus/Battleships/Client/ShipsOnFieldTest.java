@@ -5,8 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.LinkedHashSet;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class ShipsOnFieldTest {
 
@@ -35,7 +34,7 @@ class ShipsOnFieldTest {
 
         Ship shipForRemove = new Ship(new FieldCoord(3,8), Ship.Type.CRUISER, Ship.Orientation.VERTICAL);
 
-        testShipsList.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIED, Ship.Orientation.HORIZONTAL));
+        testShipsList.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
         testShipsList.add(new Ship(new FieldCoord(5,5), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
         testShipsList.add(shipForRemove);
         testShipsList.add(new Ship(new FieldCoord(4,0), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
@@ -48,8 +47,8 @@ class ShipsOnFieldTest {
         testShipsList.remove(shipForRemove);
         shipsOnField.remove(shipForRemove);
 
-        System.out.println(testShipsList);
-        System.out.println(shipsOnField.getShipsOnField());
+        //System.out.println(testShipsList);
+        //System.out.println(shipsOnField.getShipsOnField());
 
         assertIterableEquals(testShipsList, shipsOnField.getShipsOnField());
 
@@ -60,7 +59,7 @@ class ShipsOnFieldTest {
     void add() {
         LinkedHashSet<Ship> testShipsList = new LinkedHashSet<>();
 
-        testShipsList.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIED, Ship.Orientation.HORIZONTAL));
+        testShipsList.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
         testShipsList.add(new Ship(new FieldCoord(5,5), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
         testShipsList.add(new Ship(new FieldCoord(4,0), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
         testShipsList.add(new Ship(new FieldCoord(8,2), Ship.Type.SUBMARINE, Ship.Orientation.VERTICAL));
@@ -78,10 +77,25 @@ class ShipsOnFieldTest {
         FieldCoord findCoord = new FieldCoord(2,6);
         FieldCoord wrongCoord = new FieldCoord(5,5);
         shipsOnField.add(new Ship(new FieldCoord(3,3), Ship.Type.DESTROYER, Ship.Orientation.HORIZONTAL));
-        Ship findingShip = new Ship(shipCoord, Ship.Type.AIRCRAFT_CARRIED, Ship.Orientation.VERTICAL);
+        Ship findingShip = new Ship(shipCoord, Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL);
         shipsOnField.add(findingShip);
         shipsOnField.add(new Ship(new FieldCoord(9,7), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
         assertEquals(findingShip, shipsOnField.findShip(findCoord));
         assertEquals(null, shipsOnField.findShip(wrongCoord));
+    }
+
+
+    @Test
+    void toManyShsoutipsException() {
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+        shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
+
+        assertThrows(ArrayIndexOutOfBoundsException.class,
+                () -> shipsOnField.add(new Ship(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL)));
     }
 }

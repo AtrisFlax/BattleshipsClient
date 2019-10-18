@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
-public class BattleshipClient extends Application {
+public class BattleshipsClient extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {

@@ -7,57 +7,57 @@ class Draw {
     static void HitCellOnMyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY() - 2;
-        double width = Constant.Pixel.FirstPlayer.WIDTH_CELL;
+        double width = Constants.Pixel.FirstPlayer.WIDTH_CELL;
         graphicContext.setStroke(Color.BLACK);
         graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constant.Pixel.FirstPlayer.LEFT_X,
-                y * width + Constant.Pixel.FirstPlayer.TOP_Y,
-                x * width + Constant.Pixel.FirstPlayer.LEFT_X + width,
-                y * width + Constant.Pixel.FirstPlayer.TOP_Y + width);
-        graphicContext.strokeLine(x * width + Constant.Pixel.FirstPlayer.LEFT_X,
-                y * width + Constant.Pixel.FirstPlayer.TOP_Y + width,
-                x * width + Constant.Pixel.FirstPlayer.LEFT_X + width,
-                y * width + Constant.Pixel.FirstPlayer.TOP_Y);
+        graphicContext.strokeLine(x * width + Constants.Pixel.FirstPlayer.LEFT_X,
+                y * width + Constants.Pixel.FirstPlayer.TOP_Y,
+                x * width + Constants.Pixel.FirstPlayer.LEFT_X + width,
+                y * width + Constants.Pixel.FirstPlayer.TOP_Y + width);
+        graphicContext.strokeLine(x * width + Constants.Pixel.FirstPlayer.LEFT_X,
+                y * width + Constants.Pixel.FirstPlayer.TOP_Y + width,
+                x * width + Constants.Pixel.FirstPlayer.LEFT_X + width,
+                y * width + Constants.Pixel.FirstPlayer.TOP_Y);
     }
 
     static void MissCellOnMyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY() - 2;
-        double width = Constant.Pixel.FirstPlayer.WIDTH_CELL;
+        double width = Constants.Pixel.FirstPlayer.WIDTH_CELL;
         graphicContext.setStroke(Color.BLACK);
         graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constant.Pixel.FirstPlayer.LEFT_X,
-                y * width + Constant.Pixel.FirstPlayer.TOP_Y + width,
-                x * width + Constant.Pixel.FirstPlayer.LEFT_X + width,
-                y * width + Constant.Pixel.FirstPlayer.TOP_Y);
+        graphicContext.strokeLine(x * width + Constants.Pixel.FirstPlayer.LEFT_X,
+                y * width + Constants.Pixel.FirstPlayer.TOP_Y + width,
+                x * width + Constants.Pixel.FirstPlayer.LEFT_X + width,
+                y * width + Constants.Pixel.FirstPlayer.TOP_Y);
     }
 
     static void HitCellOnEnemyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
-        double width = Constant.Pixel.SecondPlayer.WIDTH_CELL;
+        double width = Constants.Pixel.SecondPlayer.WIDTH_CELL;
         graphicContext.setStroke(Color.BLACK);
         graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constant.Pixel.SecondPlayer.LEFT_X,
-                y * width + Constant.Pixel.SecondPlayer.TOP_Y,
-                x * width + Constant.Pixel.SecondPlayer.LEFT_X + width,
-                y * width + Constant.Pixel.SecondPlayer.TOP_Y + width);
-        graphicContext.strokeLine(x * width + Constant.Pixel.SecondPlayer.LEFT_X,
-                y * width + Constant.Pixel.SecondPlayer.TOP_Y + width,
-                x * width + Constant.Pixel.SecondPlayer.LEFT_X + width,
-                y * width + Constant.Pixel.SecondPlayer.TOP_Y);
+        graphicContext.strokeLine(x * width + Constants.Pixel.SecondPlayer.LEFT_X,
+                y * width + Constants.Pixel.SecondPlayer.TOP_Y,
+                x * width + Constants.Pixel.SecondPlayer.LEFT_X + width,
+                y * width + Constants.Pixel.SecondPlayer.TOP_Y + width);
+        graphicContext.strokeLine(x * width + Constants.Pixel.SecondPlayer.LEFT_X,
+                y * width + Constants.Pixel.SecondPlayer.TOP_Y + width,
+                x * width + Constants.Pixel.SecondPlayer.LEFT_X + width,
+                y * width + Constants.Pixel.SecondPlayer.TOP_Y);
     }
 
     static void MissCellOnEnemyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
-        double width = Constant.Pixel.SecondPlayer.WIDTH_CELL;
+        double width = Constants.Pixel.SecondPlayer.WIDTH_CELL;
         graphicContext.setStroke(Color.BLACK);
         graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constant.Pixel.SecondPlayer.LEFT_X,
-                y * width + Constant.Pixel.SecondPlayer.TOP_Y + width,
-                x * width + Constant.Pixel.SecondPlayer.LEFT_X + width,
-                y * width + Constant.Pixel.SecondPlayer.TOP_Y);
+        graphicContext.strokeLine(x * width + Constants.Pixel.SecondPlayer.LEFT_X,
+                y * width + Constants.Pixel.SecondPlayer.TOP_Y + width,
+                x * width + Constants.Pixel.SecondPlayer.LEFT_X + width,
+                y * width + Constants.Pixel.SecondPlayer.TOP_Y);
     }
 
     static void ShipOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
@@ -66,16 +66,16 @@ class Draw {
         int intShipType = Ship.Type.shipTypeToInt(shipType);
         if (orientation == Ship.Orientation.HORIZONTAL) {
             gc.strokeRect(
-                    Constant.Pixel.SecondPlayer.LEFT_X + x * Constant.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constant.Pixel.SecondPlayer.TOP_Y + y * Constant.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constant.Pixel.SecondPlayer.WIDTH_CELL * (intShipType + 1),
-                    Constant.Pixel.SecondPlayer.WIDTH_CELL);
+                    Constants.Pixel.SecondPlayer.LEFT_X + x * Constants.Pixel.SecondPlayer.WIDTH_CELL,
+                    Constants.Pixel.SecondPlayer.TOP_Y + y * Constants.Pixel.SecondPlayer.WIDTH_CELL,
+                    Constants.Pixel.SecondPlayer.WIDTH_CELL * (intShipType + 1),
+                    Constants.Pixel.SecondPlayer.WIDTH_CELL);
         } else {
             gc.strokeRect(
-                    Constant.Pixel.SecondPlayer.LEFT_X + x * Constant.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constant.Pixel.SecondPlayer.TOP_Y + y * Constant.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constant.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constant.Pixel.SecondPlayer.WIDTH_CELL * (intShipType + 1));
+                    Constants.Pixel.SecondPlayer.LEFT_X + x * Constants.Pixel.SecondPlayer.WIDTH_CELL,
+                    Constants.Pixel.SecondPlayer.TOP_Y + y * Constants.Pixel.SecondPlayer.WIDTH_CELL,
+                    Constants.Pixel.SecondPlayer.WIDTH_CELL,
+                    Constants.Pixel.SecondPlayer.WIDTH_CELL * (intShipType + 1));
         }
     }
 
@@ -85,17 +85,17 @@ class Draw {
         int intShipType = Ship.Type.shipTypeToInt(shipType);
         if (shipOrientation == Ship.Orientation.HORIZONTAL) {
             gc.strokeRect(
-                    Constant.Pixel.FirstPlayer.LEFT_X + x * Constant.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constant.Pixel.FirstPlayer.TOP_Y + y * Constant.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constant.Pixel.FirstPlayer.WIDTH_CELL * (intShipType + 1),
-                    Constant.Pixel.FirstPlayer.WIDTH_CELL
+                    Constants.Pixel.FirstPlayer.LEFT_X + x * Constants.Pixel.FirstPlayer.WIDTH_CELL,
+                    Constants.Pixel.FirstPlayer.TOP_Y + y * Constants.Pixel.FirstPlayer.WIDTH_CELL,
+                    Constants.Pixel.FirstPlayer.WIDTH_CELL * (intShipType + 1),
+                    Constants.Pixel.FirstPlayer.WIDTH_CELL
             );
         } else {
             gc.strokeRect(
-                    Constant.Pixel.FirstPlayer.LEFT_X + x * Constant.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constant.Pixel.FirstPlayer.TOP_Y + y * Constant.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constant.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constant.Pixel.FirstPlayer.WIDTH_CELL * (intShipType + 1)
+                    Constants.Pixel.FirstPlayer.LEFT_X + x * Constants.Pixel.FirstPlayer.WIDTH_CELL,
+                    Constants.Pixel.FirstPlayer.TOP_Y + y * Constants.Pixel.FirstPlayer.WIDTH_CELL,
+                    Constants.Pixel.FirstPlayer.WIDTH_CELL,
+                    Constants.Pixel.FirstPlayer.WIDTH_CELL * (intShipType + 1)
             );
         }
     }

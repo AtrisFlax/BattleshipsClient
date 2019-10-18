@@ -4,7 +4,13 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 
 class ShipsOnField  {
-    private LinkedHashSet<Ship> shipsList = new LinkedHashSet<>(ArrangeFleetHolder.TOTAL_SHIPS_AMOUNT);
+    private FleetCounter fleetCounter;
+    private LinkedHashSet<Ship> shipsList;
+
+    ShipsOnField() {
+        shipsList = new LinkedHashSet<>(FleetCounter.NUM_MAX_SHIPS);
+        fleetCounter = new FleetCounter();
+    }
 
     void clear() {
         shipsList.clear();
@@ -15,7 +21,14 @@ class ShipsOnField  {
     }
 
     void add(Ship ship) {
-        shipsList.add(ship);
+        if (shipsList.size() < FleetCounter.NUM_MAX_SHIPS) {
+            System.out.println("shipsList.size()" + shipsList.size());
+            System.out.println(FleetCounter.NUM_MAX_SHIPS);
+            shipsList.add(ship);
+        }
+        else {
+            throw new ArrayIndexOutOfBoundsException("Trying to add too many ships on field");
+        }
     }
 
     HashSet<Ship> getShipsOnField() {
@@ -35,5 +48,13 @@ class ShipsOnField  {
             }
         }
         return findedShip;
+    }
+
+    int getShipsLeft() {
+        return fleetCounter.getShipsLeft();
+    }
+
+    int popShip(Ship.Type shipType) {
+        return fleetCounter.popShip(shipType);
     }
 }

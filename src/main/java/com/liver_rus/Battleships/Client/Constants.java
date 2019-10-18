@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
-class Constant {
-    private Constant() {
+public class Constants {
+    private Constants() {
     }
 
     class Pixel {
@@ -38,7 +38,7 @@ class Constant {
     final static int NONE_SELECTED_FIELD_COORD = -1;
 
     public enum NetworkMessage {
-        ENEMY_NAME("EnemyName "),
+        ENEMY_NAME("Enemy Name"),
         DESTROYED("Destroyed"),
         SHOT("Shot"),
         HIT("Hit"),
@@ -46,10 +46,9 @@ class Constant {
         YOU_WIN("You Win!"),
         YOU_TURN("Your Turn"),
         YOU_LOSE("You lose"),
-        CLIENT_READY("ClientReady"),
-        SERVER_READY("ServerReady"),
+        READY_TO_GAME("ReadyToGame"),
+        DISCONNECT("Dissconnect"),
         EMPTY_STRING("");
-
 
         private String typeValue;
 

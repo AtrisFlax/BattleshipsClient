@@ -9,23 +9,23 @@ class PixelCoord {
 
     static int transformSceneXtoFieldX(double x, boolean isFirstPlayerCoord) {
         if (isFirstPlayerCoord) {
-            return (int) (Math.floor((x - Constant.Pixel.FirstPlayer.LEFT_X) / Constant.Pixel.FirstPlayer.WIDTH_CELL));
+            return (int) (Math.floor((x - Constants.Pixel.FirstPlayer.LEFT_X) / Constants.Pixel.FirstPlayer.WIDTH_CELL));
         } else {
-            return (int) (Math.floor((x - Constant.Pixel.SecondPlayer.LEFT_X) / Constant.Pixel.SecondPlayer.WIDTH_CELL));
+            return (int) (Math.floor((x - Constants.Pixel.SecondPlayer.LEFT_X) / Constants.Pixel.SecondPlayer.WIDTH_CELL));
         }
     }
 
     static int transformSceneYtoFieldY(double y, boolean isFirstPlayerCoord) {
         if (isFirstPlayerCoord) {
-            return (int) (Math.floor((y - Constant.Pixel.FirstPlayer.TOP_Y) / Constant.Pixel.FirstPlayer.WIDTH_CELL));
+            return (int) (Math.floor((y - Constants.Pixel.FirstPlayer.TOP_Y) / Constants.Pixel.FirstPlayer.WIDTH_CELL));
         } else {
-            return (int) (Math.floor((y - Constant.Pixel.SecondPlayer.TOP_Y) / Constant.Pixel.SecondPlayer.WIDTH_CELL));
+            return (int) (Math.floor((y - Constants.Pixel.SecondPlayer.TOP_Y) / Constants.Pixel.SecondPlayer.WIDTH_CELL));
         }
     }
 
-    static boolean isCoordFromMyPlayerField(double x, double y) {
-        return x >= Constant.Pixel.FirstPlayer.LEFT_X && x <= Constant.Pixel.FirstPlayer.RIGHT_X &&
-                y >= Constant.Pixel.FirstPlayer.TOP_Y && y <= Constant.Pixel.FirstPlayer.BOTTOM_Y;
+    static boolean isFromMyPlayerField(double x, double y) {
+        return x >= Constants.Pixel.FirstPlayer.LEFT_X && x <= Constants.Pixel.FirstPlayer.RIGHT_X &&
+                y >= Constants.Pixel.FirstPlayer.TOP_Y && y <= Constants.Pixel.FirstPlayer.BOTTOM_Y;
     }
 
     static boolean isCoordFromEnemyPlayerField(double x, double y) {
@@ -33,7 +33,7 @@ class PixelCoord {
     }
 
     static private boolean checkBordersEnemyPlayerField(double x, double y) {
-        return x >= Constant.Pixel.SecondPlayer.LEFT_X && x <= Constant.Pixel.SecondPlayer.RIGHT_X &&
-                y >= Constant.Pixel.SecondPlayer.TOP_Y && y <= Constant.Pixel.SecondPlayer.BOTTOM_Y;
+        return x >= Constants.Pixel.SecondPlayer.LEFT_X && x <= Constants.Pixel.SecondPlayer.RIGHT_X &&
+                y >= Constants.Pixel.SecondPlayer.TOP_Y && y <= Constants.Pixel.SecondPlayer.BOTTOM_Y;
     }
 }
