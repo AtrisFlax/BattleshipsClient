@@ -18,10 +18,11 @@ import static java.nio.ByteBuffer.allocate;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 public class Server implements Runnable {
+    private static final int READ_BUFFER_SIZE = 8192;
     private static final Logger log = Logger.getLogger(String.valueOf(Server.class));
     private ServerSocketChannel serverChannel = null;
     private Selector selector;
-    private ByteBuffer readBuffer = allocate(8192);
+    private ByteBuffer readBuffer = allocate(READ_BUFFER_SIZE);
     private int port;
 
     //Game dependent part

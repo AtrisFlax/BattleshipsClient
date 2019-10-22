@@ -22,8 +22,6 @@ class ShipsOnField  {
 
     void add(Ship ship) {
         if (shipsList.size() < FleetCounter.NUM_MAX_SHIPS) {
-            System.out.println("shipsList.size()" + shipsList.size());
-            System.out.println(FleetCounter.NUM_MAX_SHIPS);
             shipsList.add(ship);
         }
         else {

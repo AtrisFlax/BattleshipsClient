@@ -121,6 +121,7 @@ public class Client {
             if (nBytes == 2048 || nBytes == 0)
                 return;
             String message = new String(buf.array());
+            log.info("message.trim " + message.trim());
             inbox.add(message.trim());
         }
     }
@@ -137,10 +138,6 @@ public class Client {
             log.log(Level.SEVERE, "Failed while closing Client selector.", e);
         }
         clientReceiver.interrupt();
-    }
-
-    public boolean IsClient() {
-        return true;
     }
 
     public ObservableList<String> getInbox() {

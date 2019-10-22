@@ -1,9 +1,14 @@
 package com.liver_rus.Battleships.Client;
 
+import java.lang.invoke.MethodHandles;
+import java.util.logging.Logger;
+
 class GameEngine {
 
+    private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+
     enum Phase {
-        INIT, WAITING_CONNECTION,  ARRANGE_FLEET, FLEET_ARRANGED, TAKE_SHOT, MAKE_SHOT, END_GAME;
+        INIT, DEPLOYING_FLEET, FLEET_IS_DEPLOYED, WAITING_CONNECTION, TAKE_SHOT, MAKE_SHOT, END_GAME;
     }
 
     private Phase gamePhase;
@@ -98,7 +103,7 @@ class GameEngine {
     }
 
     void reset() {
-        System.out.println("GameEnging.reset()");
+        log.info("GameEnging.reset()");
         gameField = new GameField();
         currentState = new CurrentState();
         shipSelected = false;

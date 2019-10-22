@@ -38,16 +38,16 @@ public class Constants {
     final static int NONE_SELECTED_FIELD_COORD = -1;
 
     public enum NetworkMessage {
-        ENEMY_NAME("Enemy Name"),
-        DESTROYED("Destroyed"),
-        SHOT("Shot"),
-        HIT("Hit"),
-        MISS("Miss"),
-        YOU_WIN("You Win!"),
-        YOU_TURN("Your Turn"),
-        YOU_LOSE("You lose"),
-        READY_TO_GAME("ReadyToGame"),
-        DISCONNECT("Dissconnect"),
+        ENEMY_NAME("ENEMY_NAME"),
+        DESTROYED("DESTROYED"),
+        SHOT("SHOT"),
+        HIT("HIT"),
+        MISS("MISS"),
+        YOU_WIN("YOU_WIN"),
+        YOU_TURN("YOU_TURN"),
+        YOU_LOSE("YOU_LOSE"),
+        READY_TO_GAME("READY_TO_GAME"),
+        DISCONNECT("DISCONNECT"),
         EMPTY_STRING("");
 
         private String typeValue;

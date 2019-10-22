@@ -26,7 +26,7 @@ class GameEngineTest {
 
         assertEquals(7, gameEngine.getMyField().getShips().getShipsLeft());
 
-        gameEngine.setPhase(GameEngine.Phase.FLEET_ARRANGED);
+        gameEngine.setPhase(GameEngine.Phase.FLEET_IS_DEPLOYED);
 
         gameEngine.setPhase(GameEngine.Phase.MAKE_SHOT);
 
