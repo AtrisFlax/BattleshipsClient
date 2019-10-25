@@ -4,103 +4,94 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 class Draw {
-    static void HitCellOnMyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
-        int x = fieldCoord.getX();
-        int y = fieldCoord.getY() - 2;
-        double width = Constants.Pixel.FirstPlayer.WIDTH_CELL;
-        graphicContext.setStroke(Color.BLACK);
-        graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constants.Pixel.FirstPlayer.LEFT_X,
-                y * width + Constants.Pixel.FirstPlayer.TOP_Y,
-                x * width + Constants.Pixel.FirstPlayer.LEFT_X + width,
-                y * width + Constants.Pixel.FirstPlayer.TOP_Y + width);
-        graphicContext.strokeLine(x * width + Constants.Pixel.FirstPlayer.LEFT_X,
-                y * width + Constants.Pixel.FirstPlayer.TOP_Y + width,
-                x * width + Constants.Pixel.FirstPlayer.LEFT_X + width,
-                y * width + Constants.Pixel.FirstPlayer.TOP_Y);
+
+    static void MissCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
+        MissCellOnField(gc, new FirstPlayerGUIConstants(), fieldCoord);
     }
 
-    static void MissCellOnMyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
-        int x = fieldCoord.getX();
-        int y = fieldCoord.getY() - 2;
-        double width = Constants.Pixel.FirstPlayer.WIDTH_CELL;
-        graphicContext.setStroke(Color.BLACK);
-        graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constants.Pixel.FirstPlayer.LEFT_X,
-                y * width + Constants.Pixel.FirstPlayer.TOP_Y + width,
-                x * width + Constants.Pixel.FirstPlayer.LEFT_X + width,
-                y * width + Constants.Pixel.FirstPlayer.TOP_Y);
+    static void MissCellOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord) {
+        MissCellOnField(gc, new SecondPlayerGUIConstants(), fieldCoord);
+
     }
 
-    static void HitCellOnEnemyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
-        int x = fieldCoord.getX();
-        int y = fieldCoord.getY();
-        double width = Constants.Pixel.SecondPlayer.WIDTH_CELL;
-        graphicContext.setStroke(Color.BLACK);
-        graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constants.Pixel.SecondPlayer.LEFT_X,
-                y * width + Constants.Pixel.SecondPlayer.TOP_Y,
-                x * width + Constants.Pixel.SecondPlayer.LEFT_X + width,
-                y * width + Constants.Pixel.SecondPlayer.TOP_Y + width);
-        graphicContext.strokeLine(x * width + Constants.Pixel.SecondPlayer.LEFT_X,
-                y * width + Constants.Pixel.SecondPlayer.TOP_Y + width,
-                x * width + Constants.Pixel.SecondPlayer.LEFT_X + width,
-                y * width + Constants.Pixel.SecondPlayer.TOP_Y);
+    static void HitCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
+        HitCellOnField(gc, new FirstPlayerGUIConstants(), fieldCoord);
     }
 
-    static void MissCellOnEnemyField(GraphicsContext graphicContext, FieldCoord fieldCoord) {
+    static void HitCellOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord) {
+        HitCellOnField(gc, new SecondPlayerGUIConstants(), fieldCoord);
+    }
+
+    static void ShipOnMyField(GraphicsContext gc, Ship ship) {
+        int x = ship.getShipStartCoord().getX();
+        int y = ship.getShipStartCoord().getX();
+        int type =  Ship.Type.shipTypeToInt(ship.getType());
+        boolean orientation = ship.getOrientation().getBoolean();
+        ShipOnField(gc, new FirstPlayerGUIConstants(), x, y , type, orientation);
+    }
+
+    static void ShipOnMyField(GraphicsContext gc, CurrentGUIState currentGUIState) {
+        ShipOnField(gc,  new FirstPlayerGUIConstants(),
+                currentGUIState.getFieldCoord().getX(),
+                currentGUIState.getFieldCoord().getY(),
+                Ship.Type.shipTypeToInt(currentGUIState.getShipType()),
+                currentGUIState.getShipOrientation().getBoolean());
+    }
+
+    static void ShipOnEnemyField(GraphicsContext gc, Ship ship) {
+        int x = ship.getShipStartCoord().getX();
+        int y = ship.getShipStartCoord().getX();
+        int type =  Ship.Type.shipTypeToInt(ship.getType());
+        boolean orientation = ship.getOrientation().getBoolean();
+        ShipOnField(gc, new SecondPlayerGUIConstants(), x, y , type, orientation);
+    }
+
+    private static void MissCellOnField(GraphicsContext graphicContext, GUIConstant constants, FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
-        double width = Constants.Pixel.SecondPlayer.WIDTH_CELL;
+        double width = constants.getWidthCell();
         graphicContext.setStroke(Color.BLACK);
         graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + Constants.Pixel.SecondPlayer.LEFT_X,
-                y * width + Constants.Pixel.SecondPlayer.TOP_Y + width,
-                x * width + Constants.Pixel.SecondPlayer.LEFT_X + width,
-                y * width + Constants.Pixel.SecondPlayer.TOP_Y);
+        graphicContext.strokeLine(x * width + constants.getLeftX(),
+                y * width + constants.getTopY() + width,
+                x * width + constants.getLeftX() + width,
+                y * width + constants.getTopY());
     }
 
-    static void ShipOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
-        int x = fieldCoord.getX() - 1;
-        int y = fieldCoord.getY() - 1;
-        int intShipType = Ship.Type.shipTypeToInt(shipType);
-        if (orientation == Ship.Orientation.HORIZONTAL) {
-            gc.strokeRect(
-                    Constants.Pixel.SecondPlayer.LEFT_X + x * Constants.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constants.Pixel.SecondPlayer.TOP_Y + y * Constants.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constants.Pixel.SecondPlayer.WIDTH_CELL * (intShipType + 1),
-                    Constants.Pixel.SecondPlayer.WIDTH_CELL);
-        } else {
-            gc.strokeRect(
-                    Constants.Pixel.SecondPlayer.LEFT_X + x * Constants.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constants.Pixel.SecondPlayer.TOP_Y + y * Constants.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constants.Pixel.SecondPlayer.WIDTH_CELL,
-                    Constants.Pixel.SecondPlayer.WIDTH_CELL * (intShipType + 1));
-        }
+    private static void HitCellOnField(GraphicsContext gc, GUIConstant constants, FieldCoord fieldCoord) {
+        int x = fieldCoord.getX();
+        int y = fieldCoord.getY();
+        double width = constants.getWidthCell();
+        gc.setStroke(Color.BLACK);
+        gc.setLineWidth(2);
+        gc.strokeLine(x * width + constants.getLeftX(),
+                y * width + constants.getTopY(),
+                x * width + constants.getLeftX() + width,
+                y * width + constants.getTopY() + width);
+        gc.strokeLine(x * width + constants.getLeftX(),
+                y * width + constants.getTopY() + width,
+                x * width + constants.getLeftX() + width,
+                y * width + constants.getTopY());
     }
 
-    static void ShipOnMyField(GraphicsContext gc, FieldCoord coord, Ship.Type shipType, Ship.Orientation shipOrientation) {
-        int x = coord.getX();
-        int y = coord.getY() - 1;
-        int intShipType = Ship.Type.shipTypeToInt(shipType);
-        if (shipOrientation == Ship.Orientation.HORIZONTAL) {
+    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, int x, int y, int type, boolean orientation) {
+        if (orientation) {
+            //horizontal
             gc.strokeRect(
-                    Constants.Pixel.FirstPlayer.LEFT_X + x * Constants.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constants.Pixel.FirstPlayer.TOP_Y + y * Constants.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constants.Pixel.FirstPlayer.WIDTH_CELL * (intShipType + 1),
-                    Constants.Pixel.FirstPlayer.WIDTH_CELL
+                    constants.getLeftX() + x * constants.getWidthCell(),
+                    constants.getTopY() + y * constants.getWidthCell(),
+                    constants.getWidthCell() * (type + 1),
+                    constants.getWidthCell()
             );
         } else {
+            //vertical
             gc.strokeRect(
-                    Constants.Pixel.FirstPlayer.LEFT_X + x * Constants.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constants.Pixel.FirstPlayer.TOP_Y + y * Constants.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constants.Pixel.FirstPlayer.WIDTH_CELL,
-                    Constants.Pixel.FirstPlayer.WIDTH_CELL * (intShipType + 1)
+                    constants.getLeftX()+ x * constants.getWidthCell(),
+                    constants.getTopY() + y * constants.getWidthCell(),
+                    constants.getWidthCell(),
+                    constants.getWidthCell() * (type + 1)
             );
         }
     }
 
-    static void ShipOnMyField(GraphicsContext gc, CurrentState currentState) {
-        ShipOnMyField(gc, currentState.getFieldCoord(), currentState.getShipType(), currentState.getShipOrientation());
-    }
 }
