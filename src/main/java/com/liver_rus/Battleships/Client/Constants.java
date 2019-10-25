@@ -1,25 +1,37 @@
 package com.liver_rus.Battleships.Client;
 
+
+class FirstPlayerGUIConstants implements GUIConstant {
+    private final static int LEFT_X = 65;
+    private final static int RIGHT_X = 301;
+    private final static int TOP_Y = 157;
+    private final static int BOTTOM_Y = 386;
+    private final static double WIDTH_CELL = 23.5;
+
+    public int getLeftX() { return LEFT_X; }
+    public int getRightX() { return RIGHT_X; }
+    public int getTopY() { return TOP_Y; }
+    public int getBottomY() { return BOTTOM_Y; }
+    public double getWidthCell() { return WIDTH_CELL; }
+}
+
+class SecondPlayerGUIConstants  implements GUIConstant {
+    private final static int LEFT_X = 304;
+    private final static int RIGHT_X = 653;
+    private final static int TOP_Y = 370;
+    private final static int BOTTOM_Y = 719;
+    private final static double WIDTH_CELL = 35.0;
+
+    public int getLeftX() { return LEFT_X; }
+    public int getRightX() { return RIGHT_X; }
+    public int getTopY() { return TOP_Y; }
+    public int getBottomY() { return BOTTOM_Y; }
+    public double getWidthCell() { return WIDTH_CELL; }
+
+}
+
 public class Constants {
     private Constants() {
-    }
-
-    class Pixel {
-        class FirstPlayer {
-            final static int LEFT_X = 65;
-            final static int TOP_Y = 157;
-            final static int RIGHT_X = 301;
-            final static int BOTTOM_Y = 386;
-            final static double WIDTH_CELL = 23.5;
-        }
-
-        class SecondPlayer {
-            final static int LEFT_X = 304;
-            final static int TOP_Y = 370;
-            final static int RIGHT_X = 653;
-            final static int BOTTOM_Y = 719;
-            final static double WIDTH_CELL = 35.0;
-        }
     }
 
     class Window {
@@ -46,9 +58,10 @@ public class Constants {
         YOU_WIN("YOU_WIN"),
         YOU_TURN("YOU_TURN"),
         YOU_LOSE("YOU_LOSE"),
-        READY_TO_GAME("READY_TO_GAME"),
         DISCONNECT("DISCONNECT"),
-        EMPTY_STRING("");
+        SEND_SHIPS("SEND_SHIPS"),
+        EMPTY_STRING(""),
+        SPLIT_SYMBOL("|");
 
         private String typeValue;
 
