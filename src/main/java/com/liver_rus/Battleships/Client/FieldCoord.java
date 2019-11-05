@@ -9,13 +9,13 @@ public class FieldCoord {
 
     private boolean tag;
 
-    FieldCoord() {
+    public FieldCoord() {
         this.x = 0;
         this.y = 0;
         this.tag = false;
     }
 
-    FieldCoord(int x, int y) {
+    public FieldCoord(int x, int y) {
         this.x = x;
         this.y = y;
         this.tag = false;

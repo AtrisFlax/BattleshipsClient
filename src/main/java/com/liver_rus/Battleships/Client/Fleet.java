@@ -3,11 +3,11 @@ package com.liver_rus.Battleships.Client;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 
-class ShipsOnField  {
+public class Fleet {
     private FleetCounter fleetCounter;
     private LinkedHashSet<Ship> shipsList;
 
-    ShipsOnField() {
+    Fleet() {
         shipsList = new LinkedHashSet<>(FleetCounter.NUM_MAX_SHIPS);
         fleetCounter = new FleetCounter();
     }
@@ -20,7 +20,7 @@ class ShipsOnField  {
         shipsList.remove(ship);
     }
 
-    void add(Ship ship) {
+    public void add(Ship ship) {
         if (shipsList.size() < FleetCounter.NUM_MAX_SHIPS) {
             shipsList.add(ship);
         }
@@ -33,11 +33,11 @@ class ShipsOnField  {
         return shipsList;
     }
 
-    Ship findShip(FieldCoord shipCoord) {
+    public Ship findShip(FieldCoord shipCoord) {
         Ship findedShip = null;
         label: {
             for (Ship ship : shipsList) {
-                for (FieldCoord coord : ship.getShipCoord()) {
+                for (FieldCoord coord : ship.getShipCoords()) {
                     if (coord.getX() - 1 == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
                         findedShip = ship;
                         break label;
@@ -54,5 +54,18 @@ class ShipsOnField  {
 
     int popShip(Ship.Type shipType) {
         return fleetCounter.popShip(shipType);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (Ship ship: shipsList) {
+            result.append(ship).append(Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue());
+        }
+        return result.toString();
+    }
+
+    boolean isEmpty() {
+        return shipsList.isEmpty();
     }
 }

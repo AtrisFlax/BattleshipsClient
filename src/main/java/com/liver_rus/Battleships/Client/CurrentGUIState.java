@@ -1,11 +1,11 @@
 package com.liver_rus.Battleships.Client;
 
-class CurrentState {
+class CurrentGUIState {
     FieldCoord fieldCoord;
     Ship.Type shipType;
     Ship.Orientation shipOrientation;
 
-    CurrentState(){
+    CurrentGUIState(){
         setFieldCoord(new FieldCoord());
         setShipOrientation(Ship.Orientation.HORIZONTAL);
         setShipType(Ship.Type.UNKNOWN);;
@@ -33,6 +33,14 @@ class CurrentState {
 
     public void setShipOrientation(Ship.Orientation shipOrientation) {
         this.shipOrientation = shipOrientation;
+    }
+
+    public void changeShipOrientation() {
+        if (getShipOrientation() == Ship.Orientation.HORIZONTAL) {
+            setShipOrientation(Ship.Orientation.VERTICAL);
+        } else {
+            setShipOrientation(Ship.Orientation.HORIZONTAL);
+        }
     }
 
     @Override

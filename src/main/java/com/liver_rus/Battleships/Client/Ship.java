@@ -10,69 +10,78 @@ public class Ship {
 
     private FieldCoord[] shipCoord;
     private Orientation orientation;
-    private int type;
-    private String name;
+    private Type type;
 
-    Ship(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
-        int x = fieldCoord.getX() + 1;
-        int y = fieldCoord.getY() + 1;
-        int type = Ship.Type.shipTypeToInt(shipType);
-        shipCoord = new FieldCoord[type + 1];
-        if (orientation == Ship.Orientation.HORIZONTAL) {
+    public Ship(int x_coord, int y_coord, int shipType, boolean orientation) {
+        //shift coord. field(12*12) border
+        int x = x_coord + 1;
+        int y = y_coord + 1;
+        shipCoord = new FieldCoord[shipType + 1];
+        //horizontal orientation
+        if (orientation) {
             for (int i = 0; i < shipCoord.length; i++) {
                 shipCoord[i] = new FieldCoord(x + i, y);
             }
+            //vertical orientation
         } else {
             for (int i = 0; i < shipCoord.length; i++) {
                 shipCoord[i] = new FieldCoord(x, y + i);
             }
         }
-        this.orientation = orientation;
-        this.type = type;
-
-        switch (type) {
-            case 0:
-                name = "Submarine";
-                break;
-            case 1:
-                name = "Destroyer";
-                break;
-            case 2:
-                name = "Cruiser";
-                break;
-            case 3:
-                name = "Battleship";
-                break;
-            case 4:
-                name = "Aircraft Carrier";
-                break;
-            default:
-                name = "unknown";
-                break;
-        }
+        this.orientation = (orientation) ? Ship.Orientation.HORIZONTAL : Ship.Orientation.VERTICAL;
+        this.type = Type.shipIntToType(shipType);
     }
 
-    Ship(CurrentState currentState) {
-        this(currentState.getFieldCoord(), currentState.getShipType(), currentState.getShipOrientation());
+    public static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
+        int x = fieldCoord.getX();
+        int y = fieldCoord.getY();
+        int type = Ship.Type.shipTypeToInt(shipType);
+        boolean shipOrientation = Orientation.HORIZONTAL == orientation;
+        return new Ship(x, y, type, shipOrientation);
     }
 
-    public enum Orientation {
-        VERTICAL, HORIZONTAL;
+    public static Ship createShip(CurrentGUIState currentGUIState) {
+        return createShip(currentGUIState.getFieldCoord(), currentGUIState.getShipType(), currentGUIState.getShipOrientation());
+    }
 
-        static Orientation strToOrientation(String str) throws IOException {
-            if (str.equals("VERTICAL")) {
-                return VERTICAL;
+    public static Ship createShip(String line) throws IOException{
+        int x = Character.getNumericValue(line.charAt(0));
+        int y = Character.getNumericValue(line.charAt(1));
+        int type = Character.getNumericValue(line.charAt(2));
+        boolean shipOrientation = adaptOrientation(line.charAt(3));
+        return new Ship(x, y, type, shipOrientation);
+    }
+
+    private static boolean adaptOrientation(char c) throws IOException{
+        if (c == 'H') {
+            return true;
+        } else {
+            if (c == 'V') {
+                return false;
             } else {
-                if (str.equals("HORIZONTAL")) {
-                    return HORIZONTAL;
-                } else {
-                    throw new IOException();
-                }
+                throw new IOException();
             }
         }
     }
 
-    enum Type {
+    public enum Orientation {
+        HORIZONTAL, VERTICAL;
+
+        @Override
+        public String toString() {
+            if (this == Orientation.HORIZONTAL) {
+                return "H";
+            } else {
+                return "V";
+            }
+        }
+
+        public boolean getBoolean() {
+            return this == Orientation.HORIZONTAL;
+        }
+    }
+
+    public enum Type {
         AIRCRAFT_CARRIER(4),
         BATTLESHIP(3),
         CRUISER(2),
@@ -111,19 +120,23 @@ public class Ship {
         }
     }
 
-    FieldCoord[] getShipCoord() {
+    FieldCoord[] getShipCoords() {
         return shipCoord;
     }
 
-    void tagShipCell(FieldCoord coord) {
+    FieldCoord getShipStartCoord() {
+        return shipCoord[0];
+    }
+
+    public void tagShipCell(FieldCoord coord) {
         if (orientation == Orientation.HORIZONTAL) {
-            this.shipCoord[coord.getX() - shipCoord[0].getX() + 1].setTag();
+            this.shipCoord[coord.getX() - shipCoord[0].getX()].setTag();
         } else {
             this.shipCoord[coord.getY() - shipCoord[0].getY()].setTag();
         }
     }
 
-    boolean isAlive() {
+    public boolean isAlive() {
         boolean isAlive = false;
         for (FieldCoord shipSector : shipCoord) {
             if (!shipSector.getTag()) {
@@ -136,11 +149,11 @@ public class Ship {
 
     @Override
     public String toString() {
-        return shipCoord[0].getX() + " " + shipCoord[0].getY() + " " + type + " " + orientation;
+        return Integer.toString((shipCoord[0].getX()-1) ) + (shipCoord[0].getY()-1) + Type.shipTypeToInt(type) +  orientation;
     }
 
-    void printShipOnConsole() {
-        System.out.println(name);
+    void printOnConsole() {
+        System.out.println(type);
         for (FieldCoord cell : shipCoord) {
             if (!cell.getTag()) {
                 System.out.print("|#|");
@@ -150,6 +163,14 @@ public class Ship {
             System.out.print(" ");
         }
         System.out.println();
+    }
+
+    public Orientation getOrientation() {
+        return orientation;
+    }
+
+    public Ship.Type getType() {
+        return type;
     }
 
 }

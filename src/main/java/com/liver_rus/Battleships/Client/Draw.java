@@ -4,14 +4,12 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 class Draw {
-
     static void MissCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
         MissCellOnField(gc, new FirstPlayerGUIConstants(), fieldCoord);
     }
 
     static void MissCellOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord) {
         MissCellOnField(gc, new SecondPlayerGUIConstants(), fieldCoord);
-
     }
 
     static void HitCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
@@ -24,14 +22,14 @@ class Draw {
 
     static void ShipOnMyField(GraphicsContext gc, Ship ship) {
         int x = ship.getShipStartCoord().getX();
-        int y = ship.getShipStartCoord().getX();
-        int type =  Ship.Type.shipTypeToInt(ship.getType());
+        int y = ship.getShipStartCoord().getY();
+        int type = Ship.Type.shipTypeToInt(ship.getType());
         boolean orientation = ship.getOrientation().getBoolean();
-        ShipOnField(gc, new FirstPlayerGUIConstants(), x, y , type, orientation);
+        ShipOnField(gc, new FirstPlayerGUIConstants(), x, y, type, orientation);
     }
 
     static void ShipOnMyField(GraphicsContext gc, CurrentGUIState currentGUIState) {
-        ShipOnField(gc,  new FirstPlayerGUIConstants(),
+        ShipOnField(gc, new FirstPlayerGUIConstants(),
                 currentGUIState.getFieldCoord().getX(),
                 currentGUIState.getFieldCoord().getY(),
                 Ship.Type.shipTypeToInt(currentGUIState.getShipType()),
@@ -40,10 +38,10 @@ class Draw {
 
     static void ShipOnEnemyField(GraphicsContext gc, Ship ship) {
         int x = ship.getShipStartCoord().getX();
-        int y = ship.getShipStartCoord().getX();
-        int type =  Ship.Type.shipTypeToInt(ship.getType());
+        int y = ship.getShipStartCoord().getY();
+        int type = Ship.Type.shipTypeToInt(ship.getType());
         boolean orientation = ship.getOrientation().getBoolean();
-        ShipOnField(gc, new SecondPlayerGUIConstants(), x, y , type, orientation);
+        ShipOnField(gc, new SecondPlayerGUIConstants(), x, y, type, orientation);
     }
 
     private static void MissCellOnField(GraphicsContext graphicContext, GUIConstant constants, FieldCoord fieldCoord) {
@@ -86,12 +84,11 @@ class Draw {
         } else {
             //vertical
             gc.strokeRect(
-                    constants.getLeftX()+ x * constants.getWidthCell(),
+                    constants.getLeftX() + x * constants.getWidthCell(),
                     constants.getTopY() + y * constants.getWidthCell(),
                     constants.getWidthCell(),
                     constants.getWidthCell() * (type + 1)
             );
         }
     }
-
 }

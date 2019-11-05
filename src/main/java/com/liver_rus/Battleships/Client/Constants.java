@@ -4,7 +4,7 @@ package com.liver_rus.Battleships.Client;
 class FirstPlayerGUIConstants implements GUIConstant {
     private final static int LEFT_X = 65;
     private final static int RIGHT_X = 301;
-    private final static int TOP_Y = 157;
+    private final static int TOP_Y = 133;
     private final static int BOTTOM_Y = 386;
     private final static double WIDTH_CELL = 23.5;
 
@@ -57,6 +57,7 @@ public class Constants {
         MISS("MISS"),
         YOU_WIN("YOU_WIN"),
         YOU_TURN("YOU_TURN"),
+        ENEMY_TURN("ENEMY_TURN"),
         YOU_LOSE("YOU_LOSE"),
         DISCONNECT("DISCONNECT"),
         SEND_SHIPS("SEND_SHIPS"),

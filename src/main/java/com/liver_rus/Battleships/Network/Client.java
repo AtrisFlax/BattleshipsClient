@@ -20,13 +20,12 @@ import java.util.logging.Logger;
 import static java.nio.channels.SelectionKey.*;
 
 public class Client {
-
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
-
+    private static final int QUEUE_SIZE = 2;
     private SocketChannel channel = null;
     private Selector selector = null;
     private ReceiveThread clientReceiver = null;
-    private BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(2);
+    private BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
     int port = 0;
     InetAddress address = null;
     private ObservableList<String> inbox;
@@ -46,7 +45,7 @@ public class Client {
         channel.configureBlocking(false);
         selector = Selector.open();
         channel.register(selector, OP_CONNECT);
-        channel.connect(new InetSocketAddress(InetConstants.getLocalHost(), port));
+        channel.connect(new InetSocketAddress(ServerConstants.getLocalHost(), port));
 
         startClientReceiver();
     }
@@ -81,10 +80,7 @@ public class Client {
             try {
                 while (channel.isOpen() ) {
                     selector.select();
-
                     if (selector.isOpen()) {
-
-
                         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
                         SelectionKey key;
                         while (keys.hasNext()) {
@@ -113,6 +109,7 @@ public class Client {
             } catch (IOException ignored) {
             }
         }
+
         private void receiveMessage() throws IOException {
             ByteBuffer buf = ByteBuffer.allocate(2048);
             int nBytes = 0;
@@ -121,7 +118,6 @@ public class Client {
             if (nBytes == 2048 || nBytes == 0)
                 return;
             String message = new String(buf.array());
-            log.info("message.trim " + message.trim());
             inbox.add(message.trim());
         }
     }
