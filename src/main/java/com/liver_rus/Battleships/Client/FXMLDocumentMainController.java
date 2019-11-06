@@ -372,7 +372,7 @@ public class FXMLDocumentMainController implements Initializable {
     private void gameEngineProceed(String message) {
         //HITXX
         if (MessageProcessor.isHit(message)) {
-            if(gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
 //                gameEngine.setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
@@ -383,7 +383,7 @@ public class FXMLDocumentMainController implements Initializable {
         //MISSXX
         if (MessageProcessor.isMiss(message)) {
             //if you turn
-            if(gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
                 log.info("Client: Server give message to Early");
             }
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
@@ -393,7 +393,7 @@ public class FXMLDocumentMainController implements Initializable {
         }
 
         if (MessageProcessor.isDestroyed(message)) {
-            if(gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
                 log.info("Client: Server give message to Early");
             }
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
@@ -428,13 +428,16 @@ public class FXMLDocumentMainController implements Initializable {
         //displayState(state);
 
         Platform.runLater(() -> {
-            statusListView.getItems().add(convertToReadableView(message));
-            statusListView.scrollTo(statusListView.getItems().size()-1);
+            String readableString = convertToReadableView(message);
+            if (readableString != null) {
+                statusListView.getItems().add(convertToReadableView(message));
+                statusListView.scrollTo(statusListView.getItems().size() - 1);
+            }
         });
 
         //HITXX
         if (MessageProcessor.isHit(message)) {
-            if(gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.HitCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
             }
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
@@ -457,9 +460,9 @@ public class FXMLDocumentMainController implements Initializable {
 
         //DESTROYEDXX
         if (MessageProcessor.isDestroyed(message)) {
-            if(gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.ShipOnEnemyField(mainCanvas, new DrawAdapterShip(
-                                Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED.toString(), ""))));
+                        Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED.toString(), ""))));
             }
             //on my field all ships already has drawn
 //            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
@@ -488,7 +491,7 @@ public class FXMLDocumentMainController implements Initializable {
             return;
         }
 
-        Platform.runLater( () -> statusListView.scrollTo(networkInbox.size() - 1) );
+        Platform.runLater(() -> statusListView.scrollTo(networkInbox.size() - 1));
 
       /*
       case ENEMY_NAME:
@@ -503,7 +506,7 @@ public class FXMLDocumentMainController implements Initializable {
     }
 
     private void displayState(ConnectionDisplayState state) {
-        Platform.runLater( ()-> {
+        Platform.runLater(() -> {
             switch (state) {
                 case DISCONNECTED:
                     resetFleetButton.setDisable(true);
@@ -527,6 +530,7 @@ public class FXMLDocumentMainController implements Initializable {
         });
     }
 
+    //auto deployment for debug
     public void testShipsDeployment() {
         ArrayList<Ship> ships = new ArrayList<>();
         ships.add(Ship.createShip(new FieldCoord(1, 8), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
@@ -536,17 +540,13 @@ public class FXMLDocumentMainController implements Initializable {
         ships.add(Ship.createShip(new FieldCoord(2, 6), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
         ships.add(Ship.createShip(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, Ship.Orientation.VERTICAL));
         ships.add(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL));
-
         for (Ship ship : ships) {
             gameEngine.addShipOnField(ship);
         }
-
         for (Ship ship : ships) {
             Draw.ShipOnMyField(mainCanvas, new DrawAdapterShip(ship));
         }
-
         gameEngine.setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-
         try {
             Thread.sleep(1000);
         } catch (InterruptedException e) {
@@ -557,9 +557,52 @@ public class FXMLDocumentMainController implements Initializable {
         resetFleetButton.setDisable(true);
     }
 
-    //TODO Trasnsform message in someone readable for statusListView
-    String convertToReadableView(String message) {
-        return message;
+    private String convertToReadableView(String message) {
+        //HITXX
+        if (MessageProcessor.isHit(message)) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+                return gameEngine.getShootCoord().toGameFormat() + " Enemy Ship has Hit";
+            }
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+                return gameEngine.getShootCoord().toGameFormat() + " You Ship has Hit";
+            }
+        }
+        //MISSXX
+        if (MessageProcessor.isMiss(message)) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+                return gameEngine.getShootCoord().toGameFormat() + " You Missed";
+            }
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+                return gameEngine.getShootCoord().toGameFormat() + " Enemy Missed";
+            }
+        }
+        //DESTROYEDXX
+        if (MessageProcessor.isDestroyed(message)) {
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+                return "You Destroy Enemy Ship";
+            }
+
+            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+                return "Enemy Destroy Your Ship";
+            }
+        }
+//        if (MessageProcessor.isYouTurn(message)) {
+//            return "You Turn";
+//        }
+//
+//        if (MessageProcessor.isEnemyTurn(message)) {
+//            return "Enemy Turn";
+//        }
+        if (MessageProcessor.isYouWin(message)) {
+            return "You Win";
+        }
+        if (MessageProcessor.isYouLose(message)) {
+            return "You Lose";
+        }
+        if (MessageProcessor.isDisconnect(message)) {
+            return "Disconnect";
+        }
+        return null;
     }
 }
 

@@ -8,16 +8,30 @@ public class MessageProcessor {
         return matchHeadPlusDD(Constants.NetworkMessage.SHOT.toString(), line);
     }
 
+    public static boolean isHit(String line) {
+        return matchHeadPlusDD(Constants.NetworkMessage.HIT.toString(), line);
+    }
+
     public static boolean isMiss(String line) {
         return matchHeadPlusDD(Constants.NetworkMessage.MISS.toString(), line);
     }
 
     public static boolean isDestroyed(String line) {
-        return matchHeadPlusDD(Constants.NetworkMessage.DESTROYED.toString(), line);
+        return matchHeadPlusDDDT(Constants.NetworkMessage.DESTROYED.toString(), line);
     }
 
+    //SHOT11
+    //MISS11
+    //HIT11
     static private boolean matchHeadPlusDD(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{2}$");
+        Matcher m = p.matcher(line);
+        return m.matches();
+    }
+
+    //DESTROYED111V
+    static private boolean matchHeadPlusDDDT(String head, String line) {
+        Pattern p = Pattern.compile("^" + head + "\\d{3}[VH]$");
         Matcher m = p.matcher(line);
         return m.matches();
     }
@@ -48,5 +62,9 @@ public class MessageProcessor {
 
     public static boolean isYouLose(String message) {
         return message.equals(Constants.NetworkMessage.YOU_LOSE.toString());
+    }
+
+    public static boolean isDisconnect(String message) {
+        return message.equals(Constants.NetworkMessage.DISCONNECT.toString());
     }
 }

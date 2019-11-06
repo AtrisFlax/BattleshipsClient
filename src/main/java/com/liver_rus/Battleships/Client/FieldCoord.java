@@ -53,6 +53,14 @@ public class FieldCoord {
         return Integer.toString(x) + y;
     }
 
+    //A1 B2
+    public String toGameFormat() {
+        int tmpX = x + 1;
+        int tmpY = y + 1;
+        String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char)(tmpY + 'A' - 1)) : null;
+        return strY + tmpX;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

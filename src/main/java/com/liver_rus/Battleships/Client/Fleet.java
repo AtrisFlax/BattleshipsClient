@@ -38,7 +38,7 @@ public class Fleet {
         label: {
             for (Ship ship : shipsList) {
                 for (FieldCoord coord : ship.getShipCoords()) {
-                    if (coord.getX() - 1 == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
+                    if (coord.getX() == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
                         findedShip = ship;
                         break label;
                     }

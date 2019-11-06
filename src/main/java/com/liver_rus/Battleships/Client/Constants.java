@@ -64,6 +64,7 @@ public class Constants {
         EMPTY_STRING(""),
         SPLIT_SYMBOL("|");
 
+
         private String typeValue;
 
         NetworkMessage(String type) {

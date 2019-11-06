@@ -19,10 +19,13 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 public class Server implements Runnable {
     private static final int READ_BUFFER_SIZE = 8192;
+    private static final int WRITE_BUFFER_SIZE = 8192;
     private static final Logger log = Logger.getLogger(String.valueOf(Server.class));
     private ServerSocketChannel serverChannel = null;
     private Selector selector;
     private ByteBuffer readBuffer = allocate(READ_BUFFER_SIZE);
+    //TODO make one buffer for all write methods
+    private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
     private int port;
 
     private ServerGameEngine gameEngine;
@@ -30,8 +33,12 @@ public class Server implements Runnable {
 
     private final static int MAX_CONNECTIONS = 2;
     private int numConnections = 0;
-    //TODO SELECTION KEY + STAT + FIELD
+    //TODO try attachment
+//    selectionKey.attach(theObject);
+//
+//    Object attachedObj = selectionKey.attachment();
     private Map<SelectionKey, GameField> connections;
+
 
     public Server() throws IOException {
         port = ServerConstants.getDefaultPort();
@@ -77,17 +84,14 @@ public class Server implements Runnable {
                         key = keys.next();
                         keys.remove();
 
-                        if (!key.isValid())
-                            continue;
+                        if (key.isValid()) {
+                            if (key.isAcceptable())
+                                acceptConnection(key);
 
-                        if (key.isAcceptable())
-                            acceptConnection(key);
+                            if (key.isReadable())
+                                readMessage(key);
 
-                        if (key.isReadable())
-                            readMessage(key);
-
-                        if (key.isWritable())
-                            readMessage(key);
+                        }
                     }
                 }
             } catch (Exception e) {
@@ -110,10 +114,10 @@ public class Server implements Runnable {
         SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();
         if (numConnections < MAX_CONNECTIONS) {
             numConnections++;
-            String address = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
+            String port = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
             socketChannel.configureBlocking(false);
-            socketChannel.register(selector, SelectionKey.OP_READ, address);
-            log.info("accepted connection from: " + address);
+            socketChannel.register(selector, SelectionKey.OP_READ, port);
+            log.info("accepted connection from: " + port);
             Set<SelectionKey> all_connections = selector.keys();
             //remember connection
             for (SelectionKey connect : all_connections) {
@@ -166,34 +170,6 @@ public class Server implements Runnable {
         sendAnswer(key, message);
     }
 
-    private void sendAnswer(SelectionKey key, String message) throws IOException {
-        if (gameEngine.isReadyForBroadcast() && turnHolder == key) {
-            if (MessageProcessor.isShotLine(message)) {
-                FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
-                GameField field = connections.get(key);
-                if (field.setCellAsDamaged(new MessageAdapterFieldCoord(shootCoord))) {
-                    Ship ship = field.getFleet().findShip(shootCoord);
-                    if (!ship.isAlive()) {
-                        sendAllClient(Constants.NetworkMessage.DESTROYED.toString() + ship.toString());
-                    }
-                    sendAllClient(Constants.NetworkMessage.HIT.toString());
-                    sendMessage(key, Constants.NetworkMessage.YOU_TURN.toString());
-                    sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN.toString());
-                } else {
-                    //TODO Why do messages on client stick together?
-                    sendAllClient(Constants.NetworkMessage.MISS.toString() + shootCoord.toString());
-                    sendMessage(key, Constants.NetworkMessage.ENEMY_TURN.toString());
-                    turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN.toString());
-                }
-                if (field.isAllShipsDestroyed()) {
-                    sendMessage(key, Constants.NetworkMessage.YOU_WIN.toString());
-                    sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE.toString());
-                    gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
-                }
-            }
-        }
-    }
-
     private void gameEngineProceed(SelectionKey key, String message) throws IOException {
         if (message.equals(Constants.NetworkMessage.DISCONNECT.toString())) {
             log.info("Connection closed upon one's client request");
@@ -229,14 +205,18 @@ public class Server implements Runnable {
             sendMessage(key, "Incorrect fleet format");
         }
 
+        //SHOTXX
         if (gameEngine.isReadyForBroadcast() && turnHolder == key) {
             if (MessageProcessor.isShotLine(message)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
+                //TODO REPLACE GET FIELD WITH GET CHANNEL ATTACHABLE
                 GameField field = connections.get(key);
-                if (field.setCellAsDamaged(new MessageAdapterFieldCoord(shootCoord))) {
-                    Ship ship = field.getFleet().findShip(shootCoord);
-                    ship.tagShipCell(shootCoord);
+                FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
+                field.setCellAsDamaged(adaptedShootCoord);
+                if (field.isCellDamaged(adaptedShootCoord)) {
+                    Ship ship = field.getFleet().findShip(adaptedShootCoord);
+                    ship.tagShipCell(adaptedShootCoord);
                     if (field.isAllShipsDestroyed()) {
                         gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
                     }
@@ -259,6 +239,34 @@ public class Server implements Runnable {
         }
     }
 
+    private void sendAnswer(SelectionKey key, String message) throws IOException {
+        if (gameEngine.isReadyForBroadcast() && turnHolder == key) {
+            //SHOTXX
+            if (MessageProcessor.isShotLine(message)) {
+                FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
+                GameField field = connections.get(key);
+                FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
+                if (field.isCellDamaged(adaptedShootCoord)) {
+                    Ship ship = field.getFleet().findShip(adaptedShootCoord);
+                    sendAllClient(Constants.NetworkMessage.HIT.toString() + shootCoord);
+                    if (!ship.isAlive()) {
+                        sendAllClient(Constants.NetworkMessage.DESTROYED.toString() + ship.toString());
+                    }
+                    sendMessage(key, Constants.NetworkMessage.YOU_TURN.toString());
+                    sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN.toString());
+                } else {
+                    sendAllClient(Constants.NetworkMessage.MISS.toString() + shootCoord);
+                    sendMessage(key, Constants.NetworkMessage.ENEMY_TURN.toString());
+                    turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN.toString());
+                }
+                if (field.isAllShipsDestroyed()) {
+                    sendMessage(key, Constants.NetworkMessage.YOU_WIN.toString());
+                    sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE.toString());
+                    gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
+                }
+            }
+        }
+    }
 
     //connection[1] has and shot to field[2]
     //connection[2] has and shot to field[1]
@@ -398,15 +406,16 @@ public class Server implements Runnable {
      * @throws IOException
      */
     private SelectionKey sendOtherClient(SelectionKey receiverKey, String msg) throws IOException {
+        msg += Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue();
         ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
         SelectionKey otherClientKey = null;
         for (SelectionKey key : selector.keys()) {
             if (key != receiverKey) {
                 if (key.isValid() && key.channel() instanceof SocketChannel) {
+                    otherClientKey = key;
                     SocketChannel socketChannel = (SocketChannel) key.channel();
                     socketChannel.write(messageBuffer);
                     messageBuffer.rewind();
-                    otherClientKey = key;
                 }
             }
         }
@@ -423,6 +432,7 @@ public class Server implements Runnable {
      * @throws IOException
      */
     private void sendAllClient(String msg) throws IOException {
+        msg += Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue();
         ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
         for (SelectionKey key : selector.keys()) {
             if (key.isValid() && key.channel() instanceof SocketChannel) {
@@ -434,6 +444,7 @@ public class Server implements Runnable {
     }
 
     private void sendMessage(SelectionKey key, String msg) throws IOException {
+        msg += Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue();
         ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
         if (key.isValid() && key.channel() instanceof SocketChannel) {
             SocketChannel socketChannel = (SocketChannel) key.channel();

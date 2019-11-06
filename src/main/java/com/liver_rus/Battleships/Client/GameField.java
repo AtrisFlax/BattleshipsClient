@@ -109,17 +109,14 @@ public class GameField {
 
     //Отметка попадания в корабль
     private void tagShipsByCoord(int x, int y) {
-        FieldCoord findedCellForTag = null;
         for (Ship ship : fleet.getShipsOnField()) {
             for (FieldCoord shipCoord : ship.getShipCoords()) {
                 if (shipCoord.getX() == x && shipCoord.getY() == y) {
-                    findedCellForTag = shipCoord;
-                    break;
+                    shipCoord.setTag();
+                    return;
                 }
             }
         }
-        if (findedCellForTag != null)
-            findedCellForTag.setTag();
     }
 
     /*
@@ -142,15 +139,23 @@ public class GameField {
         return !someoneAlive;
     }
 
-    public boolean setCellAsDamaged(FieldCoord fieldCoord) {
+    public void setCellAsDamaged(FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
         if (field[x][y] == Cell.SHIP) {
             tagShipsByCoord(x, y);
             field[x][y] = Cell.DAMAGED_SHIP;
-            return true;
         } else {
             field[x][y] = Cell.MISS;
+        }
+    }
+
+    public boolean isCellDamaged(FieldCoord fieldCoord) {
+        int x = fieldCoord.getX();
+        int y = fieldCoord.getY();
+        if (field[x][y] == Cell.DAMAGED_SHIP) {
+            return true;
+        } else {
             return false;
         }
     }

@@ -48,7 +48,7 @@ class NetworkTest {
             connectionLatch.countDown();
         }).start();
         connectionLatch.await();
-        Thread.sleep(100);
+        Thread.sleep(500);
     }
 
     void send(Client client, String msg) throws InterruptedException {
@@ -71,16 +71,33 @@ class NetworkTest {
 
         send(client1, Constants.NetworkMessage.SEND_SHIPS.toString() + test_phrase1);
         send(client2, Constants.NetworkMessage.SEND_SHIPS.toString() + test_phrase1);
-        Thread.sleep(1000);
 
+        for (String msg : client1.getInbox()) {
+            if (msg.equals(Constants.NetworkMessage.YOU_TURN.toString())) {
+                send(client1, "SHOT11");
+                break;
+            }
+        }
+
+        for (String msg : client2.getInbox()) {
+            if (msg.equals(Constants.NetworkMessage.YOU_TURN.toString())) {
+                send(client2, "SHOT11");
+                break;
+            }
+        }
+
+        int i = 0;
         System.out.println("client1.getInbox");
         for(String msg : client1.getInbox()) {
-            System.out.println(msg);
+            System.out.println(i++ + ": " +   msg);
         }
+
+        i = 0;
         System.out.println("client2.getInbox");
         for(String msg : client2.getInbox()) {
-            System.out.println(msg);
+            System.out.println(i++ + ": " +   msg);
         }
+
 
         //assertNotEquals(0 , client1.getInbox().size(), "Client 1 has empty inbox");
 //        String recived_phrase1 = client1.getInbox().get(client1.getInbox().size() - 1);
