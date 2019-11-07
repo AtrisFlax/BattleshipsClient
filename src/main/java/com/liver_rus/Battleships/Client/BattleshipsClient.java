@@ -13,7 +13,7 @@ public class BattleshipsClient extends Application {
     public void start(Stage stage) throws Exception {
         Parent root = FXMLLoader.load(getClass().getResource("/fxml/FXMLDocumentMain.fxml"));
         Scene scene = new Scene(root);
-        stage.getIcons().add(new Image("file:resources\\480px-icon.png"));
+        stage.getIcons().add(new Image("/img/480px-icon.png"));
         stage.setResizable(false);
         stage.setScene(scene);
         stage.setTitle(this.getClass().getSimpleName());
