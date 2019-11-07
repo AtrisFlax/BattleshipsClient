@@ -36,6 +36,7 @@ class Draw {
                 currentGUIState.getShipOrientation().getBoolean());
     }
 
+    //draw ship frame
     static void ShipOnEnemyField(GraphicsContext gc, Ship ship) {
         int x = ship.getShipStartCoord().getX();
         int y = ship.getShipStartCoord().getY();

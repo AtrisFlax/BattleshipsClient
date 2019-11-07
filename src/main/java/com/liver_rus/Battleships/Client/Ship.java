@@ -7,7 +7,6 @@ import java.io.IOException;
  */
 
 public class Ship {
-
     private FieldCoord[] shipCoord;
     private Orientation orientation;
     private Type type;
@@ -32,7 +31,7 @@ public class Ship {
         this.type = Type.shipIntToType(shipType);
     }
 
-    public static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
+    static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
         int type = Ship.Type.shipTypeToInt(shipType);
@@ -40,11 +39,11 @@ public class Ship {
         return new Ship(x, y, type, shipOrientation);
     }
 
-    public static Ship createShip(CurrentGUIState currentGUIState) {
+    static Ship createShip(CurrentGUIState currentGUIState) {
         return createShip(currentGUIState.getFieldCoord(), currentGUIState.getShipType(), currentGUIState.getShipOrientation());
     }
 
-    public static Ship createShip(String line) throws IOException{
+    public static Ship createShip(String line) throws IOException {
         int x = Character.getNumericValue(line.charAt(0));
         int y = Character.getNumericValue(line.charAt(1));
         int type = Character.getNumericValue(line.charAt(2));
@@ -52,7 +51,7 @@ public class Ship {
         return new Ship(x, y, type, shipOrientation);
     }
 
-    private static boolean adaptOrientation(char c) throws IOException{
+    private static boolean adaptOrientation(char c) throws IOException {
         if (c == 'H') {
             return true;
         } else {
@@ -149,7 +148,15 @@ public class Ship {
 
     @Override
     public String toString() {
-        return Integer.toString((shipCoord[0].getX()-1) ) + (shipCoord[0].getY()-1) + Type.shipTypeToInt(type) +  orientation;
+        return Integer.toString((shipCoord[0].getX() - 1)) + (shipCoord[0].getY() - 1) + Type.shipTypeToInt(type) + orientation;
+    }
+
+    Orientation getOrientation() {
+        return orientation;
+    }
+
+    public Ship.Type getType() {
+        return type;
     }
 
     void printOnConsole() {
@@ -163,14 +170,6 @@ public class Ship {
             System.out.print(" ");
         }
         System.out.println();
-    }
-
-    public Orientation getOrientation() {
-        return orientation;
-    }
-
-    public Ship.Type getType() {
-        return type;
     }
 
 }

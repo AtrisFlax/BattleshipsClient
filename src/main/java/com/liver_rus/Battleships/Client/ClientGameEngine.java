@@ -21,6 +21,7 @@ class ClientGameEngine extends GameEngine {
 
     ClientGameEngine() {
         super();
+        gameField = new GameField();
         setGamePhase(ClientGameEngine.Phase.INIT);
         shipSelected = false;
         shootCoord = null;
@@ -98,9 +99,15 @@ class ClientGameEngine extends GameEngine {
 
     int selectShip(Ship.Type type) {
         if (gameField.getFleet().getShipsLeft() > 0) {
-            setShipSelected(true);
-            currentGUIState.shipType = type;
-            return gameField.getFleet().popShip(type);
+            int popShipResult = gameField.getFleet().popShip(type);
+            if (popShipResult != -1) {
+                setShipSelected(true);
+                currentGUIState.shipType = type;
+                return popShipResult;
+            } else {
+                setShipSelected(false);
+                return 0;
+            }
         } else {
             return 0;
         }
@@ -110,4 +117,60 @@ class ClientGameEngine extends GameEngine {
         gameField.getFleet().add(ship);
         gameField.markFieldByShip(ship);
     }
+
+    void proceedMessage(String message) {
+        //HITXX
+        if (MessageProcessor.isHit(message)) {
+            //if you turn
+            if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+                //shoot coord is set by gui handler before
+                //setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
+            }
+            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+                setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
+            }
+        }
+
+        //MISSXX
+        if (MessageProcessor.isMiss(message)) {
+            //Miss [/] auto placed by gui handler
+            //if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+            //    log.info("Client: Server give message to Early");
+            //}
+            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+                setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
+            }
+            return;
+        }
+
+        if (MessageProcessor.isDestroyed(message)) {
+            if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+                log.info("Client: Server give message to Early");
+            }
+            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+                setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
+            }
+            return;
+        }
+
+        if (MessageProcessor.isYouTurn(message)) {
+            setGamePhase(ClientGameEngine.Phase.MAKE_SHOT);
+            return;
+        }
+
+        if (MessageProcessor.isEnemyTurn(message)) {
+            setGamePhase(ClientGameEngine.Phase.TAKE_SHOT);
+            return;
+        }
+
+        if (MessageProcessor.isYouWin(message)) {
+            setGamePhase(ClientGameEngine.Phase.END_GAME);
+            return;
+        }
+
+        if (MessageProcessor.isYouLose(message)) {
+            setGamePhase(ClientGameEngine.Phase.END_GAME);
+        }
+    }
+
 }

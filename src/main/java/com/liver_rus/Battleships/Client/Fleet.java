@@ -23,8 +23,7 @@ public class Fleet {
     public void add(Ship ship) {
         if (shipsList.size() < FleetCounter.NUM_MAX_SHIPS) {
             shipsList.add(ship);
-        }
-        else {
+        } else {
             throw new ArrayIndexOutOfBoundsException("Trying to add too many ships on field");
         }
     }
@@ -35,7 +34,8 @@ public class Fleet {
 
     public Ship findShip(FieldCoord shipCoord) {
         Ship findedShip = null;
-        label: {
+        label:
+        {
             for (Ship ship : shipsList) {
                 for (FieldCoord coord : ship.getShipCoords()) {
                     if (coord.getX() == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
@@ -59,7 +59,7 @@ public class Fleet {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
-        for (Ship ship: shipsList) {
+        for (Ship ship : shipsList) {
             result.append(ship).append(Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue());
         }
         return result.toString();

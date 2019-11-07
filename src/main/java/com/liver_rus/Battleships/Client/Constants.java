@@ -31,9 +31,6 @@ class SecondPlayerGUIConstants  implements GUIConstant {
 }
 
 public class Constants {
-    private Constants() {
-    }
-
     class Window {
         final static int WIDTH = 700;
         final static int HEIGHT = 950;
@@ -44,8 +41,6 @@ public class Constants {
         final static String ABOUT_GAME_HEADER = "Info1";
         final static String ABOUT_GAME_TEXT = "Info2";
     }
-
-    final static int NO_MORE_SHIPS = 0;
 
     final static int NONE_SELECTED_FIELD_COORD = -1;
 
@@ -63,8 +58,7 @@ public class Constants {
         SEND_SHIPS("SEND_SHIPS"),
         EMPTY_STRING(""),
         SPLIT_SYMBOL("|");
-
-
+        
         private String typeValue;
 
         NetworkMessage(String type) {

@@ -171,14 +171,13 @@ public class FXMLDocumentMainController implements Initializable {
         if (gameEngine.getGamePhase() == ClientGameEngine.Phase.DEPLOYING_FLEET) {
             gameEngine.setCurrentState(
                     new FieldCoord(
-                            event.getSceneX(), event.getSceneY(), true),
+                            event.getSceneX(), event.getSceneY(), new FirstPlayerGUIConstants()),
                     gameEngine.getShipType(),
                     gameEngine.getShipOrientation()
             );
-            //System.out.println("handleOverlayCanvasMouseMoved gameEngine.getCurrentState()" + gameEngine.getCurrentState());
             if (gameEngine.isShipSelected() &&
-                    PixelCoord.isFromMyPlayerField(event.getSceneX(), event.getSceneY()) &&
-                    gameEngine.getGameField().isNotIntersectShipWithBorder(gameEngine.getCurrentGUIState())) {
+                    SceneCoord.isFromFirstPlayerField(event.getSceneX(), event.getSceneY()) &&
+                    gameEngine.getGameField().isNotIntersectionShipWithBorder(gameEngine.getCurrentGUIState())) {
                 if (gameEngine.getGameField().isPossibleLocateShip(gameEngine.getCurrentGUIState())) {
                     overlayCanvas.setStroke(Color.BLACK);
                     Draw.ShipOnMyField(overlayCanvas, gameEngine.getCurrentGUIState());
@@ -199,9 +198,9 @@ public class FXMLDocumentMainController implements Initializable {
 
         // Отрисовка линнии по указанной мышью координате на поле противника
         if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
-            if (PixelCoord.isCoordFromEnemyPlayerField(event.getSceneX(), event.getSceneY())) {
+            if (SceneCoord.isFromSecondPlayerField(event.getSceneX(), event.getSceneY())) {
                 overlayCanvas.setStroke(Color.BLACK);
-                FieldCoord fieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), false);
+                FieldCoord fieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), new SecondPlayerGUIConstants());
                 Draw.MissCellOnEnemyField(overlayCanvas, fieldCoord);
                 if (lastEnemyFieldCoord.equals(fieldCoord) && !isFirstChangeLastFieldCoord) {
                     clearCanvas(overlayCanvas);
@@ -239,7 +238,7 @@ public class FXMLDocumentMainController implements Initializable {
 //                System.out.println("Current state MouseButton.MIDDLE" + gameEngine.getCurrentState());
                 //перерисовываем после смены
                 overlayCanvas.clearRect(0, 0, Constants.Window.WIDTH, Constants.Window.HEIGHT);
-                if (gameEngine.getGameField().isNotIntersectShipWithBorder(gameEngine.getCurrentGUIState()) &&
+                if (gameEngine.getGameField().isNotIntersectionShipWithBorder(gameEngine.getCurrentGUIState()) &&
                         gameEngine.getGameField().isPossibleLocateShip(gameEngine.getCurrentGUIState())) {
                     Draw.ShipOnMyField(overlayCanvas, gameEngine.getCurrentGUIState());
                 }
@@ -249,13 +248,10 @@ public class FXMLDocumentMainController implements Initializable {
         if (event.getButton().equals(MouseButton.PRIMARY)) {
             //Размещение корабля, после выбора
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.DEPLOYING_FLEET) {
-                if (PixelCoord.isFromMyPlayerField(event.getSceneX(), event.getSceneY()) &&
+                if (SceneCoord.isFromFirstPlayerField(event.getSceneX(), event.getSceneY()) &&
                         gameEngine.isShipSelected() &&
                         gameEngine.getGameField().getFleet().getShipsLeft() >= 0) {
                     resetFleetButton.setDisable(false);
-
-//                    log.info("CurrentState MouseButton.PRIMARY" + gameEngine.getCurrentState());
-
                     if (gameEngine.getGameField().isPossibleLocateShip(gameEngine.getCurrentGUIState()) &&
                             gameEngine.getGameField().getFleet().getShipsLeft() >= 0) {
                         gameEngine.addShipOnField(Ship.createShip(gameEngine.getCurrentGUIState()));
@@ -275,8 +271,8 @@ public class FXMLDocumentMainController implements Initializable {
             }
             //выстрел в поле противника
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
-                if (PixelCoord.isCoordFromEnemyPlayerField(event.getSceneX(), event.getSceneY())) {
-                    FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), false);
+                if (SceneCoord.isFromSecondPlayerField(event.getSceneX(), event.getSceneY())) {
+                    FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), new SecondPlayerGUIConstants());
                     Draw.MissCellOnEnemyField(mainCanvas, shootFieldCoord);
                     network.sendMessage(Constants.NetworkMessage.SHOT.toString() + shootFieldCoord);
                     gameEngine.setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
@@ -323,10 +319,6 @@ public class FXMLDocumentMainController implements Initializable {
                     }
                     gameEngine.setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
                     labelGameStatus.setText("Deploying fleet. Select and place ship");
-
-                    //TODO FOR debug DELETE AFTERWARDS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-                    testShipsDeployment();
-                    //TODO FOR debug DELETE AFTERWARDS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 } else {
                     close.consume();
                 }
@@ -364,63 +356,8 @@ public class FXMLDocumentMainController implements Initializable {
 
     private void proceedMessage(String message) throws IOException {
         log.info("Client inbox message " + message);
-        gameEngineProceed(message); //must be before gui
+        gameEngine.proceedMessage(message); //must be before gui
         guiProceed(message);
-    }
-
-    //must be before all
-    private void gameEngineProceed(String message) {
-        //HITXX
-        if (MessageProcessor.isHit(message)) {
-            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-//                gameEngine.setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
-            }
-            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                gameEngine.setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
-            }
-        }
-
-        //MISSXX
-        if (MessageProcessor.isMiss(message)) {
-            //if you turn
-            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
-                log.info("Client: Server give message to Early");
-            }
-            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                gameEngine.setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
-            }
-            return;
-        }
-
-        if (MessageProcessor.isDestroyed(message)) {
-            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
-                log.info("Client: Server give message to Early");
-            }
-            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                gameEngine.setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
-            }
-            return;
-        }
-
-        if (MessageProcessor.isYouTurn(message)) {
-            gameEngine.setGamePhase(ClientGameEngine.Phase.MAKE_SHOT);
-            return;
-        }
-
-        if (MessageProcessor.isEnemyTurn(message)) {
-            gameEngine.setGamePhase(ClientGameEngine.Phase.TAKE_SHOT);
-            return;
-        }
-
-        if (MessageProcessor.isYouWin(message)) {
-            gameEngine.setGamePhase(ClientGameEngine.Phase.END_GAME);
-            return;
-        }
-
-        if (MessageProcessor.isYouLose(message)) {
-            gameEngine.setGamePhase(ClientGameEngine.Phase.END_GAME);
-            return;
-        }
     }
 
     private void guiProceed(String message) throws IOException {
@@ -435,7 +372,6 @@ public class FXMLDocumentMainController implements Initializable {
             }
         });
 
-        //HITXX
         if (MessageProcessor.isHit(message)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.HitCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
@@ -446,28 +382,26 @@ public class FXMLDocumentMainController implements Initializable {
             return;
         }
 
-        //MISSXX
         if (MessageProcessor.isMiss(message)) {
-            //if you turn
-//            if(gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-//                Draw.MissCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
-//            }
+            //Miss [/] auto placed by gui handler
+            //  if(gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+            //      Draw.MissCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
+            //  }
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
                 Draw.MissCellOnMyField(mainCanvas, gameEngine.getShootCoord());
             }
             return;
         }
 
-        //DESTROYEDXX
         if (MessageProcessor.isDestroyed(message)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.ShipOnEnemyField(mainCanvas, new DrawAdapterShip(
                         Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED.toString(), ""))));
             }
-            //on my field all ships already has drawn
-//            if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-//                Draw.ShipOnMyField(mainCanvas, Ship.createShip(message));
-//            }
+            //on my field all ships(frame) already has drawn
+            //  if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+            //      Draw.ShipOnMyField(mainCanvas, Ship.createShip(message));
+            //  }
             return;
         }
 
@@ -488,21 +422,14 @@ public class FXMLDocumentMainController implements Initializable {
 
         if (MessageProcessor.isYouLose(message)) {
             Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
-            return;
         }
 
-        Platform.runLater(() -> statusListView.scrollTo(networkInbox.size() - 1));
+        //TODO Player name exchange
+        //if (MessageProcessor.isEnemyName(message)) {
+        //    Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
+        //    return;
+        //}
 
-      /*
-      case ENEMY_NAME:
-                    param = message.split("\\s+");
-                    StringBuffer result = new StringBuffer();
-                    for (int i = 1; i < param.length; i++) {
-                        result.append(param[i]);
-                    }
-                    playerEnemyLabel.setText(new String(result));
-                    break;
-       */
     }
 
     private void displayState(ConnectionDisplayState state) {
@@ -547,11 +474,6 @@ public class FXMLDocumentMainController implements Initializable {
             Draw.ShipOnMyField(mainCanvas, new DrawAdapterShip(ship));
         }
         gameEngine.setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         gameEngine.getGameField().printOnConsole();
         network.sendMessage(Constants.NetworkMessage.SEND_SHIPS.toString() + gameEngine.getShipsInfoForSend());
         resetFleetButton.setDisable(true);

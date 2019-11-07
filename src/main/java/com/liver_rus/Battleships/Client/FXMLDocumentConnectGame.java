@@ -38,10 +38,10 @@ public class FXMLDocumentConnectGame {
     final private static int MAX_VALUE_PORT = 65535;
 
     private static boolean isPort(String strPort) {
-        if (CheckNumeric.isNumeric(strPort)) {
+        if (isNumeric(strPort)) {
             int intPort = Integer.parseInt(port);
             if (intPort > MIN_VALUE_PORT && intPort <= MAX_VALUE_PORT) {
-                CheckNumeric.isNumeric(strPort);
+                isNumeric(strPort);
                 return true;
             } else {
                 return false;
@@ -128,5 +128,15 @@ public class FXMLDocumentConnectGame {
 
     boolean isServerSelected() {
         return checkBox.isSelected();
+    }
+
+    private static boolean isNumeric(String strNum) {
+        boolean isNum = true;
+        try {
+            Integer.parseInt(strNum);
+        } catch (NumberFormatException e) {
+            isNum = false;
+        }
+        return isNum;
     }
 }

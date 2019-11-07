@@ -14,7 +14,7 @@ public class FleetCounter {
     private int left;
 
     FleetCounter() {
-        ships =  new int[]{2, 2, 1, 1, 1};
+        ships = new int[]{2, 2, 1, 1, 1};
         NUM_MAX_SHIPS = Arrays.stream(ships).sum();
         left = NUM_MAX_SHIPS;
     }
@@ -23,12 +23,14 @@ public class FleetCounter {
         return left;
     }
 
+    //return -1 if have no more ships type
     int popShip(int type) {
         if (ships[type] > 0) {
             --left;
-            return --ships[type];
+            ships[type] = ships[type] - 1;
+            return ships[type];
         } else {
-            return 0;
+            return -1;
         }
     }
 
@@ -40,5 +42,4 @@ public class FleetCounter {
     boolean isEmpty() {
         return left == NUM_MAX_SHIPS;
     }
-
 }

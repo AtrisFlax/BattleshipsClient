@@ -32,12 +32,10 @@ class FleetCounterTest {
         fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.DESTROYER));
         //shipsLeft = 2-SUBMARINEs +  1-BATTLESHIP = 3
         assertEquals(3, fleetCounter.getShipsLeft());
-
         fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.BATTLESHIP));
         fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.SUBMARINE));
         //shipsLeft = 1-SUBMARINE = 1
         assertEquals(1, fleetCounter.getShipsLeft());
-
         fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.SUBMARINE));
         //shipsLeft = NO LEFT = 0
         assertEquals(0, fleetCounter.getShipsLeft());
@@ -71,6 +69,8 @@ class FleetCounterTest {
                 () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.DESTROYER))),
                 () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.SUBMARINE)))
         );
+
+        assertEquals(0, fleetCounter.getShipsLeft());
     }
 
     @DisplayName("non sequential pop and check amount left")
@@ -101,5 +101,7 @@ class FleetCounterTest {
                 () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.DESTROYER))),
                 () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.shipTypeToInt(Ship.Type.SUBMARINE)))
         );
+
+        assertEquals(0, fleetCounter.getShipsLeft());
     }
 }

@@ -18,13 +18,15 @@ class ShipTest {
     @Test
     void getIsShipAlive() {
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new FieldCoord(3,5));
-        ship.tagShipCell(new FieldCoord(3,6));
-        ship.tagShipCell(new FieldCoord(3,3));
+        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,4)));
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new FieldCoord(3,7));
+        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,5)));
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new FieldCoord(3,4));
+        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,2)));
+        assertTrue(ship.isAlive());
+        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,6)));
+        assertTrue(ship.isAlive());
+        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,3)));
         assertFalse(ship.isAlive());
     }
 }

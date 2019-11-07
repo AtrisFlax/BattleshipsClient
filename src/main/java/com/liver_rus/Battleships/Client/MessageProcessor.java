@@ -8,28 +8,26 @@ public class MessageProcessor {
         return matchHeadPlusDD(Constants.NetworkMessage.SHOT.toString(), line);
     }
 
-    public static boolean isHit(String line) {
+    static boolean isHit(String line) {
         return matchHeadPlusDD(Constants.NetworkMessage.HIT.toString(), line);
     }
 
-    public static boolean isMiss(String line) {
+    static boolean isMiss(String line) {
         return matchHeadPlusDD(Constants.NetworkMessage.MISS.toString(), line);
     }
 
-    public static boolean isDestroyed(String line) {
+    static boolean isDestroyed(String line) {
         return matchHeadPlusDDDT(Constants.NetworkMessage.DESTROYED.toString(), line);
     }
 
-    //SHOT11
-    //MISS11
-    //HIT11
+    //HEADXX
     static private boolean matchHeadPlusDD(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{2}$");
         Matcher m = p.matcher(line);
         return m.matches();
     }
 
-    //DESTROYED111V
+    //DESTROYEDXXXY
     static private boolean matchHeadPlusDDDT(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{3}[VH]$");
         Matcher m = p.matcher(line);
@@ -48,23 +46,23 @@ public class MessageProcessor {
         return message.split(Pattern.quote(Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue()));
     }
 
-    public static boolean isEnemyTurn(String message) {
+    static boolean isEnemyTurn(String message) {
         return message.equals(Constants.NetworkMessage.ENEMY_TURN.toString());
     }
 
-    public static boolean isYouTurn(String message) {
+    static boolean isYouTurn(String message) {
         return message.equals(Constants.NetworkMessage.YOU_TURN.toString());
     }
 
-    public static boolean isYouWin(String message) {
+    static boolean isYouWin(String message) {
         return message.equals(Constants.NetworkMessage.YOU_WIN.toString());
     }
 
-    public static boolean isYouLose(String message) {
+    static boolean isYouLose(String message) {
         return message.equals(Constants.NetworkMessage.YOU_LOSE.toString());
     }
 
-    public static boolean isDisconnect(String message) {
+    static boolean isDisconnect(String message) {
         return message.equals(Constants.NetworkMessage.DISCONNECT.toString());
     }
 }

@@ -21,15 +21,9 @@ public class FieldCoord {
         this.tag = false;
     }
 
-    FieldCoord(String str1, String str2) {
-        x = Integer.parseInt(str1);
-        y = Integer.parseInt(str2);
-        tag = false;
-    }
-
-    public FieldCoord(double sceneX, double sceneY, boolean isFirstPlayerCoord) {
-        this.x = PixelCoord.transformSceneXtoFieldX(sceneX, isFirstPlayerCoord);
-        this.y = PixelCoord.transformSceneYtoFieldY(sceneY, isFirstPlayerCoord);
+    public FieldCoord(double sceneX, double sceneY, GUIConstant constants) {
+        this.x = SceneCoord.transformToFieldX(sceneX, constants);
+        this.y = SceneCoord.transformToFieldY(sceneY, constants);
     }
 
     final int getX() {
@@ -53,11 +47,11 @@ public class FieldCoord {
         return Integer.toString(x) + y;
     }
 
-    //A1 B2
+    //Char + Num format A1
     public String toGameFormat() {
         int tmpX = x + 1;
         int tmpY = y + 1;
-        String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char)(tmpY + 'A' - 1)) : null;
+        String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char) (tmpY + 'A' - 1)) : null;
         return strY + tmpX;
     }
 
@@ -65,9 +59,7 @@ public class FieldCoord {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-
         FieldCoord that = (FieldCoord) o;
-
         return x != that.x || y != that.y;
     }
 

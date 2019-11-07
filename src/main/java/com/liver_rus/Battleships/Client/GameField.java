@@ -5,9 +5,7 @@ package com.liver_rus.Battleships.Client;
  */
 
 public class GameField {
-
-    ///Поле 10*10 окружено кольцом клеток типа CellStatus.BORDER -> Поле 12*12
-
+    ///П10*10 окружено кольцом CellStatus.BORDER -> Поле 12*12
     private final static int FIELD_SIZE = 12;
 
     private Cell[][] field;
@@ -16,10 +14,6 @@ public class GameField {
 
     private enum Cell {
         CLEAR, MISS, SHIP, NEAR_WITH_SHIP, BORDER, DAMAGED_SHIP
-    }
-
-    public boolean isEmpty() {
-        return fleet.isEmpty();
     }
 
     public GameField() {
@@ -49,6 +43,10 @@ public class GameField {
         }
     }
 
+    public boolean isEmpty() {
+        return fleet.isEmpty();
+    }
+
     public Fleet getFleet() {
         return fleet;
     }
@@ -68,15 +66,12 @@ public class GameField {
         }
     }
 
-    /*
-     * Отметка клеток корабля и ближлежайших клеток
-     */
-
+    //Отметка клеток корабля и ближлежайших клеток
     public void markFieldByShip(Ship ship) {
         markFieldByShip(ship.getShipStartCoord(), ship.getType(), ship.getOrientation());
     }
 
-    void markFieldByShip(FieldCoord shipCoord, Ship.Type shipType, Ship.Orientation orientation) {
+    private void markFieldByShip(FieldCoord shipCoord, Ship.Type shipType, Ship.Orientation orientation) {
         int x = shipCoord.getX();
         int y = shipCoord.getY();
         int type = Ship.Type.shipTypeToInt(shipType);
@@ -106,7 +101,6 @@ public class GameField {
         }
     }
 
-
     //Отметка попадания в корабль
     private void tagShipsByCoord(int x, int y) {
         for (Ship ship : fleet.getShipsOnField()) {
@@ -119,10 +113,7 @@ public class GameField {
         }
     }
 
-    /*
-     * Возвращает ture, если все корабли уничтожены(игра закончена)
-     */
-
+    //Возвращает ture, если все корабли уничтожены(игра закончена)
     public boolean isAllShipsDestroyed() {
         boolean someoneAlive = false;
         Ship ship_for_remove = null;
@@ -153,11 +144,7 @@ public class GameField {
     public boolean isCellDamaged(FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
-        if (field[x][y] == Cell.DAMAGED_SHIP) {
-            return true;
-        } else {
-            return false;
-        }
+        return field[x][y] == Cell.DAMAGED_SHIP;
     }
 
     private void setCellAsShip(int x, int y) {
@@ -174,7 +161,6 @@ public class GameField {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
         Ship.Orientation shipOrientation = currentGUIState.getShipOrientation();
-
         boolean isPossibleLocateShipFlag = true;
         int x = coord.getX() + 1;
         int y = coord.getY() + 1;
@@ -200,12 +186,10 @@ public class GameField {
         return isPossibleLocateShipFlag;
     }
 
-    boolean isNotIntersectShipWithBorder(CurrentGUIState currentGUIState) {
+    boolean isNotIntersectionShipWithBorder(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
         Ship.Orientation shipOrientation = currentGUIState.getShipOrientation();
-
-
         boolean isPossibleLocateShipFlag = true;
         int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
         int x = coord.getX() + 1;
@@ -229,9 +213,7 @@ public class GameField {
         return isPossibleLocateShipFlag;
     }
 
-
     public void printOnConsole() {
-        //TODO
         for (int i = 0; i < FIELD_SIZE; i++) {
             for (int j = 0; j < FIELD_SIZE; j++) {
                 if (field[j][i] == Cell.CLEAR) {
@@ -256,9 +238,7 @@ public class GameField {
                 }
                 if (field[j][i] == Cell.DAMAGED_SHIP) {
                     System.out.print(" x ");
-                    continue;
                 }
-
             }
             System.out.println();
         }
