@@ -37,7 +37,7 @@ class NetworkTest {
         client2 = new Client(inbox2, host, port);
     }
 
-    void connectClientToServer(Client client) throws InterruptedException  {
+    void connectClientToServer(Client client) throws InterruptedException {
         CountDownLatch connectionLatch = new CountDownLatch(1);
         new Thread(() -> {
             try {
@@ -58,59 +58,85 @@ class NetworkTest {
             sendMessageLatch.countDown();
         }).start();
         sendMessageLatch.await();
-        Thread.sleep(500);
+        Thread.sleep(100);
     }
 
+
     @Test
-    void test() throws InterruptedException, IOException {
+    void gameCycle() throws InterruptedException, IOException {
         connectClientToServer(client1);
         connectClientToServer(client2);
 
-        String test_phrase1 = "180H|320H|111V|341H|262H|743V|914V|";
-        String test_phrase2 = "180H|320H|111V|341H|262H|743V|914V|";
+        send(client1, "SEND_SHIPS124H|723V|352V|601H|571V|140V|880V|");
+        send(client2, "SEND_SHIPS623V|232V|104H|471H|841V|180V|780V|");
 
-        send(client1, Constants.NetworkMessage.SEND_SHIPS.toString() + test_phrase1);
-        send(client2, Constants.NetworkMessage.SEND_SHIPS.toString() + test_phrase1);
 
-        for (String msg : client1.getInbox()) {
-            if (msg.equals(Constants.NetworkMessage.YOU_TURN.toString())) {
-                send(client1, "SHOT11");
-                break;
-            }
+        if (client1.getInbox().get(client2.getInbox().size() - 1).equals("YOU_TURN")) {
+            System.out.println("*********WRONG TURN RERUN********");
+            return;
         }
 
-        for (String msg : client2.getInbox()) {
-            if (msg.equals(Constants.NetworkMessage.YOU_TURN.toString())) {
-                send(client2, "SHOT11");
-                break;
-            }
-        }
+        send(client1, "SHOT54");
+        send(client2, "SHOT53");
+        send(client1, "SHOT10");
+        send(client1, "SHOT20");
+        send(client1, "SHOT23");
+        send(client1, "SHOT30");
+        send(client1, "SHOT40");
+        send(client1, "SHOT00");
+        send(client2, "SHOT33");
+        send(client1, "SHOT50");
+        send(client1, "SHOT53");
+        send(client2, "SHOT45");
+        send(client1, "SHOT62");
+        send(client1, "SHOT63");
+        send(client1, "SHOT64");
+        send(client1, "SHOT65");
+        send(client1, "SHOT47");
+        send(client1, "SHOT25");
+        send(client1, "SHOT24");
+        send(client1, "SHOT78");
+        send(client1, "SHOT83");
+        send(client2, "SHOT12");
+        send(client2, "SHOT22");
+        send(client2, "SHOT32");
+        send(client2, "SHOT42");
+        send(client2, "SHOT02");
+        send(client1, "SHOT85");
+        send(client1, "SHOT84");
+        send(client1, "SHOT86");
+        send(client2, "SHOT52");
+        send(client2, "SHOT60");
+        send(client2, "SHOT70");
+        send(client2, "SHOT80");
+        send(client1, "SHOT37");
+        send(client2, "SHOT57");
+        send(client2, "SHOT64");
+        send(client1, "SHOT57");
+        send(client1, "SHOT17");
+        send(client2, "SHOT79");
+        send(client1, "SHOT18");
 
-        int i = 0;
-        System.out.println("client1.getInbox");
-        for(String msg : client1.getInbox()) {
-            System.out.println(i++ + ": " +   msg);
-        }
-
-        i = 0;
-        System.out.println("client2.getInbox");
-        for(String msg : client2.getInbox()) {
-            System.out.println(i++ + ": " +   msg);
-        }
-
-
-        //assertNotEquals(0 , client1.getInbox().size(), "Client 1 has empty inbox");
-//        String recived_phrase1 = client1.getInbox().get(client1.getInbox().size() - 1);
-//        assertEquals(test_phrase2, recived_phrase1);
+//        int i = 0;
+//        System.out.println("client1.getInbox");
+//        for (String msg : client1.getInbox()) {
+//            System.out.println(i++ + ": " + msg);
+//        }
 //
-       // assertNotEquals(0 , client2.getInbox().size(), "Client 2 has empty inbox");
-//        String recived_phrase2 = client2.getInbox().get(client2.getInbox().size() - 1);
-//        assertEquals(test_phrase1, recived_phrase2);
+//        i = 0;
+//        System.out.println("client2.getInbox");
+//        for (String msg : client2.getInbox()) {
+//            System.out.println(i++ + ": " + msg);
+//        }
+
+        assertEquals(Constants.NetworkMessage.YOU_TURN.toString(), client1.getInbox().get(client2.getInbox().size() - 1));
     }
 
+
+    //TODO connect -> disconnect -> reconnect
     @Disabled
     @Test
-    void disconnect() throws InterruptedException, IOException {
+    void disconnectAndReconnect() throws InterruptedException, IOException {
         connectClientToServer(client1);
         connectClientToServer(client2);
 
@@ -130,11 +156,11 @@ class NetworkTest {
         Thread.sleep(500);
 
         System.out.println("client1.getInbox");
-        for(String msg : client1.getInbox()) {
+        for (String msg : client1.getInbox()) {
             System.out.println(msg);
         }
         System.out.println("client2.getInbox");
-        for(String msg : client2.getInbox()) {
+        for (String msg : client2.getInbox()) {
             System.out.println(msg);
         }
 

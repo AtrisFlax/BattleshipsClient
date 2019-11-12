@@ -74,7 +74,7 @@ public class Server implements Runnable {
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
             try {
-                log.info("Server starting on port " + ServerConstants.getDefaultPort());
+                //log.info("Server starting on port " + ServerConstants.getDefaultPort());
                 Iterator<SelectionKey> keys;
                 SelectionKey key;
                 while (serverChannel.isOpen()) {
@@ -160,7 +160,7 @@ public class Server implements Runnable {
             message = messageBuilder.toString();
         }
 
-        log.info(message);
+        log.info("Server read " + message +  " " + key.toString());
         //Game dependent part.
         proceedMessage(key, message);
     }
@@ -168,6 +168,9 @@ public class Server implements Runnable {
     private void proceedMessage(SelectionKey key, String message) throws IOException {
         gameEngineProceed(key, message);
         sendAnswer(key, message);
+        //TODO FOR DEBUG DELETE
+        connections.get(key).printOnConsole();
+        //TODO FOR DEBUG DELETE
     }
 
     private void gameEngineProceed(SelectionKey key, String message) throws IOException {
@@ -177,7 +180,6 @@ public class Server implements Runnable {
             resetServerGameState();
             return;
         }
-
         try {
             //if get SEND_SHIP290H|430H|221V|451H|372H|853V|1024V|
             if (message.startsWith(Constants.NetworkMessage.SEND_SHIPS.toString())) {
@@ -187,7 +189,7 @@ public class Server implements Runnable {
                     throw new IOException("Not enough ships");
                 } else {
                     for (String shipInfo : shipsInfo) {
-                        if (shipInfo.length() != 4) {
+                        if (shipInfo.length() != Constants.ShipInfoLength) {
                             //TODO create custom class exception A
                             throw new IOException("Not enough symbols in ship");
                         } else {
@@ -204,9 +206,8 @@ public class Server implements Runnable {
             connections.put(key, new GameField());
             sendMessage(key, "Incorrect fleet format");
         }
-
         //SHOTXX
-        if (gameEngine.isReadyForBroadcast() && turnHolder == key) {
+        if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
             if (MessageProcessor.isShotLine(message)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
@@ -217,14 +218,13 @@ public class Server implements Runnable {
                 if (field.isCellDamaged(adaptedShootCoord)) {
                     Ship ship = field.getFleet().findShip(adaptedShootCoord);
                     ship.tagShipCell(adaptedShootCoord);
-                    if (field.isAllShipsDestroyed()) {
+                    if (field.isShipsDestroyed()) {
                         gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
                     }
                 }
                 return;
             }
         }
-
         if (gameEngine.isFirstTurn()) {
             if (isReadyBothChannel()) {
                 log.info("both clients ready to game");
@@ -240,30 +240,37 @@ public class Server implements Runnable {
     }
 
     private void sendAnswer(SelectionKey key, String message) throws IOException {
-        if (gameEngine.isReadyForBroadcast() && turnHolder == key) {
+        if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
             //SHOTXX
             if (MessageProcessor.isShotLine(message)) {
+                //TODO DELETE FOR DEBUG
+                System.out.println("SERVER SHOT MESSAGE:" + message);
+
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 GameField field = connections.get(key);
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
                 if (field.isCellDamaged(adaptedShootCoord)) {
+                    //field.printOnConsole();
                     Ship ship = field.getFleet().findShip(adaptedShootCoord);
                     sendAllClient(Constants.NetworkMessage.HIT.toString() + shootCoord);
                     if (!ship.isAlive()) {
                         sendAllClient(Constants.NetworkMessage.DESTROYED.toString() + ship.toString());
+                        //update ships list
+                        field.updateShipList();
                     }
-                    sendMessage(key, Constants.NetworkMessage.YOU_TURN.toString());
-                    sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN.toString());
+                    if (field.isShipsDestroyed()) {
+                        sendMessage(key, Constants.NetworkMessage.YOU_WIN.toString());
+                        sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE.toString());
+                    } else {
+                        sendMessage(key, Constants.NetworkMessage.YOU_TURN.toString());
+                        sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN.toString());
+                    }
                 } else {
                     sendAllClient(Constants.NetworkMessage.MISS.toString() + shootCoord);
                     sendMessage(key, Constants.NetworkMessage.ENEMY_TURN.toString());
                     turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN.toString());
                 }
-                if (field.isAllShipsDestroyed()) {
-                    sendMessage(key, Constants.NetworkMessage.YOU_WIN.toString());
-                    sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE.toString());
-                    gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
-                }
+
             }
         }
     }
@@ -299,72 +306,6 @@ public class Server implements Runnable {
         }
         return enemyKey;
     }
-
-    /*
-        private void gameEngineProceed(String line) {
-        //SHOTXX
-        if (GameEngine.checkShotLine(line)) {
-            gameEngine.setShootCoord(getShootCoordOnMessage(line));
-            if (gameEngine.getGameField().setCellAsDamaged(gameEngine.getShootCoord())) {
-                Ship ship = gameEngine.getGameField().getFleet().findShip(gameEngine.getShootCoord());
-                ship.tagShipCell(gameEngine.getShootCoord());
-                if (!gameEngine.getGameField().isShipsOnFieldAlive()) {
-                    gameEngine.setPhase(ClientGameEngine.Phase.END_GAME);
-                }
-            }
-        } else {
-            Constants.NetworkMessage message = Constants.NetworkMessage.getType(line);
-            switch (message) {
-                case DESTROYED:
-                    gameEngine.setPhase(ClientGameEngine.Phase.MAKE_SHOT);
-                    break;
-                case SHOT:
-                    break;
-                case YOU_TURN:
-                    gameEngine.setPhase(ClientGameEngine.Phase.MAKE_SHOT);
-                    break;
-                case YOU_LOSE:
-                    gameEngine.setPhase(ClientGameEngine.Phase.END_GAME);
-                    break;
-                case YOU_WIN:
-                    gameEngine.setPhase(ClientGameEngine.Phase.END_GAME);
-                    break;
-                case MISS:
-                    gameEngine.setPhase(ClientGameEngine.Phase.TAKE_SHOT);
-                    break;
-            }
-        }
-    }
-
-
-
-    private void sendAnswer(String line) {
-        //SHOTXX
-        if (MessageProcessor.checkShotLine(line)) {
-            if (gameEngine.getGameField().setCellAsDamaged(gameEngine.getShootCoord())) {
-                Ship ship = gameEngine.getGameField().getFleet().findShip(gameEngine.getShootCoord());
-                network.sendMessage(Constants.NetworkMessage.HIT.toString());
-                if (!ship.isAlive()) {
-                    network.sendMessage(Constants.NetworkMessage.DESTROYED.toString() + " " + ship.toString());
-                }
-            } else {
-                network.sendMessage(Constants.NetworkMessage.MISS.toString());
-            }
-            if (gameEngine.getGameField().isAllShipsDestroyed()) {
-                network.sendMessage(Constants.NetworkMessage.YOU_WIN.toString());
-            }
-        } else {
-            Constants.NetworkMessage message = Constants.NetworkMessage.getType(line);
-            switch (message) {
-                case MISS:
-                    network.sendMessage(Constants.NetworkMessage.YOU_TURN.toString());
-                    break;
-            }
-        }
-
-
-
-     */
 
     private SelectionKey randomConnection() {
         List<SelectionKey> list = new ArrayList<>(connections.keySet());
@@ -453,13 +394,9 @@ public class Server implements Runnable {
         }
     }
 
-
     @Override
     public String toString() {
         return "Server in port:" + String.valueOf(ServerConstants.getDefaultPort());
     }
 
-//    public static void main(String[] args) throws IOException {
-//        new Thread(new Server()).start();
-//    }
 }

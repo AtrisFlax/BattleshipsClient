@@ -136,14 +136,12 @@ public class Ship {
     }
 
     public boolean isAlive() {
-        boolean isAlive = false;
         for (FieldCoord shipSector : shipCoord) {
             if (!shipSector.getTag()) {
-                isAlive = true;
-                break;
+                return true;
             }
         }
-        return isAlive;
+        return false;
     }
 
     @Override

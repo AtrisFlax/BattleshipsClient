@@ -31,6 +31,7 @@ class SecondPlayerGUIConstants  implements GUIConstant {
 }
 
 public class Constants {
+
     class Window {
         final static int WIDTH = 700;
         final static int HEIGHT = 950;
@@ -41,8 +42,6 @@ public class Constants {
         final static String ABOUT_GAME_HEADER = "Info1";
         final static String ABOUT_GAME_TEXT = "Info2";
     }
-
-    final static int NONE_SELECTED_FIELD_COORD = -1;
 
     public enum NetworkMessage {
         ENEMY_NAME("ENEMY_NAME"),
@@ -78,4 +77,8 @@ public class Constants {
             return typeValue;
         }
     }
+
+    public final static int ShipInfoLength = 4;
+
+    final static int NONE_SELECTED_FIELD_COORD = -1;
 }

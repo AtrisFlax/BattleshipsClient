@@ -114,21 +114,25 @@ public class GameField {
     }
 
     //Возвращает ture, если все корабли уничтожены(игра закончена)
-    public boolean isAllShipsDestroyed() {
-        boolean someoneAlive = false;
-        Ship ship_for_remove = null;
+    public void  updateShipList() {
         for (Ship ship : fleet.getShipsOnField()) {
-            if (ship.isAlive()) {
-                someoneAlive = true;
-                break;
-            } else {
-                ship_for_remove = ship;
+            if (!ship.isAlive()) {
+                fleet.remove(ship);
+                return;
             }
         }
-        if (ship_for_remove != null)
-            fleet.remove(ship_for_remove);
-        return !someoneAlive;
     }
+
+    //Возвращает ture, если все корабли уничтожены(игра закончена)
+    public boolean isShipsDestroyed() {
+        for (Ship ship : fleet.getShipsOnField()) {
+            if (ship.isAlive()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     public void setCellAsDamaged(FieldCoord fieldCoord) {
         int x = fieldCoord.getX();

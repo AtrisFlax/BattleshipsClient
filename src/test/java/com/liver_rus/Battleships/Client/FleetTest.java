@@ -64,11 +64,11 @@ class FleetTest {
         FieldCoord shipCoord = new FieldCoord(2,4);
         FieldCoord findCoord = new FieldCoord(2,6);
         FieldCoord wrongCoord = new FieldCoord(5,5);
-        fleet.add(Ship.createShip(new FieldCoord(3,3), Ship.Type.DESTROYER, Ship.Orientation.HORIZONTAL));
         Ship findingShip = Ship.createShip(shipCoord, Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL);
         fleet.add(findingShip);
+        fleet.add(Ship.createShip(new FieldCoord(7,6), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
         fleet.add(Ship.createShip(new FieldCoord(9,7), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
-        assertEquals(findingShip, fleet.findShip(findCoord));
+        assertEquals(findingShip, fleet.findShip(new MessageAdapterFieldCoord(findCoord)));
         assertEquals(null, fleet.findShip(wrongCoord));
     }
 

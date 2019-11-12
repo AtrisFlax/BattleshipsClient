@@ -3,6 +3,7 @@ package com.liver_rus.Battleships.Client;
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
+//TODO numTurn tracking, incrementing and reseting
 class ClientGameEngine extends GameEngine {
 
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
@@ -16,8 +17,6 @@ class ClientGameEngine extends GameEngine {
     enum Phase {
         INIT, DEPLOYING_FLEET, FLEET_IS_DEPLOYED, WAITING_ANSWER, TAKE_SHOT, MAKE_SHOT, END_GAME;
     }
-
-    //TODO numTurn tracking, incrementing and reseting
 
     ClientGameEngine() {
         super();

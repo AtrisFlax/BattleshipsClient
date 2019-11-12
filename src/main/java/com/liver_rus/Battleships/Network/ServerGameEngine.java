@@ -17,7 +17,7 @@ public class ServerGameEngine extends GameEngine {
     }
     private boolean isReadyForBroadcast = false;
 
-    boolean isReadyForBroadcast() {
+    boolean isBroadcastEnabled() {
         return isReadyForBroadcast;
     }
 

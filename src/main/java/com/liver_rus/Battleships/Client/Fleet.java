@@ -16,7 +16,7 @@ public class Fleet {
         shipsList.clear();
     }
 
-    void remove(Ship ship) {
+    public void remove(Ship ship) {
         shipsList.remove(ship);
     }
 
@@ -33,19 +33,14 @@ public class Fleet {
     }
 
     public Ship findShip(FieldCoord shipCoord) {
-        Ship findedShip = null;
-        label:
-        {
-            for (Ship ship : shipsList) {
-                for (FieldCoord coord : ship.getShipCoords()) {
-                    if (coord.getX() == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
-                        findedShip = ship;
-                        break label;
-                    }
+        for (Ship ship : shipsList) {
+            for (FieldCoord coord : ship.getShipCoords()) {
+                if (coord.getX() == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
+                    return ship;
                 }
             }
         }
-        return findedShip;
+        return null;
     }
 
     int getShipsLeft() {
