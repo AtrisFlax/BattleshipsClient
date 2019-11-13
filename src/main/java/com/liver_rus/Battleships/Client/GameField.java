@@ -114,7 +114,7 @@ public class GameField {
     }
 
     //Возвращает ture, если все корабли уничтожены(игра закончена)
-    public void  updateShipList() {
+    public void updateShipList() {
         for (Ship ship : fleet.getShipsOnField()) {
             if (!ship.isAlive()) {
                 fleet.remove(ship);
@@ -132,7 +132,6 @@ public class GameField {
         }
         return true;
     }
-
 
     public void setCellAsDamaged(FieldCoord fieldCoord) {
         int x = fieldCoord.getX();

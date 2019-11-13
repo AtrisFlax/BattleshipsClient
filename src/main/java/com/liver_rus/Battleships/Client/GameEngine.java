@@ -11,18 +11,6 @@ public abstract class GameEngine {
         numRound = 1;
     }
 
-    int getNumRound() {
-        return numRound;
-    }
-
-    void setNumRound(int numRound) {
-        this.numRound = numRound;
-    }
-
-    int newRound() {
-        return numRound++;
-    }
-
     public boolean isFirstTurn() {
         return isFirstTurn;
     }

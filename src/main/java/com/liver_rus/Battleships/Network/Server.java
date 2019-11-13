@@ -1,4 +1,3 @@
-//TODO Выделить игроспецифичную часть в стратигию
 package com.liver_rus.Battleships.Network;
 
 import com.liver_rus.Battleships.Client.*;
@@ -160,7 +159,7 @@ public class Server implements Runnable {
             message = messageBuilder.toString();
         }
 
-        log.info("Server read " + message +  " " + key.toString());
+        //log.info("Server recv> " + message +  " " + key.toString());
         //Game dependent part.
         proceedMessage(key, message);
     }
@@ -168,9 +167,8 @@ public class Server implements Runnable {
     private void proceedMessage(SelectionKey key, String message) throws IOException {
         gameEngineProceed(key, message);
         sendAnswer(key, message);
-        //TODO FOR DEBUG DELETE
-        connections.get(key).printOnConsole();
-        //TODO FOR DEBUG DELETE
+        //print field for debug
+        //connections.get(key).printOnConsole();
     }
 
     private void gameEngineProceed(SelectionKey key, String message) throws IOException {
@@ -196,9 +194,8 @@ public class Server implements Runnable {
                             ServerGameEngine.addShipOnField(connections.get(key), Ship.createShip(shipInfo));
                         }
                     }
-                    //TODO for debug DELETE
-                    connections.get(key).printOnConsole();
-                    //TODO for debug DELETE
+                    //for debug print field with ships
+                    //connections.get(key).printOnConsole();
                 }
             }
         } catch (IOException ex) {
@@ -243,9 +240,6 @@ public class Server implements Runnable {
         if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
             //SHOTXX
             if (MessageProcessor.isShotLine(message)) {
-                //TODO DELETE FOR DEBUG
-                System.out.println("SERVER SHOT MESSAGE:" + message);
-
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 GameField field = connections.get(key);
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);

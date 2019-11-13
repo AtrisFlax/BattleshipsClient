@@ -302,16 +302,15 @@ public class FXMLDocumentMainController implements Initializable {
                     }
                     gameEngine.setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
                     labelGameStatus.setText("Deploying fleet. Select and place ship");
-                    //TODO FOR debug DELETE AFTERWARDS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                    //auto deployment ships for debug
                     //testShipsDeployment();
-                    //TODO FOR debug DELETE AFTERWARDS !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
                 } else {
                     close.consume();
                 }
                 playerMyLabel.setText(controller.getMyName());
             });
             stage.show();
-            numRoundLabel.setText(Integer.toString(gameEngine.newRound()));
+            numRoundLabel.setText(Integer.toString(1));
 
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to create new Window.", e);
@@ -400,15 +399,11 @@ public class FXMLDocumentMainController implements Initializable {
 
         if (MessageProcessor.isYouWin(message)) {
             Platform.runLater(() -> labelGameStatus.setText("You Win!!!"));
-            //TODO DELETE FOR DEBUG
-            System.out.println("FOR DEBUG NETWORK INBOX AFTER WIN" + networkInbox);
             return;
         }
 
         if (MessageProcessor.isYouLose(message)) {
-            //TODO DELETE FOR DEBUG
             Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
-            System.out.println("FOR DEBUG NETWORK INBOX AFTER LOSE" + networkInbox);
         }
 
         //TODO Player name exchange
