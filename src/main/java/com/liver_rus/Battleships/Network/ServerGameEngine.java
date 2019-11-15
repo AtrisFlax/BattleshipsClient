@@ -37,5 +37,4 @@ public class ServerGameEngine extends GameEngine {
     void setGamePhase(Phase gamePhase) {
         this.gamePhase = gamePhase;
     }
-
 }

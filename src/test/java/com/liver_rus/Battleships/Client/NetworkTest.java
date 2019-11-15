@@ -6,7 +6,6 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -15,7 +14,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NetworkTest {
@@ -315,45 +313,6 @@ class NetworkTest {
             assertTrue(Arrays.deepEquals(client1ExpectedInbox, client1.getInbox().toArray()));
             assertTrue(Arrays.deepEquals(client2ExpectedInbox, client2.getInbox().toArray()));
         }
-    }
-
-
-    //TODO connect -> disconnect -> reconnect test cycle
-    @Disabled
-    @Test
-    void disconnectAndReconnect() throws InterruptedException, IOException {
-        connectClientToServer(client1);
-        connectClientToServer(client2);
-
-        String test_phrase = Constants.NetworkMessage.DISCONNECT.toString();
-        send(client1, test_phrase);
-        send(client2, test_phrase);
-
-        send(client1, "Send");
-        send(client1, "Send");
-        send(client1, "Send");
-        send(client2, "Send");
-        send(client2, "Send");
-        send(client1, "Send");
-        send(client1, "Send");
-        send(client2, "Send");
-
-        Thread.sleep(500);
-
-        System.out.println("client1.getInbox");
-        for (String msg : client1.getInbox()) {
-            System.out.println(msg);
-        }
-        System.out.println("client2.getInbox");
-        for (String msg : client2.getInbox()) {
-            System.out.println(msg);
-        }
-
-        String recived_phrase1 = client1.getInbox().get(client1.getInbox().size() - 1);
-        assertEquals(test_phrase, recived_phrase1);
-        String recived_phrase2 = client1.getInbox().get(client1.getInbox().size() - 1);
-        assertEquals(test_phrase, recived_phrase2);
-
     }
 
     @AfterEach
