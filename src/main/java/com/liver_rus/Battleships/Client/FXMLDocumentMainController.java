@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Network.Client;
-import com.liver_rus.Battleships.Network.Server;
+import com.liver_rus.Battleships.Network.GameServer;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -294,7 +294,7 @@ public class FXMLDocumentMainController implements Initializable {
                     }
                     if (controller.isServerSelected()) {
                         try {
-                            serverThread = new Thread(new Server(Integer.parseInt(port)));
+                            serverThread = new Thread(new GameServer(Integer.parseInt(port)));
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
@@ -443,6 +443,7 @@ public class FXMLDocumentMainController implements Initializable {
                 return "Enemy Destroy Your Ship";
             }
         }
+        //Excessive output
 //        if (MessageProcessor.isYouTurn(message)) {
 //            return "You Turn";
 //        }

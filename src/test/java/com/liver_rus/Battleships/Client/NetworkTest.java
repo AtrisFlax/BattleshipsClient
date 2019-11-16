@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Network.Client;
-import com.liver_rus.Battleships.Network.Server;
+import com.liver_rus.Battleships.Network.GameServer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import org.junit.jupiter.api.AfterEach;
@@ -28,7 +28,7 @@ class NetworkTest {
         int port = 10071;
         String host = "127.0.0.1";
 
-        serverThread = new Thread(new Server(port));
+        serverThread = new Thread(new GameServer(port));
         serverThread.start();
 
         ObservableList<String> inbox1 = FXCollections.observableArrayList();
@@ -80,6 +80,8 @@ class NetworkTest {
             send(client2, "SHOT01");
         }
 
+
+        //TODO pack in file???
         send(client1, "SHOT54");
         send(client2, "SHOT53");
         send(client1, "SHOT10");
@@ -121,6 +123,7 @@ class NetworkTest {
         send(client2, "SHOT79");
         send(client1, "SHOT18");
 
+        //TODO pack in file???
          String[] client1ExpectedInbox = {
                 "ENEMY_TURN",
                 "MISS53",
