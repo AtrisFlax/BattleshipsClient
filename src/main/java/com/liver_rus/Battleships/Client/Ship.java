@@ -43,12 +43,29 @@ public class Ship {
         return createShip(currentGUIState.getFieldCoord(), currentGUIState.getShipType(), currentGUIState.getShipOrientation());
     }
 
-    public static Ship createShip(String line) throws IOException {
-        int x = Character.getNumericValue(line.charAt(0));
-        int y = Character.getNumericValue(line.charAt(1));
-        int type = Character.getNumericValue(line.charAt(2));
-        boolean shipOrientation = adaptOrientation(line.charAt(3));
-        return new Ship(x, y, type, shipOrientation);
+    public static Ship createShip(String shipInfo) throws IOException {
+        if (shipInfo.length() == Constants.ShipInfoLength) {
+            int x = Character.getNumericValue(shipInfo.charAt(0));
+            int y = Character.getNumericValue(shipInfo.charAt(1));
+            int type = Character.getNumericValue(shipInfo.charAt(2));
+            boolean shipOrientation = adaptOrientation(shipInfo.charAt(3));
+            return new Ship(x, y, type, shipOrientation);
+        } else {
+            throw new IOException("Not enough symbols in ship. Can't create ship");
+        }
+    }
+
+    public static Ship[] createShips(String[] shipsInfo) throws IOException {
+        if (shipsInfo.length != FleetCounter.NUM_MAX_SHIPS) {
+            //TODO create custom class exception A
+            throw new IOException("Not enough symbols in ship. Can't create fleet");
+        } else {
+            Ship[] ships = new Ship[shipsInfo.length];
+            for (int i = 0; i < shipsInfo.length; i++) {
+                ships[i] = Ship.createShip(shipsInfo[i]);
+            }
+            return ships;
+        }
     }
 
     private static boolean adaptOrientation(char c) throws IOException {

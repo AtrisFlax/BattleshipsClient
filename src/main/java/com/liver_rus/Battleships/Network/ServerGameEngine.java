@@ -5,6 +5,7 @@ import com.liver_rus.Battleships.Client.GameField;
 import com.liver_rus.Battleships.Client.Ship;
 
 public class ServerGameEngine extends GameEngine {
+    public static int MAX_PLAYERS = 2;
 
     ServerGameEngine() {
         super(); setGamePhase(Phase.INIT);

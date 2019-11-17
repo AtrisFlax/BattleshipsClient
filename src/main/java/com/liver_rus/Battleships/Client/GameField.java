@@ -43,6 +43,14 @@ public class GameField {
         }
     }
 
+    public GameField(Ship[] ships) {
+        this();
+        for (Ship ship : ships) {
+            markFieldByShip(ship);
+            getFleet().add(ship);
+        }
+    }
+
     public boolean isEmpty() {
         return fleet.isEmpty();
     }

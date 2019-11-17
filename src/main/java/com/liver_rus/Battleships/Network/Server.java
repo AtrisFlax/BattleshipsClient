@@ -68,7 +68,6 @@ public class Server implements Runnable {
                         if (key.isValid()) {
                             if (key.isAcceptable())
                                 acceptConnection(key);
-
                             if (key.isReadable())
                                 readMessage(key);
                         }

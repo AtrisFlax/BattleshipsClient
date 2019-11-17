@@ -68,7 +68,6 @@ class NetworkTest {
         }
     }
 
-
     @Test
     void gameCycle() throws InterruptedException {
         Stream<String> sendInfoStream = getStringStreamFromFile("TestCases/Case1/sendToServer.txt");

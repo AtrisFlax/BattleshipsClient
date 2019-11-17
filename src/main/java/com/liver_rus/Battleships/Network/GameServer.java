@@ -7,61 +7,49 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Random;
+import java.util.Set;
 import java.util.logging.Logger;
 
 import static java.nio.ByteBuffer.allocate;
 
 public class GameServer extends Server {
-    private static final int READ_BUFFER_SIZE = 8192;
+    //TODO make one buffer for all write methods
     private static final int WRITE_BUFFER_SIZE = 8192;
+    private static final int READ_BUFFER_SIZE = 8192;
+    private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
+    private ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);
+
     //TODO different severity logging
     private static final Logger log = Logger.getLogger(String.valueOf(Server.class));
-    //TODO make one buffer for all write methods
-    private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
-    private int port;
 
     private ServerGameEngine gameEngine;
     private SelectionKey turnHolder;
 
-    private final static int MAX_CONNECTIONS = 2;
-    private int numConnections = 0;
-    //TODO try attachment
-    // selectionKey.attach(theObject)
-    // Object attachedObj = selectionKey.attachment();
-    private Map<SelectionKey, GameField> connections;
-
-    public GameServer() throws IOException {
-        super();
-    }
+    private final static int MAX_CONNECTIONS = ServerGameEngine.MAX_PLAYERS;
+    private int numAcceptedConnections = 0;
 
     public GameServer(int port) throws IOException {
         super(port);
     }
 
     @Override
-     public void configureServer() throws IOException {
+    public void configureServer() throws IOException {
         super.configureServer();
         gameEngine = new ServerGameEngine();
-        connections = new HashMap<>(MAX_CONNECTIONS);
     }
 
     @Override
     void acceptConnection(SelectionKey key) throws IOException {
         SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();
-        if (numConnections < MAX_CONNECTIONS) {
-            numConnections++;
+        if (numAcceptedConnections < MAX_CONNECTIONS) {
+            numAcceptedConnections++;
             String port = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
             socketChannel.configureBlocking(false);
             socketChannel.register(super.selector, SelectionKey.OP_READ, port);
+            key.attach(null);
             log.info("accepted connection from: " + port);
-            Set<SelectionKey> all_connections = selector.keys();
-            //remember connection
-            for (SelectionKey connect : all_connections) {
-                if (connect.channel() instanceof SocketChannel) {
-                    connections.putIfAbsent(connect, new GameField());
-                }
-            }
         } else {
             String msg = "too many connections. Max connections =" + MAX_CONNECTIONS;
             log.info(msg);
@@ -89,34 +77,20 @@ public class GameServer extends Server {
             //if get SEND_SHIP290H|430H|221V|451H|372H|853V|1024V|
             if (message.startsWith(Constants.NetworkMessage.SEND_SHIPS.toString())) {
                 String[] shipsInfo = MessageProcessor.splitToShipInfo(message);
-                if (shipsInfo.length != FleetCounter.NUM_MAX_SHIPS) {
-                    //TODO create custom class exception A
-                    throw new IOException("Not enough ships");
-                } else {
-                    for (String shipInfo : shipsInfo) {
-                        if (shipInfo.length() != Constants.ShipInfoLength) {
-                            //TODO create custom class exception A
-                            throw new IOException("Not enough symbols in ship");
-                        } else {
-                            ServerGameEngine.addShipOnField(connections.get(key), Ship.createShip(shipInfo));
-                        }
-                    }
-                    //for debug print field with ships
-                    //connections.get(key).printOnConsole();
-                }
+                GameField gameField = new GameField(Ship.createShips(shipsInfo));
+                key.attach(gameField);
             }
         } catch (IOException ex) {
-            log.info("Incorrect fleet format" + ex);
-            connections.put(key, new GameField());
             sendMessage(key, "Incorrect fleet format");
+            key.attach(null);
+            log.info("Incorrect fleet format" + ex);
         }
         //SHOTXX
         if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
             if (MessageProcessor.isShotLine(message)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
-                //TODO REPLACE GET FIELD WITH GET CHANNEL ATTACHABLE
-                GameField field = connections.get(key);
+                GameField field = (GameField) key.attachment();
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
                 field.setCellAsDamaged(adaptedShootCoord);
                 if (field.isCellDamaged(adaptedShootCoord)) {
@@ -133,7 +107,7 @@ public class GameServer extends Server {
             if (isReadyBothChannel()) {
                 log.info("both clients ready to game");
                 gameEngine.setFirstTurn(false);
-                swapFields(connections);
+                swapFields();
                 turnHolder = randomConnection();
                 sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN.toString());
                 sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN.toString());
@@ -148,7 +122,7 @@ public class GameServer extends Server {
             //SHOTXX
             if (MessageProcessor.isShotLine(message)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
-                GameField field = connections.get(key);
+                GameField field = (GameField) key.attachment();
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
                 if (field.isCellDamaged(adaptedShootCoord)) {
                     //field.printOnConsole();
@@ -171,57 +145,54 @@ public class GameServer extends Server {
                     sendMessage(key, Constants.NetworkMessage.ENEMY_TURN.toString());
                     turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN.toString());
                 }
-
             }
         }
     }
 
-    //connection[1] -> field[2]
-    //connection[2] -> field[1]
-    private void swapFields(Map<SelectionKey, GameField> connections) {
-        ArrayList<SelectionKey> keys = new ArrayList<>(2);
-        ArrayList<GameField> value = new ArrayList<>(2);
-        for (Map.Entry<SelectionKey, GameField> entry : connections.entrySet()) {
-            keys.add(entry.getKey());
-            value.add(entry.getValue());
+    //channel[0] -> field[1]
+    //channel[1] -> field[0]
+    private void swapFields() {
+        ArrayList<SelectionKey> selectionKeys = new ArrayList<>(MAX_CONNECTIONS);
+        for (SelectionKey key : selector.keys()) {
+            if (key.isValid() && key.channel() instanceof SocketChannel) {
+                selectionKeys.add(key);
+            }
         }
-        connections.clear();
-        Collections.reverse(value);
-        for (int i = 0; i < keys.size(); i++) {
-            connections.put(keys.get(i), value.get(i));
-        }
-
+        Object field0 = selectionKeys.get(0).attachment();
+        selectionKeys.get(0).attach(selectionKeys.get(1).attachment());
+        selectionKeys.get(1).attach(field0);
     }
 
     private SelectionKey randomConnection() {
-        List<SelectionKey> list = new ArrayList<>(connections.keySet());
-        return list.get(new Random(System.currentTimeMillis()).nextInt(list.size()));
+        ArrayList<SelectionKey> selectionKeysList = new ArrayList<>(MAX_CONNECTIONS);
+        for (SelectionKey key : selector.keys()) {
+            if (key.isValid() && key.channel() instanceof SocketChannel) {
+                selectionKeysList.add(key);
+            }
+        }
+        return selectionKeysList.get(new Random(System.currentTimeMillis()).nextInt(selectionKeysList.size()));
     }
 
     private void resetServerGameState() {
-        for (Map.Entry<SelectionKey, GameField> entry : connections.entrySet()) {
-            try {
-                entry.getKey().channel().close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            connections.clear();
-            gameEngine.setFirstTurn(true);
-            gameEngine.setReadyForBroadcast(false);
+        Set<SelectionKey> keys = selector.selectedKeys();
+        for (SelectionKey selectionKey : keys) {
+            selectionKey.attach(null);
         }
+        gameEngine.setFirstTurn(true);
+        gameEngine.setReadyForBroadcast(false);
     }
 
+    //numConnections with GameField attachment. If both not null then ready
     private boolean isReadyBothChannel() {
-        if (connections.size() == 2) {
-            for (GameField field : connections.values()) {
-                if (field.isEmpty()) {
-                    return false;
+        int numConnections = 0;
+        for (SelectionKey key : selector.keys()) {
+            if (key.isValid() && key.channel() instanceof SocketChannel) {
+                if (key.attachment() instanceof GameField) {
+                    numConnections++;
                 }
             }
-            return true;
-        } else {
-            return false;
         }
+        return numConnections == MAX_CONNECTIONS;
     }
 
     @Override
@@ -239,12 +210,12 @@ public class GameServer extends Server {
         super.sendMessage(key, addSplitSymbol(msg));
     }
 
-    private String addSplitSymbol(String msg) {
-        return msg + Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue();
-    }
-
     @Override
     public String toString() {
         return "Server in port:" + ServerConstants.getDefaultPort();
+    }
+
+    private String addSplitSymbol(String msg) {
+        return msg + Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue();
     }
 }
