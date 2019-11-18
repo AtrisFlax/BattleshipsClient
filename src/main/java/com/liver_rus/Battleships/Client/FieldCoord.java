@@ -1,12 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
-/**
- * Класс пар координат x, y. tag  попадание в клетку
- */
-
 public class FieldCoord {
     private final int x, y;
-
     private boolean tag;
 
     public FieldCoord() {
@@ -48,7 +43,7 @@ public class FieldCoord {
     }
 
     //Char + Num format A1
-    public String toGameFormat() {
+    String toGameFormat() {
         int tmpX = x + 1;
         int tmpY = y + 1;
         String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char) (tmpY + 'A' - 1)) : null;

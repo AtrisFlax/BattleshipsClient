@@ -8,7 +8,6 @@ import java.util.LinkedHashSet;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FleetTest {
-
     Fleet fleet;
 
     @BeforeEach
@@ -71,7 +70,6 @@ class FleetTest {
         assertEquals(findingShip, fleet.findShip(new MessageAdapterFieldCoord(findCoord)));
         assertEquals(null, fleet.findShip(wrongCoord));
     }
-
 
     @Test
     void toManyShipsException() {

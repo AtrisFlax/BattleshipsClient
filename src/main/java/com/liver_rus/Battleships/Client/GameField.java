@@ -6,17 +6,14 @@ package com.liver_rus.Battleships.Client;
 
 public class GameField {
     ///П10*10 окружено кольцом CellStatus.BORDER -> Поле 12*12
-    private final static int FIELD_SIZE = 12;
-
+    private static final int FIELD_SIZE = 12;
     private Cell[][] field;
-
     private Fleet fleet;
-
     private enum Cell {
         CLEAR, MISS, SHIP, NEAR_WITH_SHIP, BORDER, DAMAGED_SHIP
     }
 
-    public GameField() {
+    GameField() {
         fleet = new Fleet();
 
         field = new Cell[FIELD_SIZE][FIELD_SIZE];
@@ -49,10 +46,6 @@ public class GameField {
             markFieldByShip(ship);
             getFleet().add(ship);
         }
-    }
-
-    public boolean isEmpty() {
-        return fleet.isEmpty();
     }
 
     public Fleet getFleet() {
@@ -224,7 +217,7 @@ public class GameField {
         return isPossibleLocateShipFlag;
     }
 
-    public void printOnConsole() {
+    void printOnConsole() {
         for (int i = 0; i < FIELD_SIZE; i++) {
             for (int j = 0; j < FIELD_SIZE; j++) {
                 if (field[j][i] == Cell.CLEAR) {

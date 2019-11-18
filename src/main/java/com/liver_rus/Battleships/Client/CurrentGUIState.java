@@ -45,6 +45,6 @@ class CurrentGUIState {
 
     @Override
     public String toString() {
-        return fieldCoord + " " + shipType + " " + shipOrientation;
+        return "CurrentGUIState: " + fieldCoord + " " + shipType + " " + shipOrientation;
     }
 }

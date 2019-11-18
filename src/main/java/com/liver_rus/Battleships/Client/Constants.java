@@ -1,6 +1,5 @@
 package com.liver_rus.Battleships.Client;
 
-
 class FirstPlayerGUIConstants implements GUIConstant {
     private final static int LEFT_X = 65;
     private final static int RIGHT_X = 301;
@@ -31,13 +30,12 @@ class SecondPlayerGUIConstants  implements GUIConstant {
 }
 
 public class Constants {
-
-    class Window {
+    static class Window {
         final static int WIDTH = 700;
         final static int HEIGHT = 950;
     }
 
-    class AboutInfo {
+    static class AboutInfo {
         final static String ABOUT_GAME_TITLE = "About Battleships";
         final static String ABOUT_GAME_HEADER = "Info1";
         final static String ABOUT_GAME_TEXT = "Info2";
@@ -78,7 +76,7 @@ public class Constants {
         }
     }
 
-    public final static int ShipInfoLength = 4;
+    final static int ShipInfoLength = 4;
 
     final static int NONE_SELECTED_FIELD_COORD = -1;
 }

@@ -39,8 +39,5 @@ class FleetCounter {
         int type = Ship.Type.shipTypeToInt(shipType);
         return popShip(type);
     }
-
-    boolean isEmpty() {
-        return left == NUM_MAX_SHIPS;
-    }
+    
 }

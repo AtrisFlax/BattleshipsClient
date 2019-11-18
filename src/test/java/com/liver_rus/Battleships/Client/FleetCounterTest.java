@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class FleetCounterTest {
-
     private FleetCounter fleetCounter;
 
     @BeforeEach

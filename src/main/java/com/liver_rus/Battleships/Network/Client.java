@@ -21,7 +21,6 @@ import java.util.regex.Pattern;
 
 import static java.nio.channels.SelectionKey.*;
 
-
 public class Client {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     private static final int QUEUE_SIZE = 2;
@@ -29,8 +28,8 @@ public class Client {
     private Selector selector = null;
     private ReceiveThread clientReceiver = null;
     private BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
-    int port = 0;
-    InetAddress address = null;
+    private int port = 0;
+    private InetAddress address = null;
     private ObservableList<String> inbox;
 
     public Client(ObservableList<String> inbox, String address, int port) {

@@ -1,19 +1,16 @@
 package com.liver_rus.Battleships.Network;
 
-
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 final class ServerConstants {
+    private static final Logger log = Logger.getLogger(String.valueOf(ServerConstants.class));
     private static InetAddress INET_ADDRESS;
     private static final int PORT = 8283;
 
-    private ServerConstants() {
-    }
-
-    private static final Logger log = Logger.getLogger(String.valueOf(ServerConstants.class));
+    private ServerConstants() {}
 
     static InetAddress getLocalHost() {
         try {

@@ -20,14 +20,12 @@ public class MessageProcessor {
         return matchHeadPlusDDDT(Constants.NetworkMessage.DESTROYED.toString(), line);
     }
 
-    //HEADXX
     static private boolean matchHeadPlusDD(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{2}$");
         Matcher m = p.matcher(line);
         return m.matches();
     }
 
-    //DESTROYEDXXXY
     static private boolean matchHeadPlusDDDT(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{3}[VH]$");
         Matcher m = p.matcher(line);

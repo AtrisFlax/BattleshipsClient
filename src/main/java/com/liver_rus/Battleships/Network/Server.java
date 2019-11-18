@@ -36,11 +36,6 @@ public class Server implements Runnable {
         configureServer();
     }
 
-    /**
-     * Configuring server
-     *
-     * @throws IOException
-     */
     void configureServer() throws IOException {
         serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
@@ -204,5 +199,4 @@ public class Server implements Runnable {
     public String toString() {
         return "Server is connected to port:" + String.valueOf(ServerConstants.getDefaultPort());
     }
-
 }

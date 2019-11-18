@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class NetworkTest {
     private static final Logger log = Logger.getLogger(String.valueOf(NetworkTest.class));
-
     Thread serverThread;
     Client client1;
     Client client2;

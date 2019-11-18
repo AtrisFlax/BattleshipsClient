@@ -12,14 +12,6 @@ public class Fleet {
         fleetCounter = new FleetCounter();
     }
 
-    void clear() {
-        shipsList.clear();
-    }
-
-    public void remove(Ship ship) {
-        shipsList.remove(ship);
-    }
-
     public void add(Ship ship) {
         if (shipsList.size() < FleetCounter.NUM_MAX_SHIPS) {
             shipsList.add(ship);
@@ -49,6 +41,14 @@ public class Fleet {
 
     int popShip(Ship.Type shipType) {
         return fleetCounter.popShip(shipType);
+    }
+
+    void clear() {
+        shipsList.clear();
+    }
+
+    void remove(Ship ship) {
+        shipsList.remove(ship);
     }
 
     @Override

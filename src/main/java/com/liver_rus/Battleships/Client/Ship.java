@@ -43,7 +43,7 @@ public class Ship {
         return createShip(currentGUIState.getFieldCoord(), currentGUIState.getShipType(), currentGUIState.getShipOrientation());
     }
 
-    public static Ship createShip(String shipInfo) throws IOException {
+    static Ship createShip(String shipInfo) throws IOException {
         if (shipInfo.length() == Constants.ShipInfoLength) {
             int x = Character.getNumericValue(shipInfo.charAt(0));
             int y = Character.getNumericValue(shipInfo.charAt(1));
@@ -186,5 +186,4 @@ public class Ship {
         }
         System.out.println();
     }
-
 }

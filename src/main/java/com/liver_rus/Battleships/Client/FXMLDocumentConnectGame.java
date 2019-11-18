@@ -11,49 +11,12 @@ import javafx.stage.Stage;
 import java.util.regex.Pattern;
 
 public class FXMLDocumentConnectGame {
-
+    private static final Pattern IPv4Pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
+    private static final int MIN_VALUE_PORT = 0;
+    private static final int MAX_VALUE_PORT = 65535;
     private static String host = null;
     private static String port = null;
     private static String myName = null;
-
-    String getHost() {
-        return host;
-    }
-
-    String getPort() {
-        return port;
-    }
-
-    String getMyName() {
-        return myName;
-    }
-
-    private static final Pattern IPv4Pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
-
-    private static boolean isIPAddress(final String ip) {
-        return IPv4Pattern.matcher(ip).matches() || ip.equals("localhost");
-    }
-
-    final private static int MIN_VALUE_PORT = 0;
-    final private static int MAX_VALUE_PORT = 65535;
-
-    private static boolean isPort(String strPort) {
-        if (isNumeric(strPort)) {
-            int intPort = Integer.parseInt(port);
-            if (intPort > MIN_VALUE_PORT && intPort <= MAX_VALUE_PORT) {
-                isNumeric(strPort);
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
-    }
-
-    private static boolean isMyName(String str) {
-        return (!str.equals(""));
-    }
 
     @FXML
     private TextField portTextField;
@@ -113,6 +76,18 @@ public class FXMLDocumentConnectGame {
         }
     }
 
+    String getHost() {
+        return host;
+    }
+
+    String getPort() {
+        return port;
+    }
+
+    String getMyName() {
+        return myName;
+    }
+
     void setIPAndPortFields() {
         if (host != null) {
             ipTextField.setText(host);
@@ -138,5 +113,27 @@ public class FXMLDocumentConnectGame {
             isNum = false;
         }
         return isNum;
+    }
+
+    private static boolean isPort(String strPort) {
+        if (isNumeric(strPort)) {
+            int intPort = Integer.parseInt(port);
+            if (intPort > MIN_VALUE_PORT && intPort <= MAX_VALUE_PORT) {
+                isNumeric(strPort);
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    private static boolean isMyName(String str) {
+        return (!str.equals(""));
+    }
+
+    private static boolean isIPAddress(final String ip) {
+        return IPv4Pattern.matcher(ip).matches() || ip.equals("localhost");
     }
 }

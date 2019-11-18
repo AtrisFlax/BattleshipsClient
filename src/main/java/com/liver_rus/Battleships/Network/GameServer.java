@@ -27,7 +27,7 @@ public class GameServer extends Server {
     private ServerGameEngine gameEngine;
     private SelectionKey turnHolder;
 
-    private final static int MAX_CONNECTIONS = ServerGameEngine.MAX_PLAYERS;
+    private final static int MAX_CONNECTIONS = ServerGameEngine.max_players();
     private int numAcceptedConnections = 0;
 
     public GameServer(int port) throws IOException {
