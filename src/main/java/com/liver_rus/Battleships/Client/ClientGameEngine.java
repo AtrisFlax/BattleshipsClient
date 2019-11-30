@@ -14,6 +14,9 @@ class ClientGameEngine extends GameEngine {
     private FieldCoord shootCoord;
     private CurrentGUIState currentGUIState;
 
+    private FieldCoord lastMyFieldCoord;
+    private FieldCoord lastEnemyFieldCoord;
+
     enum Phase {
         INIT, DEPLOYING_FLEET, FLEET_IS_DEPLOYED, WAITING_ANSWER, TAKE_SHOT, MAKE_SHOT, END_GAME;
     }
@@ -25,6 +28,10 @@ class ClientGameEngine extends GameEngine {
         shipSelected = false;
         shootCoord = null;
         currentGUIState = new CurrentGUIState();
+
+        //TODO lastMyFieldCoord lastEnemyFieldCoord move on GameEngine class
+        lastMyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
+        lastEnemyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
     }
 
     CurrentGUIState getCurrentGUIState() {
@@ -172,4 +179,19 @@ class ClientGameEngine extends GameEngine {
         }
     }
 
+    public FieldCoord getLastMyFieldCoord() {
+        return lastMyFieldCoord;
+    }
+
+    public void setLastMyFieldCoord(FieldCoord lastMyFieldCoord) {
+        this.lastMyFieldCoord = lastMyFieldCoord;
+    }
+
+    public FieldCoord getLastEnemyFieldCoord() {
+        return lastEnemyFieldCoord;
+    }
+
+    public void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
+        this.lastEnemyFieldCoord = lastEnemyFieldCoord;
+    }
 }

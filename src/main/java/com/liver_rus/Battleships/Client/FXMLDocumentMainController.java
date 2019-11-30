@@ -28,7 +28,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class FXMLDocumentMainController implements Initializable {
-
     @FXML
     private Button shipType4Button;
 
@@ -43,8 +42,6 @@ public class FXMLDocumentMainController implements Initializable {
 
     @FXML
     private Button shipType0Button;
-
-    private ArrayList<Button> shipTypeButtons;
 
     @FXML
     private MenuItem menuItemConnect;
@@ -86,8 +83,6 @@ public class FXMLDocumentMainController implements Initializable {
 
     private ObservableList<String> networkInbox;
 
-    private FieldCoord lastMyFieldCoord;
-    private FieldCoord lastEnemyFieldCoord;
     private GraphicsContext overlayCanvas;
     private GraphicsContext mainCanvas;
     private boolean isFirstChangeLastFieldCoord = true;
@@ -115,9 +110,6 @@ public class FXMLDocumentMainController implements Initializable {
 
     private void initGameEngine() {
         gameEngine = new ClientGameEngine();
-        //TODO lastMyFieldCoord lastEnemyFieldCoord move on GameEngine class
-        lastMyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
-        lastEnemyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
     }
 
     private void initGUI() {
@@ -129,12 +121,6 @@ public class FXMLDocumentMainController implements Initializable {
         setupShipButtonBehavior(shipType2Button, Ship.Type.CRUISER);
         setupShipButtonBehavior(shipType1Button, Ship.Type.DESTROYER);
         setupShipButtonBehavior(shipType0Button, Ship.Type.SUBMARINE);
-        shipTypeButtons = new ArrayList<>();
-        shipTypeButtons.add(shipType0Button);
-        shipTypeButtons.add(shipType1Button);
-        shipTypeButtons.add(shipType2Button);
-        shipTypeButtons.add(shipType3Button);
-        shipTypeButtons.add(shipType4Button);
     }
 
     private void setupShipButtonBehavior(Button button, Ship.Type type) {
@@ -170,9 +156,9 @@ public class FXMLDocumentMainController implements Initializable {
                     overlayCanvas.setStroke(Color.RED);
                     Draw.ShipOnMyField(overlayCanvas, gameEngine.getCurrentGUIState());
                 }
-                if (lastMyFieldCoord.equals(gameEngine.getCurrentGUIState().getFieldCoord()) && !isFirstChangeLastFieldCoord) {
+                if (gameEngine.getLastMyFieldCoord().equals(gameEngine.getCurrentGUIState().getFieldCoord()) && !isFirstChangeLastFieldCoord) {
                     clearCanvas(overlayCanvas);
-                    lastMyFieldCoord = gameEngine.getCurrentGUIState().getFieldCoord();
+                    gameEngine.setLastMyFieldCoord(gameEngine.getCurrentGUIState().getFieldCoord());
                 } else {
                     isFirstChangeLastFieldCoord = false;
                 }
@@ -187,9 +173,9 @@ public class FXMLDocumentMainController implements Initializable {
                 overlayCanvas.setStroke(Color.BLACK);
                 FieldCoord fieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), new SecondPlayerGUIConstants());
                 Draw.MissCellOnEnemyField(overlayCanvas, fieldCoord);
-                if (lastEnemyFieldCoord.equals(fieldCoord) && !isFirstChangeLastFieldCoord) {
+                if (gameEngine.getLastMyFieldCoord().equals(fieldCoord) && !isFirstChangeLastFieldCoord) {
                     clearCanvas(overlayCanvas);
-                    lastEnemyFieldCoord = fieldCoord;
+                    gameEngine.setLastEnemyFieldCoord(fieldCoord);
                 } else {
                     isFirstChangeLastFieldCoord = false;
                 }
@@ -220,7 +206,6 @@ public class FXMLDocumentMainController implements Initializable {
         if (event.getButton().equals(MouseButton.MIDDLE)) {
             if (gameEngine.getShipType() != Ship.Type.SUBMARINE) {
                 gameEngine.getCurrentGUIState().changeShipOrientation();
-//                System.out.println("Current state MouseButton.MIDDLE" + gameEngine.getCurrentState());
                 //перерисовываем после смены
                 overlayCanvas.clearRect(0, 0, Constants.Window.WIDTH, Constants.Window.HEIGHT);
                 if (gameEngine.getGameField().isNotIntersectionShipWithBorder(gameEngine.getCurrentGUIState()) &&
@@ -365,10 +350,7 @@ public class FXMLDocumentMainController implements Initializable {
         }
 
         if (MessageProcessor.isMiss(message)) {
-            //Miss [/] auto placed by gui handler
-            //  if(gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-            //      Draw.MissCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
-            //  }
+            //on enemy field miss [/] auto placed by gui handler
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
                 Draw.MissCellOnMyField(mainCanvas, gameEngine.getShootCoord());
             }
@@ -380,10 +362,7 @@ public class FXMLDocumentMainController implements Initializable {
                 Draw.ShipOnEnemyField(mainCanvas, new DrawAdapterShip(
                         Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED.toString(), ""))));
             }
-            //on my field all ships(frame) already has drawn
-            //  if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-            //      Draw.ShipOnMyField(mainCanvas, Ship.createShip(message));
-            //  }
+            //on my field all ships (frame) already has drawn
             return;
         }
 
@@ -443,14 +422,6 @@ public class FXMLDocumentMainController implements Initializable {
                 return "Enemy Destroy Your Ship";
             }
         }
-        //Excessive output
-//        if (MessageProcessor.isYouTurn(message)) {
-//            return "You Turn";
-//        }
-//
-//        if (MessageProcessor.isEnemyTurn(message)) {
-//            return "Enemy Turn";
-//        }
         if (MessageProcessor.isYouWin(message)) {
             return "You Win";
         }
@@ -460,6 +431,14 @@ public class FXMLDocumentMainController implements Initializable {
         if (MessageProcessor.isDisconnect(message)) {
             return "Disconnect";
         }
+        //Excessive output
+//        if (MessageProcessor.isYouTurn(message)) {
+//            return "You Turn";
+//        }
+//
+//        if (MessageProcessor.isEnemyTurn(message)) {
+//            return "Enemy Turn";
+//        }
         return null;
     }
 
@@ -491,5 +470,3 @@ public class FXMLDocumentMainController implements Initializable {
         labelGameStatus.setText("Fleet is deployed. Waiting for second player");
     }
 }
-
-

@@ -57,8 +57,7 @@ public class Ship {
 
     public static Ship[] createShips(String[] shipsInfo) throws IOException {
         if (shipsInfo.length != FleetCounter.NUM_MAX_SHIPS) {
-            //TODO create custom class exception A
-            throw new IOException("Not enough symbols in ship. Can't create fleet");
+            throw new IllegalArgumentException("Not enough symbols in ship. Can't create fleet");
         } else {
             Ship[] ships = new Ship[shipsInfo.length];
             for (int i = 0; i < shipsInfo.length; i++) {
