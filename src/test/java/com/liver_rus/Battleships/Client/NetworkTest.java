@@ -67,6 +67,11 @@ class NetworkTest {
         }
     }
 
+    private Stream<String> getStringStreamFromFile(String fileName) {
+        InputStreamReader inputStreamReader = new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName));
+        return new BufferedReader(inputStreamReader).lines();
+    }
+
     @Test
     void gameCycle() throws InterruptedException {
         Stream<String> sendInfoStream = getStringStreamFromFile("TestCases/Case1/sendToServer.txt");
@@ -100,11 +105,6 @@ class NetworkTest {
             assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.toArray(), client1.getInbox().toArray()));
             assertTrue(Arrays.deepEquals(client2ExpectedInboxStream.toArray(), client2.getInbox().toArray()));
         }
-    }
-
-    private Stream<String> getStringStreamFromFile(String fileName) {
-        InputStreamReader InputStreamReader = new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName));
-        return new BufferedReader(InputStreamReader).lines();
     }
 
     @AfterEach
