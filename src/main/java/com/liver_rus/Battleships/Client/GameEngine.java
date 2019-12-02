@@ -1,14 +1,17 @@
 package com.liver_rus.Battleships.Client;
 
+//TODO убрать свзяь между клиентом и сервером
 public abstract class GameEngine {
-    private int numTurn;
+    //TODO
+    //private int numTurn;
+    //private int numRound;
+
     private boolean isFirstTurn;
-    private int numRound;
 
     public GameEngine() {
-        numTurn = 1;
+        //numTurn = 1;
+        //numRound = 1;
         isFirstTurn = true;
-        numRound = 1;
     }
 
     public boolean isFirstTurn() {

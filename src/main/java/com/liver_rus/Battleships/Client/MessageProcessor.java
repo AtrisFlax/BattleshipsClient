@@ -1,5 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.Constants.Constants;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -20,12 +22,28 @@ public class MessageProcessor {
         return matchHeadPlusDDDT(Constants.NetworkMessage.DESTROYED.toString(), line);
     }
 
+    //TODO нормальное название +
+
+    //процесорно затратный
+    /*
+     Pattern p = Pattern.compile("^" + head + "\\d{2}$");
+        Matcher m = p.matcher(line);
+        вытащить патерн компайл на ружу
+        и потом уже эксплатировать
+        он долгий!!!
+
+        Оставить только проверку хедеров
+
+        что делать с мусором?7???
+        выкиодывать эксепшен когда идет извелченеие координат!!!! не пропускать
+     */
     static private boolean matchHeadPlusDD(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{2}$");
         Matcher m = p.matcher(line);
         return m.matches();
     }
 
+    //TODOнепонятно что за dddt
     static private boolean matchHeadPlusDDDT(String head, String line) {
         Pattern p = Pattern.compile("^" + head + "\\d{3}[VH]$");
         Matcher m = p.matcher(line);

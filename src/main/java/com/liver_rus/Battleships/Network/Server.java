@@ -169,7 +169,7 @@ public class Server implements Runnable {
      * @param msg
      * @throws IOException
      */
-    void sendAllClient(String msg) throws IOException {
+    void sendAllClients(String msg) throws IOException {
         ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
         for (SelectionKey key : selector.keys()) {
             if (key.isValid() && key.channel() instanceof SocketChannel) {

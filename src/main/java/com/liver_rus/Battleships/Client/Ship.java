@@ -1,5 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.Constants.Constants;
+
 import java.io.IOException;
 
 /**
@@ -56,7 +58,7 @@ public class Ship {
     }
 
     public static Ship[] createShips(String[] shipsInfo) throws IOException {
-        if (shipsInfo.length != FleetCounter.NUM_MAX_SHIPS) {
+        if (shipsInfo.length != FleetCounter.getNumMaxShip()) {
             throw new IllegalArgumentException("Not enough symbols in ship. Can't create fleet");
         } else {
             Ship[] ships = new Ship[shipsInfo.length];
@@ -79,6 +81,8 @@ public class Ship {
         }
     }
 
+    //TODO не должен торчать наружу
+    //TODO метод длины корабля в зависимости от типа
     public enum Orientation {
         HORIZONTAL, VERTICAL;
 
@@ -96,6 +100,9 @@ public class Ship {
         }
     }
 
+
+    //TODO сделана двойная работа
+    //
     public enum Type {
         AIRCRAFT_CARRIER(4),
         BATTLESHIP(3),
@@ -111,15 +118,12 @@ public class Ship {
             this.value = value;
         }
 
+        //TODO возвращать просто value
         static int shipTypeToInt(Type type) {
-            if (type == AIRCRAFT_CARRIER) return 4;
-            if (type == BATTLESHIP) return 3;
-            if (type == CRUISER) return 2;
-            if (type == DESTROYER) return 1;
-            if (type == SUBMARINE) return 0;
-            return -1;
+            return type.value;
         }
 
+        //TODO swtich case
         static Type shipIntToType(int intType) {
             if (intType == 4) return AIRCRAFT_CARRIER;
             if (intType == 3) return BATTLESHIP;
@@ -144,6 +148,7 @@ public class Ship {
     }
 
     public void tagShipCell(FieldCoord coord) {
+        //TODO вызов isHorizontal()
         if (orientation == Orientation.HORIZONTAL) {
             this.shipCoord[coord.getX() - shipCoord[0].getX()].setTag();
         } else {

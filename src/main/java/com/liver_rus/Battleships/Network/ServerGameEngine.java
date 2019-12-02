@@ -31,7 +31,7 @@ public class ServerGameEngine extends GameEngine {
         this.gamePhase = gamePhase;
     }
 
-    static int max_players() {
+    static int maxPlayers() {
         return MAX_PLAYERS;
     }
 }

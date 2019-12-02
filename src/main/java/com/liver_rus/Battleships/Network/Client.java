@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.Network;
 
-import com.liver_rus.Battleships.Client.Constants;
+import com.liver_rus.Battleships.Client.Constants.Constants;
 import javafx.collections.ObservableList;
 
 import java.io.IOException;
@@ -42,6 +42,8 @@ public class Client {
         this.port = port;
     }
 
+
+    //TODO занести внутрь клиента конструкторв Client и makeConnection и сделать его private
     public void makeConnection() throws IOException {
         channel = SocketChannel.open();
         channel.configureBlocking(false);
@@ -128,6 +130,9 @@ public class Client {
         }
     }
 
+
+    //TODO перегузить finilize и вызывать его
+    //close приватный
     public void close() {
         try {
             try {
@@ -142,6 +147,8 @@ public class Client {
         clientReceiver.interrupt();
     }
 
+
+    //TODO inbox живет внутри клиента инициализуируется и clear вызвает
     public ObservableList<String> getInbox() {
         return inbox;
     }

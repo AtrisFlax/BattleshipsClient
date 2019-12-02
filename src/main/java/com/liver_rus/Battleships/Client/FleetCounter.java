@@ -7,7 +7,7 @@ import java.util.Arrays;
  */
 
 class FleetCounter {
-    static final int NUM_MAX_SHIPS = Arrays.stream(shipsBuilder()).sum();
+    static private final int NUM_MAX_SHIPS = Arrays.stream(shipsBuilder()).sum();
     private int[] ships;
     private int left;
 
@@ -20,12 +20,13 @@ class FleetCounter {
         return new int[]{2, 2, 1, 1, 1};
     }
 
-    int getShipsLeft() {
-        return left;
-    }
-
-    //return -1 if have no more ships type
-    int popShip(int type) {
+    /**
+     *
+     * @param type - ship type for extraction
+     * @return left ships by type. If no more ships left then return -1
+     */
+    //
+    private int popShip(int type) {
         if (ships[type] > 0) {
             --left;
             ships[type] = ships[type] - 1;
@@ -39,5 +40,12 @@ class FleetCounter {
         int type = Ship.Type.shipTypeToInt(shipType);
         return popShip(type);
     }
-    
+
+    static int getNumMaxShip() {
+        return NUM_MAX_SHIPS;
+    }
+
+    int getShipsLeft() {
+        return left;
+    }
 }

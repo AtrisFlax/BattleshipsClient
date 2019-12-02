@@ -1,5 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.Constants.Constants;
+
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
@@ -29,7 +31,6 @@ class ClientGameEngine extends GameEngine {
         shootCoord = null;
         currentGUIState = new CurrentGUIState();
 
-        //TODO lastMyFieldCoord lastEnemyFieldCoord move on GameEngine class
         lastMyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
         lastEnemyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
     }
@@ -106,7 +107,10 @@ class ClientGameEngine extends GameEngine {
     int selectShip(Ship.Type type) {
         if (gameField.getFleet().getShipsLeft() > 0) {
             int popShipResult = gameField.getFleet().popShip(type);
-            if (popShipResult != -1) {
+            //TODO используется только минус единица значение
+            //завести константу и сравнивать с ней именованаю (не с -1)
+            final int NO_MORE_SHIP_FOR_EXTRACTION = -1;
+            if (popShipResult != NO_MORE_SHIP_FOR_EXTRACTION) {
                 setShipSelected(true);
                 currentGUIState.shipType = type;
                 return popShipResult;

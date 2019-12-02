@@ -1,26 +1,29 @@
 package com.liver_rus.Battleships.Client;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import com.liver_rus.Battleships.Client.Constants.Constants;
+
+import java.util.LinkedList;
 
 public class Fleet {
     private FleetCounter fleetCounter;
-    private LinkedHashSet<Ship> shipsList;
+    private LinkedList<Ship> shipsList;
 
     Fleet() {
-        shipsList = new LinkedHashSet<>(FleetCounter.NUM_MAX_SHIPS);
+        //Array list либо LinkedList достаточно
+        shipsList = new LinkedList<>();
         fleetCounter = new FleetCounter();
     }
 
-    public void add(Ship ship) {
-        if (shipsList.size() < FleetCounter.NUM_MAX_SHIPS) {
+    void add(Ship ship) {
+        if (shipsList.size() < FleetCounter.getNumMaxShip()) {
             shipsList.add(ship);
         } else {
+            //TODO custom exception
             throw new ArrayIndexOutOfBoundsException("Trying to add too many ships on field");
         }
     }
 
-    HashSet<Ship> getShipsOnField() {
+    LinkedList<Ship> getShipsOnField() {
         return shipsList;
     }
 

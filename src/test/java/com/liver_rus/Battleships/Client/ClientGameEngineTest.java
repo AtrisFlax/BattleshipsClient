@@ -28,10 +28,10 @@ class ClientGameEngineTest {
         ships.add(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL));
         assertEquals(7, gameEngine.getGameField().getFleet().getShipsLeft());
         for (Ship ship : ships) {
-            gameEngine.addShipOnField(ship);
-        }
-        assertEquals("180H|320H|111V|341H|262H|743V|914V|", gameEngine.getShipsInfoForSend());
+        gameEngine.addShipOnField(ship);
     }
+    assertEquals("180H|320H|111V|341H|262H|743V|914V|", gameEngine.getShipsInfoForSend());
+}
 
     @Test
     void anotherAddSequence() {

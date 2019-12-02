@@ -3,7 +3,7 @@ package com.liver_rus.Battleships.Client;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -15,6 +15,8 @@ class FleetTest {
         fleet = new Fleet();
     }
 
+
+    //TODO более понятные имена
     @Test
     void clear() {
         fleet.clear();
@@ -28,7 +30,12 @@ class FleetTest {
 
     @Test
     void remove() {
-        LinkedHashSet<Ship> testShipsList = new LinkedHashSet<>();
+        //TODO
+        //Linked List одинаковый порядок выдачи дают
+        //LinkedHashSet плохо
+        //нужно только добавить удалить и итерировать
+        //непривязыватся к реализации использовать интерфейсы (LinkedHashSet<Ship>)
+        ArrayList<Ship> testShipsList = new ArrayList<>();
         Ship shipForRemove = Ship.createShip(new FieldCoord(3,8), Ship.Type.CRUISER, Ship.Orientation.VERTICAL);
         testShipsList.add(Ship.createShip(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
         testShipsList.add(Ship.createShip(new FieldCoord(5,5), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
@@ -40,14 +47,12 @@ class FleetTest {
         }
         testShipsList.remove(shipForRemove);
         fleet.remove(shipForRemove);
-        //System.out.println(testShipsList);
-        //System.out.println(shipsOnField.getShipsOnField());
         assertIterableEquals(testShipsList, fleet.getShipsOnField());
     }
 
     @Test
     void add() {
-        LinkedHashSet<Ship> testShipsList = new LinkedHashSet<>();
+        ArrayList<Ship> testShipsList = new ArrayList<>();
         testShipsList.add(Ship.createShip(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));
         testShipsList.add(Ship.createShip(new FieldCoord(5,5), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
         testShipsList.add(Ship.createShip(new FieldCoord(4,0), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
@@ -71,6 +76,8 @@ class FleetTest {
         assertEquals(null, fleet.findShip(wrongCoord));
     }
 
+
+    //TODO custom exepctions
     @Test
     void toManyShipsException() {
         fleet.add(Ship.createShip(new FieldCoord(2,3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL));

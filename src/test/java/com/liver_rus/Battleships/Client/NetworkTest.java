@@ -39,6 +39,8 @@ class NetworkTest {
         client2 = new Client(inbox2, host, port);
     }
 
+    //TODO asserton with time out
+    //delete sleep
     void connectClientToServer(Client client) throws InterruptedException {
         CountDownLatch connectionLatch = new CountDownLatch(1);
         new Thread(() -> {
@@ -53,7 +55,14 @@ class NetworkTest {
         Thread.sleep(500);
     }
 
-    void send(Client client, String msg) {
+    //TODO asserton with time out
+
+    //попробовать сделать send messege на треде теста
+    //sendMessageLatch выполнять на треде теста
+    //тест должен отрабатывать контакт
+    //сейчас кажется что sendmessga синхронный
+    //латч возможно лишний
+    private void send(Client client, String msg) {
         CountDownLatch sendMessageLatch = new CountDownLatch(1);
         new Thread(() -> {
             client.sendMessage(msg);
@@ -67,13 +76,9 @@ class NetworkTest {
         }
     }
 
-    private Stream<String> getStringStreamFromFile(String fileName) {
-        InputStreamReader inputStreamReader = new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName));
-        return new BufferedReader(inputStreamReader).lines();
-    }
-
     @Test
     void gameCycle() throws InterruptedException {
+        //TODO TestCases/Case1 подсатвлять конкатить внутрь  getStringStreamFromFile
         Stream<String> sendInfoStream = getStringStreamFromFile("TestCases/Case1/sendToServer.txt");
         Stream<String> client1ExpectedInboxStream = getStringStreamFromFile("TestCases/Case1/awaitedInboxClient1.txt");
         Stream<String> client2ExpectedInboxStream = getStringStreamFromFile("TestCases/Case1/awaitedInboxClient2.txt");
@@ -87,6 +92,7 @@ class NetworkTest {
         for (int i = 0; i < SHIPS_INFO_LIMIT; i++)
             splitAndSend(sendInfo[i]);
         //SEND SHOTS
+        //TODO вызвать из констант "YOU_TURN"
         boolean client1FirstTurn = client1.getInbox().get(client1.getInbox().size() - 1).equals("YOU_TURN");
         if (client1FirstTurn) {
             //skip fake shot (MISS_SHOT) for client2 first turn
@@ -96,12 +102,16 @@ class NetworkTest {
             for (int i = SHIPS_INFO_LIMIT; i < sendInfo.length; i++)
                 splitAndSend(sendInfo[i]);
         }
+
+        //TODO непонятен скип прописать где чего
         //CHECK INBOX
         final int SKIP_ANOTHER_TURN_INDEX = 2;
         if (client1FirstTurn) {
+            //TODO тут естьString[]::new
             assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.skip(SKIP_ANOTHER_TURN_INDEX).toArray(String[]::new), client1.getInbox().toArray()));
             assertTrue(Arrays.deepEquals(client2ExpectedInboxStream.skip(SKIP_ANOTHER_TURN_INDEX).toArray(String[]::new), client2.getInbox().toArray()));
         } else {
+            //TODO тут нет toArray()
             assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.toArray(), client1.getInbox().toArray()));
             assertTrue(Arrays.deepEquals(client2ExpectedInboxStream.toArray(), client2.getInbox().toArray()));
         }
@@ -116,14 +126,26 @@ class NetworkTest {
     }
 
     void splitAndSend(String str) {
+        //TODO \\s+ можно убрать. заменить на только пробельные символы
         String[] splitStr = str.split("\\s+");
         if (splitStr[0].equals("client1")) {
             send(client1, splitStr[1]);
             return;
+        } else {
+            if (splitStr[0].equals("client2")) {
+                send(client2, splitStr[1]);
+                return;
+            }
+            else {
+                //TODO Exeption
+            }
         }
-        if (splitStr[0].equals("client2")) {
-            send(client2, splitStr[1]);
-            return;
-        }
+
     }
+
+    private Stream<String> getStringStreamFromFile(String fileName) {
+        InputStreamReader inputStreamReader = new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName));
+        return new BufferedReader(inputStreamReader).lines();
+    }
+
 }

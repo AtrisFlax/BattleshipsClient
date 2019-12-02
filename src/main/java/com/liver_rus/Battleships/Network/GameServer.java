@@ -1,5 +1,6 @@
 package com.liver_rus.Battleships.Network;
 
+import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.*;
 
 import java.io.IOException;
@@ -14,6 +15,65 @@ import java.util.logging.Logger;
 
 import static java.nio.ByteBuffer.allocate;
 
+//TODO GameServer один метод hangleMessage procceedMessga(от входященго меняю значение GameFiled'а)
+
+
+/* TODO interface
+public SelectionKey sendOtherClient(SelectionKey receiverKey, String msg) throws IOException {
+        return super.sendOtherClient(receiverKey, addSplitSymbol(msg));
+        }
+
+@Override
+public void sendAllClients(String msg) throws IOException {
+        super.sendAllClients(addSplitSymbol(msg));
+        }
+
+@Override
+public void sendMessage(SelectionKey key, String msg) throws IOException {
+        super.sendMessage(key, addSplitSymbol(msg));
+        }
+*/
+
+/*
+интерфес метаинфо возрващающий мапу с данными
+сервер метфо инфо, который по ключу возвращает объект селекон ки
+ */
+
+/*
++test game server
+приходит сообщение
+проверяем game field как поменялся
+написать метод служебный для полученя gamefield
+
+ */
+
+
+/*
+передают gameSever gamefield
+и смотрим как gameserver себя ведет. из теста имеет доступ gameField из теста
+
+
+
+ */
+
+
+/*
+скрипт который пакует в jar и работает ли на разных машинах
+
+
+ */
+
+/*
+научится деплоить скриптами
+bash скрипт для этого
+(любая среда для запуска linux команд
+
+в папочку ложим сгенированый jar
+
+
+ide делать артефакт? (но делаем на билд сервер (скрипт))
+ */
+
 public class GameServer extends Server {
     //TODO make one buffer for all write methods
     private static final int WRITE_BUFFER_SIZE = 8192;
@@ -27,7 +87,7 @@ public class GameServer extends Server {
     private ServerGameEngine gameEngine;
     private SelectionKey turnHolder;
 
-    private final static int MAX_CONNECTIONS = ServerGameEngine.max_players();
+    private final static int MAX_CONNECTIONS = ServerGameEngine.maxPlayers();
     private int numAcceptedConnections = 0;
 
     public GameServer(int port) throws IOException {
@@ -69,7 +129,7 @@ public class GameServer extends Server {
     private void gameEngineProceed(SelectionKey key, String message) throws IOException {
         if (message.equals(Constants.NetworkMessage.DISCONNECT.toString())) {
             log.info("Connection closed upon one's client request");
-            sendAllClient(message);
+            sendAllClients(message);
             resetServerGameState();
             return;
         }
@@ -127,9 +187,9 @@ public class GameServer extends Server {
                 if (field.isCellDamaged(adaptedShootCoord)) {
                     //field.printOnConsole();
                     Ship ship = field.getFleet().findShip(adaptedShootCoord);
-                    sendAllClient(Constants.NetworkMessage.HIT.toString() + shootCoord);
+                    sendAllClients(Constants.NetworkMessage.HIT.toString() + shootCoord);
                     if (!ship.isAlive()) {
-                        sendAllClient(Constants.NetworkMessage.DESTROYED.toString() + ship.toString());
+                        sendAllClients(Constants.NetworkMessage.DESTROYED.toString() + ship.toString());
                         //update ships list
                         field.updateShipList();
                     }
@@ -141,7 +201,7 @@ public class GameServer extends Server {
                         sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN.toString());
                     }
                 } else {
-                    sendAllClient(Constants.NetworkMessage.MISS.toString() + shootCoord);
+                    sendAllClients(Constants.NetworkMessage.MISS.toString() + shootCoord);
                     sendMessage(key, Constants.NetworkMessage.ENEMY_TURN.toString());
                     turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN.toString());
                 }
@@ -201,8 +261,8 @@ public class GameServer extends Server {
     }
 
     @Override
-    public void sendAllClient(String msg) throws IOException {
-        super.sendAllClient(addSplitSymbol(msg));
+    public void sendAllClients(String msg) throws IOException {
+        super.sendAllClients(addSplitSymbol(msg));
     }
 
     @Override
