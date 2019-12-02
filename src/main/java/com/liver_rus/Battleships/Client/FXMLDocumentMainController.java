@@ -1,5 +1,8 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
 import javafx.application.Platform;
@@ -95,8 +98,17 @@ public class FXMLDocumentMainController implements Initializable {
     }
 
     private void initNetwork() {
+        //TODO создание inbox сам клиент должен создавать клиент
         networkInbox = FXCollections.observableArrayList();
+        //связка сразу после создания
+
+        //подписался на update работаем со значением(после инициализации подписка)
+        //либо у клиента get inbox get lisener предеать ему new ListChangeListener<String> и он предложит перегрузить onChange метод
+        //либо внитри клиента подписатся на add listener (этот код перенести) а наружу отдавать observable сообщений
+        //inbox дернул -> main controleler делать лисенеров -> сам внутри делал clear
+
         networkInbox.addListener((ListChangeListener<String>) listener -> {
+
             String received_msg = networkInbox.get(networkInbox.size() - 1);
             log.info("Client Message receive: " + received_msg);
             try {
@@ -104,6 +116,8 @@ public class FXMLDocumentMainController implements Initializable {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+            //клиент должен сам заботится об инбоксе
+            //можно наружу отдавать
             networkInbox.clear();
         });
     }
@@ -136,13 +150,16 @@ public class FXMLDocumentMainController implements Initializable {
         );
     }
 
+
+    //TODO в отдельный файл со стачискем методом handleOverlayCanvasMouseMoved
+
     //Отрисовка при передвижени курсора
     @FXML
     void handleOverlayCanvasMouseMoved(MouseEvent event) {
         if (gameEngine.getGamePhase() == ClientGameEngine.Phase.DEPLOYING_FLEET) {
             gameEngine.setCurrentState(
                     new FieldCoord(
-                            event.getSceneX(), event.getSceneY(), new FirstPlayerGUIConstants()),
+                            event.getSceneX(), event.getSceneY(), FirstPlayerGUIConstants.getGUIConstant()),
                     gameEngine.getShipType(),
                     gameEngine.getShipOrientation()
             );
@@ -171,7 +188,7 @@ public class FXMLDocumentMainController implements Initializable {
         if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
             if (SceneCoord.isFromSecondPlayerField(event.getSceneX(), event.getSceneY())) {
                 overlayCanvas.setStroke(Color.BLACK);
-                FieldCoord fieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), new SecondPlayerGUIConstants());
+                FieldCoord fieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
                 Draw.MissCellOnEnemyField(overlayCanvas, fieldCoord);
                 if (gameEngine.getLastMyFieldCoord().equals(fieldCoord) && !isFirstChangeLastFieldCoord) {
                     clearCanvas(overlayCanvas);
@@ -193,6 +210,7 @@ public class FXMLDocumentMainController implements Initializable {
         resetFleetButton.setDisable(true);
         clearCanvas(overlayCanvas);
         clearCanvas(mainCanvas);
+        //TODO get text for left ships. не оставлять пробел "  x"  смотри     button.setText(popedShip + "  x");
         shipType4Button.setText("1  x");
         shipType3Button.setText("1  x");
         shipType2Button.setText("1  x");
@@ -200,6 +218,11 @@ public class FXMLDocumentMainController implements Initializable {
         shipType0Button.setText("2  x");
     }
 
+    //TODO handlers вынести в отдельные класса static методы
+    //вызов будте этих методов из друго класса
+
+    //TODO обработка нажатия на мышь
+    //идет не маленкими методами в зависимости кнопки MouseButton.MIDDLE завернуть в методы if()
     @FXML
     void handleToMouseClick(MouseEvent event) {
         //меняем расположения корабля с горизонтального на вертикальное (или наоборот) на среднюю клавишу мыши
@@ -240,7 +263,7 @@ public class FXMLDocumentMainController implements Initializable {
             //выстрел в поле противника
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
                 if (SceneCoord.isFromSecondPlayerField(event.getSceneX(), event.getSceneY())) {
-                    FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), new SecondPlayerGUIConstants());
+                    FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
                     Draw.MissCellOnEnemyField(mainCanvas, shootFieldCoord);
                     network.sendMessage(Constants.NetworkMessage.SHOT.toString() + shootFieldCoord);
                     gameEngine.setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
@@ -338,7 +361,7 @@ public class FXMLDocumentMainController implements Initializable {
                 statusListView.scrollTo(statusListView.getItems().size() - 1);
             }
         });
-
+        //TODO оставить hit miss if
         if (MessageProcessor.isHit(message)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.HitCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
@@ -366,6 +389,7 @@ public class FXMLDocumentMainController implements Initializable {
             return;
         }
 
+        //TODO SWITCH CASE чек констант
         if (MessageProcessor.isYouTurn(message)) {
             Platform.runLater(() -> labelGameStatus.setText("Make shoot. Take coordinate"));
             return;
@@ -385,12 +409,13 @@ public class FXMLDocumentMainController implements Initializable {
             Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
         }
 
+        //TODO SWITCH CASE
+
         //TODO Player name exchange
         //if (MessageProcessor.isEnemyName(message)) {
         //    Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
         //    return;
         //}
-
     }
 
     private String convertInboxToReadableView(String message) {
