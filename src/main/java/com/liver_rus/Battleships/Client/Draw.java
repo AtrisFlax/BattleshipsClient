@@ -7,11 +7,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 class Draw {
-    //TODO FirstPlayerGUIConstants.getGUIConstant() каждый раз объект инстанциируется плохо
-    //либо синглтон
-
     static void MissCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
-        ///FIRSTPLAYEGUIinstance() singleton
         MissCellOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), fieldCoord);
     }
 
@@ -28,15 +24,7 @@ class Draw {
     }
 
     static void ShipOnMyField(GraphicsContext gc, Ship ship) {
-        int x = ship.getShipStartCoord().getX();
-        int y = ship.getShipStartCoord().getY();
-        int type = Ship.Type.shipTypeToInt(ship.getType());
-        //TODO get orientation is horizontal
-        //поле будет не ortientation а горизонтал
-        //лучше прокидывать enum
-        //где инплейс будешь исопльзывать ориентазцию использоывать isHorizontal()
-        boolean orientation = ship.getOrientation().getBoolean();
-        ShipOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), x, y, type, orientation);
+        ShipOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), ship);
     }
 
     static void ShipOnMyField(GraphicsContext gc, CurrentGUIState currentGUIState) {
@@ -44,17 +32,12 @@ class Draw {
                 currentGUIState.getFieldCoord().getX(),
                 currentGUIState.getFieldCoord().getY(),
                 Ship.Type.shipTypeToInt(currentGUIState.getShipType()),
-                currentGUIState.getShipOrientation().getBoolean());
+                currentGUIState.isHorizontalOrientation());
     }
 
     //draw ship frame
     static void ShipOnEnemyField(GraphicsContext gc, Ship ship) {
-        int x = ship.getShipStartCoord().getX();
-        int y = ship.getShipStartCoord().getY();
-        int type = Ship.Type.shipTypeToInt(ship.getType());
-        //TODO get boolean
-        boolean orientation = ship.getOrientation().getBoolean();
-        ShipOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), x, y, type, orientation);
+        ShipOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), ship);
     }
 
     private static void MissCellOnField(GraphicsContext graphicContext, GUIConstant constants, FieldCoord fieldCoord) {
@@ -85,8 +68,16 @@ class Draw {
                 y * width + constants.getTopY());
     }
 
-    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, int x, int y, int type, boolean orientation) {
-        if (orientation) {
+    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, Ship ship) {
+        int x = ship.getShipStartCoord().getX();
+        int y = ship.getShipStartCoord().getY();
+        int type = Ship.Type.shipTypeToInt(ship.getType());
+        boolean isHorizontal = ship.isHorizontal();
+        ShipOnField(gc, constants, x, y, type, isHorizontal);
+    }
+
+    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, int x, int y, int type, boolean isHorizontal) {
+        if (isHorizontal) {
             //horizontal
             gc.strokeRect(
                     constants.getLeftX() + x * constants.getWidthCell(),

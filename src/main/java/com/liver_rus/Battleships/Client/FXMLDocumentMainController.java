@@ -470,13 +470,13 @@ public class FXMLDocumentMainController implements Initializable {
     //auto deployment for debug
     public void testShipsDeployment() {
         ArrayList<Ship> ships = new ArrayList<>();
-        ships.add(Ship.createShip(new FieldCoord(1, 8), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(3, 2), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(1, 1), Ship.Type.DESTROYER, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(3, 4), Ship.Type.DESTROYER, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(2, 6), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL));
+        ships.add(Ship.createShip(new FieldCoord(1, 8), Ship.Type.SUBMARINE, true));
+        ships.add(Ship.createShip(new FieldCoord(3, 2), Ship.Type.SUBMARINE, true));
+        ships.add(Ship.createShip(new FieldCoord(1, 1), Ship.Type.DESTROYER, false));
+        ships.add(Ship.createShip(new FieldCoord(3, 4), Ship.Type.DESTROYER, true));
+        ships.add(Ship.createShip(new FieldCoord(2, 6), Ship.Type.CRUISER, true));
+        ships.add(Ship.createShip(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, false));
+        ships.add(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, false));
         for (Ship ship : ships) {
             gameEngine.addShipOnField(ship);
         }

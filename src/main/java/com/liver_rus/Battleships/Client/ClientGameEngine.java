@@ -39,10 +39,10 @@ class ClientGameEngine extends GameEngine {
         return currentGUIState;
     }
 
-    void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation shipOrientation) {
+    void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
         currentGUIState.setFieldCoord(fieldCoord);
         currentGUIState.setShipType(shipType);
-        currentGUIState.setShipOrientation(shipOrientation);
+        currentGUIState.setOrientation(isHorizontal);
     }
 
     GameField getGameField() {
@@ -88,20 +88,20 @@ class ClientGameEngine extends GameEngine {
         shipSelected = false;
     }
 
-    final Ship.Orientation getShipOrientation() {
-        return currentGUIState.shipOrientation;
+    final boolean getShipOrientation() {
+        return currentGUIState.isHorizontalOrientation();
     }
 
-    private void setShipOrientation(Ship.Orientation shipOrientation) {
-        currentGUIState.shipOrientation = shipOrientation;
+    private void setShipOrientation(boolean isHorizontal) {
+        currentGUIState.setOrientation(isHorizontal);
     }
 
     Ship.Type getShipType() {
-        return currentGUIState.shipType;
+        return currentGUIState.getShipType();
     }
 
     void setType(Ship.Type shipType) {
-        currentGUIState.shipType = shipType;
+        currentGUIState.setShipType(shipType);
     }
 
     int selectShip(Ship.Type type) {
@@ -112,7 +112,8 @@ class ClientGameEngine extends GameEngine {
             final int NO_MORE_SHIP_FOR_EXTRACTION = -1;
             if (popShipResult != NO_MORE_SHIP_FOR_EXTRACTION) {
                 setShipSelected(true);
-                currentGUIState.shipType = type;
+                currentGUIState.setShipType(type);
+                setType(type);
                 return popShipResult;
             } else {
                 setShipSelected(false);
@@ -183,19 +184,15 @@ class ClientGameEngine extends GameEngine {
         }
     }
 
-    public FieldCoord getLastMyFieldCoord() {
+    FieldCoord getLastMyFieldCoord() {
         return lastMyFieldCoord;
     }
 
-    public void setLastMyFieldCoord(FieldCoord lastMyFieldCoord) {
+    void setLastMyFieldCoord(FieldCoord lastMyFieldCoord) {
         this.lastMyFieldCoord = lastMyFieldCoord;
     }
 
-    public FieldCoord getLastEnemyFieldCoord() {
-        return lastEnemyFieldCoord;
-    }
-
-    public void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
+    void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
         this.lastEnemyFieldCoord = lastEnemyFieldCoord;
     }
 }

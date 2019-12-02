@@ -19,13 +19,13 @@ class ClientGameEngineTest {
     @Test
     void test() {
         ArrayList<Ship> ships = new ArrayList<>();
-        ships.add(Ship.createShip(new FieldCoord(1, 8), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(3, 2), Ship.Type.SUBMARINE, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(1, 1), Ship.Type.DESTROYER, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(3, 4), Ship.Type.DESTROYER, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(2, 6), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
-        ships.add(Ship.createShip(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL));
+        ships.add(Ship.createShip(new FieldCoord(1, 8), Ship.Type.SUBMARINE, true));
+        ships.add(Ship.createShip(new FieldCoord(3, 2), Ship.Type.SUBMARINE, true));
+        ships.add(Ship.createShip(new FieldCoord(1, 1), Ship.Type.DESTROYER, false));
+        ships.add(Ship.createShip(new FieldCoord(3, 4), Ship.Type.DESTROYER, true));
+        ships.add(Ship.createShip(new FieldCoord(2, 6), Ship.Type.CRUISER, true));
+        ships.add(Ship.createShip(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, false));
+        ships.add(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, false));
         assertEquals(7, gameEngine.getGameField().getFleet().getShipsLeft());
         for (Ship ship : ships) {
         gameEngine.addShipOnField(ship);
@@ -36,13 +36,13 @@ class ClientGameEngineTest {
     @Test
     void anotherAddSequence() {
         ArrayList<Ship> ships = new ArrayList<>();
-        ships.add(Ship.createShip(new FieldCoord(4, 3), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(1, 1), Ship.Type.BATTLESHIP, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(6, 1), Ship.Type.DESTROYER, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(6, 4), Ship.Type.DESTROYER, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(8, 1), Ship.Type.SUBMARINE, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(3, 1), Ship.Type.SUBMARINE, Ship.Orientation.VERTICAL));
-        ships.add(Ship.createShip(new FieldCoord(1, 9), Ship.Type.CRUISER, Ship.Orientation.HORIZONTAL));
+        ships.add(Ship.createShip(new FieldCoord(4, 3), Ship.Type.AIRCRAFT_CARRIER, false));
+        ships.add(Ship.createShip(new FieldCoord(1, 1), Ship.Type.BATTLESHIP, false));
+        ships.add(Ship.createShip(new FieldCoord(6, 1), Ship.Type.DESTROYER, false));
+        ships.add(Ship.createShip(new FieldCoord(6, 4), Ship.Type.DESTROYER, false));
+        ships.add(Ship.createShip(new FieldCoord(8, 1), Ship.Type.SUBMARINE, false));
+        ships.add(Ship.createShip(new FieldCoord(3, 1), Ship.Type.SUBMARINE, false));
+        ships.add(Ship.createShip(new FieldCoord(1, 9), Ship.Type.CRUISER, true));
         assertEquals(7, gameEngine.getGameField().getFleet().getShipsLeft());
         for (Ship ship : ships) {
             gameEngine.addShipOnField(ship);
@@ -53,6 +53,6 @@ class ClientGameEngineTest {
     @Test
     void outOfBounds() {
         assertThrows(ArrayIndexOutOfBoundsException.class,
-                () -> gameEngine.addShipOnField(Ship.createShip(new FieldCoord(9, 9), Ship.Type.AIRCRAFT_CARRIER, Ship.Orientation.HORIZONTAL)));
+                () -> gameEngine.addShipOnField(Ship.createShip(new FieldCoord(9, 9), Ship.Type.AIRCRAFT_CARRIER, true)));
     }
 }

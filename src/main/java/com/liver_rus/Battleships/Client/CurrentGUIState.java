@@ -1,14 +1,16 @@
 package com.liver_rus.Battleships.Client;
 
+//Class describes virtual ship for draw
+
 class CurrentGUIState {
     private FieldCoord fieldCoord;
-    Ship.Type shipType;
-    Ship.Orientation shipOrientation;
+    private Ship.Type shipType;
+    private boolean isHorizontalShipOrientation;
 
     CurrentGUIState(){
         setFieldCoord(new FieldCoord());
-        setShipOrientation(Ship.Orientation.HORIZONTAL);
         setShipType(Ship.Type.UNKNOWN);;
+        isHorizontalShipOrientation = true;
     }
 
     FieldCoord getFieldCoord() {
@@ -27,24 +29,20 @@ class CurrentGUIState {
         this.shipType = shipType;
     }
 
-    Ship.Orientation getShipOrientation() {
-        return shipOrientation;
+    final boolean isHorizontalOrientation() {
+        return isHorizontalShipOrientation;
     }
 
-    void setShipOrientation(Ship.Orientation shipOrientation) {
-        this.shipOrientation = shipOrientation;
+    void setOrientation(boolean isHorizontal) {
+        isHorizontalShipOrientation = isHorizontal;
     }
 
     void changeShipOrientation() {
-        if (getShipOrientation() == Ship.Orientation.HORIZONTAL) {
-            setShipOrientation(Ship.Orientation.VERTICAL);
-        } else {
-            setShipOrientation(Ship.Orientation.HORIZONTAL);
-        }
+        isHorizontalShipOrientation = !isHorizontalShipOrientation;
     }
 
     @Override
     public String toString() {
-        return "CurrentGUIState: " + fieldCoord + " " + shipType + " " + shipOrientation;
+        return "CurrentGUIState: " + fieldCoord + " " + shipType + " " + isHorizontalShipOrientation;
     }
 }

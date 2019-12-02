@@ -9,6 +9,7 @@ public class GameField {
     private static final int FIELD_SIZE = 12;
     private Cell[][] field;
     private Fleet fleet;
+
     private enum Cell {
         CLEAR, MISS, SHIP, NEAR_WITH_SHIP, BORDER, DAMAGED_SHIP
     }
@@ -67,41 +68,6 @@ public class GameField {
         }
     }
 
-    //Отметка клеток корабля и ближлежайших клеток
-    public void markFieldByShip(Ship ship) {
-        markFieldByShip(ship.getShipStartCoord(), ship.getType(), ship.getOrientation());
-    }
-
-    private void markFieldByShip(FieldCoord shipCoord, Ship.Type shipType, Ship.Orientation orientation) {
-        int x = shipCoord.getX();
-        int y = shipCoord.getY();
-        int type = Ship.Type.shipTypeToInt(shipType);
-        boolean shipOrientation = orientation.getBoolean();
-        markFieldByShip(x, y, type, shipOrientation);
-    }
-
-    private void markFieldByShip(int x, int y, int type, boolean shipOrientation) {
-        markShipCells(x, y, type, shipOrientation);
-        //horizontal
-        if (shipOrientation) {
-            setCellAsNearWithShip(x - 1, y);
-            setCellAsNearWithShip(x + type + 1, y);
-            for (int i = x - 1; i <= x + type + 1; i++) {
-                setCellAsNearWithShip(i, y + 1);
-                setCellAsNearWithShip(i, y - 1);
-            }
-        }
-        //vertical
-        else {
-            setCellAsNearWithShip(x, y - 1);
-            setCellAsNearWithShip(x, y + type + 1);
-            for (int i = y - 1; i <= y + type + 1; i++) {
-                setCellAsNearWithShip(x + 1, i);
-                setCellAsNearWithShip(x - 1, i);
-            }
-        }
-    }
-
     //Отметка попадания в корабль
     private void tagShipsByCoord(int x, int y) {
         for (Ship ship : fleet.getShipsOnField()) {
@@ -110,6 +76,32 @@ public class GameField {
                     shipCoord.setTag();
                     return;
                 }
+            }
+        }
+    }
+
+    //Отметка клеток корабля и ближлежайших клеток
+    void markFieldByShip(Ship ship) {
+        FieldCoord shipCoord = ship.getShipStartCoord();
+        int x = shipCoord.getX();
+        int y = shipCoord.getY();
+        int type = Ship.Type.shipTypeToInt(ship.getType());
+        boolean isHorizontal = ship.isHorizontal();
+
+        markShipCells(x, y, type, isHorizontal);
+        if (isHorizontal) {
+            setCellAsNearWithShip(x - 1, y);
+            setCellAsNearWithShip(x + type + 1, y);
+            for (int i = x - 1; i <= x + type + 1; i++) {
+                setCellAsNearWithShip(i, y + 1);
+                setCellAsNearWithShip(i, y - 1);
+            }
+        } else {
+            setCellAsNearWithShip(x, y - 1);
+            setCellAsNearWithShip(x, y + type + 1);
+            for (int i = y - 1; i <= y + type + 1; i++) {
+                setCellAsNearWithShip(x + 1, i);
+                setCellAsNearWithShip(x - 1, i);
             }
         }
     }
@@ -164,12 +156,12 @@ public class GameField {
     boolean isPossibleLocateShip(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
-        Ship.Orientation shipOrientation = currentGUIState.getShipOrientation();
+        boolean isHorizontal = currentGUIState.isHorizontalOrientation();
         boolean isPossibleLocateShipFlag = true;
         int x = coord.getX() + 1;
         int y = coord.getY() + 1;
         int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
-        if (shipOrientation == Ship.Orientation.HORIZONTAL) {
+        if (isHorizontal) {
             for (int i = x; i < x + shipTypeInt + 1; i++) {
                 if (field[i][y] == Cell.SHIP ||
                         field[i][y] == Cell.NEAR_WITH_SHIP) {
@@ -177,8 +169,7 @@ public class GameField {
                     break;
                 }
             }
-        }
-        if (shipOrientation == Ship.Orientation.VERTICAL) {
+        } else {
             for (int i = y; i < y + shipTypeInt + 1; i++) {
                 if (field[x][i] == Cell.SHIP ||
                         field[x][i] == Cell.NEAR_WITH_SHIP) {
@@ -193,20 +184,19 @@ public class GameField {
     boolean isNotIntersectionShipWithBorder(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
-        Ship.Orientation shipOrientation = currentGUIState.getShipOrientation();
+        boolean isHorizontal = currentGUIState.isHorizontalOrientation();
         boolean isPossibleLocateShipFlag = true;
         int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
         int x = coord.getX() + 1;
         int y = coord.getY() + 1;
-        if (shipOrientation == Ship.Orientation.HORIZONTAL) {
+        if (isHorizontal) {
             for (int i = x; i < x + shipTypeInt + 1; i++) {
                 if (field[i][y] == Cell.BORDER) {
                     isPossibleLocateShipFlag = false;
                     break;
                 }
             }
-        }
-        if (shipOrientation == Ship.Orientation.VERTICAL) {
+        } else {
             for (int i = y; i < y + shipTypeInt + 1; i++) {
                 if (field[x][i] == Cell.BORDER) {
                     isPossibleLocateShipFlag = false;
@@ -247,4 +237,5 @@ public class GameField {
             System.out.println();
         }
     }
+
 }

@@ -6,6 +6,6 @@ class DrawAdapterShip extends Ship {
         super(ship.getShipStartCoord().getX() - 2,
                 ship.getShipStartCoord().getY() - 2,
                 Ship.Type.shipTypeToInt(ship.getType()),
-                ship.getOrientation().getBoolean());
+                ship.isHorizontal());
     }
 }

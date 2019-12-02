@@ -10,39 +10,14 @@ import java.io.IOException;
 
 public class Ship {
     private FieldCoord[] shipCoord;
-    private Orientation orientation;
+    private boolean isHorizontalOrientation;
     private Type type;
 
-    public Ship(int x_coord, int y_coord, int shipType, boolean orientation) {
-        //shift coord. field(12*12) border
-        int x = x_coord + 1;
-        int y = y_coord + 1;
-        shipCoord = new FieldCoord[shipType + 1];
-        //horizontal orientation
-        if (orientation) {
-            for (int i = 0; i < shipCoord.length; i++) {
-                shipCoord[i] = new FieldCoord(x + i, y);
-            }
-            //vertical orientation
-        } else {
-            for (int i = 0; i < shipCoord.length; i++) {
-                shipCoord[i] = new FieldCoord(x, y + i);
-            }
-        }
-        this.orientation = (orientation) ? Ship.Orientation.HORIZONTAL : Ship.Orientation.VERTICAL;
-        this.type = Type.shipIntToType(shipType);
-    }
-
-    static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, Ship.Orientation orientation) {
+    static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
         int type = Ship.Type.shipTypeToInt(shipType);
-        boolean shipOrientation = Orientation.HORIZONTAL == orientation;
-        return new Ship(x, y, type, shipOrientation);
-    }
-
-    static Ship createShip(CurrentGUIState currentGUIState) {
-        return createShip(currentGUIState.getFieldCoord(), currentGUIState.getShipType(), currentGUIState.getShipOrientation());
+        return new Ship(x, y, type, isHorizontal);
     }
 
     static Ship createShip(String shipInfo) throws IOException {
@@ -50,11 +25,20 @@ public class Ship {
             int x = Character.getNumericValue(shipInfo.charAt(0));
             int y = Character.getNumericValue(shipInfo.charAt(1));
             int type = Character.getNumericValue(shipInfo.charAt(2));
-            boolean shipOrientation = adaptOrientation(shipInfo.charAt(3));
-            return new Ship(x, y, type, shipOrientation);
+            boolean isHorizontal = charToIsHorizontal(shipInfo.charAt(3));
+            return new Ship(x, y, type, isHorizontal);
         } else {
+            //TODO custom exception
             throw new IOException("Not enough symbols in ship. Can't create ship");
         }
+    }
+
+    static Ship createShip(CurrentGUIState currentGUIState) {
+        return createShip(
+                currentGUIState.getFieldCoord(),
+                currentGUIState.getShipType(),
+                currentGUIState.isHorizontalOrientation()
+        );
     }
 
     public static Ship[] createShips(String[] shipsInfo) throws IOException {
@@ -69,37 +53,26 @@ public class Ship {
         }
     }
 
-    private static boolean adaptOrientation(char c) throws IOException {
-        if (c == 'H') {
-            return true;
+    //TODO make private inner realization
+    public Ship(int x_coord, int y_coord, int shipType, boolean isHorizontal) {
+        //shift coord. field(12*12) border
+        int x = x_coord + 1;
+        int y = y_coord + 1;
+        shipCoord = new FieldCoord[shipType + 1];
+        if (isHorizontal) {
+            for (int i = 0; i < shipCoord.length; i++) {
+                shipCoord[i] = new FieldCoord(x + i, y);
+            }
         } else {
-            if (c == 'V') {
-                return false;
-            } else {
-                throw new IOException();
+            for (int i = 0; i < shipCoord.length; i++) {
+                shipCoord[i] = new FieldCoord(x, y + i);
             }
         }
+        isHorizontalOrientation = isHorizontal;
+        type = Type.shipIntToType(shipType);
     }
 
-    //TODO не должен торчать наружу
     //TODO метод длины корабля в зависимости от типа
-    public enum Orientation {
-        HORIZONTAL, VERTICAL;
-
-        @Override
-        public String toString() {
-            if (this == Orientation.HORIZONTAL) {
-                return "H";
-            } else {
-                return "V";
-            }
-        }
-
-        public boolean getBoolean() {
-            return this == Orientation.HORIZONTAL;
-        }
-    }
-
 
     //TODO сделана двойная работа
     //
@@ -118,24 +91,26 @@ public class Ship {
             this.value = value;
         }
 
-        //TODO возвращать просто value
         static int shipTypeToInt(Type type) {
             return type.value;
         }
 
-        //TODO swtich case
         static Type shipIntToType(int intType) {
-            if (intType == 4) return AIRCRAFT_CARRIER;
-            if (intType == 3) return BATTLESHIP;
-            if (intType == 2) return CRUISER;
-            if (intType == 1) return DESTROYER;
-            if (intType == 0) return SUBMARINE;
-            return UNKNOWN;
-        }
-
-        static Type shipStrToType(String str) {
-            int intType = Integer.valueOf(str);
-            return shipIntToType(intType);
+            switch (intType) {
+                case 4:
+                    return AIRCRAFT_CARRIER;
+                case 3:
+                    return BATTLESHIP;
+                case 2:
+                    return CRUISER;
+                case 1:
+                    return DESTROYER;
+                case 0:
+                    return SUBMARINE;
+                default:
+                    //TODO generate exception
+                    return UNKNOWN;
+            }
         }
     }
 
@@ -148,8 +123,7 @@ public class Ship {
     }
 
     public void tagShipCell(FieldCoord coord) {
-        //TODO вызов isHorizontal()
-        if (orientation == Orientation.HORIZONTAL) {
+        if (isHorizontalOrientation) {
             this.shipCoord[coord.getX() - shipCoord[0].getX()].setTag();
         } else {
             this.shipCoord[coord.getY() - shipCoord[0].getY()].setTag();
@@ -167,15 +141,38 @@ public class Ship {
 
     @Override
     public String toString() {
-        return Integer.toString((shipCoord[0].getX() - 1)) + (shipCoord[0].getY() - 1) + Type.shipTypeToInt(type) + orientation;
+        return Integer.toString((shipCoord[0].getX() - 1)) +
+                (shipCoord[0].getY() - 1) +
+                Type.shipTypeToInt(type) +
+                orientationToChar(isHorizontalOrientation);
     }
 
-    Orientation getOrientation() {
-        return orientation;
+    boolean isHorizontal() {
+        return isHorizontalOrientation;
     }
 
     public Ship.Type getType() {
         return type;
+    }
+
+    private static boolean charToIsHorizontal(char c) throws IOException {
+        if (c == 'H') {
+            return true;
+        } else {
+            if (c == 'V') {
+                return false;
+            } else {
+                throw new IOException();
+            }
+        }
+    }
+
+    private static char orientationToChar(boolean isHorizontal) {
+        if (isHorizontal) {
+            return 'H';
+        } else {
+            return 'V';
+        }
     }
 
     void printOnConsole() {
