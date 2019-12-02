@@ -1,5 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.Constants.GUIConstant;
+
 public class FieldCoord {
     private final int x, y;
     private boolean tag;
