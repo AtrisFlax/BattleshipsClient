@@ -48,6 +48,7 @@ class ClientGameEngine extends GameEngine {
     GameField getGameField() {
         return gameField;
     }
+
     String getShipsInfoForSend() {
         return gameField.getFleet().toString();
     }
@@ -131,7 +132,7 @@ class ClientGameEngine extends GameEngine {
 
     void proceedMessage(String message) {
         //HITXX
-        if (MessageProcessor.isHit(message)) {
+        if (message.startsWith(Constants.NetworkMessage.HIT)) {
             //if you turn
             if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 //shoot coord is set by gui handler before
@@ -143,7 +144,7 @@ class ClientGameEngine extends GameEngine {
         }
 
         //MISSXX
-        if (MessageProcessor.isMiss(message)) {
+        if (message.startsWith(Constants.NetworkMessage.MISS)) {
             //Miss [/] auto placed by gui handler
             //if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
             //    log.info("Client: Server give message to Early");
@@ -154,7 +155,7 @@ class ClientGameEngine extends GameEngine {
             return;
         }
 
-        if (MessageProcessor.isDestroyed(message)) {
+        if (message.startsWith(Constants.NetworkMessage.DESTROYED)) {
             if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
                 log.info("Client: Server give message to Early");
             }
@@ -164,23 +165,17 @@ class ClientGameEngine extends GameEngine {
             return;
         }
 
-        if (MessageProcessor.isYouTurn(message)) {
-            setGamePhase(ClientGameEngine.Phase.MAKE_SHOT);
-            return;
-        }
-
-        if (MessageProcessor.isEnemyTurn(message)) {
-            setGamePhase(ClientGameEngine.Phase.TAKE_SHOT);
-            return;
-        }
-
-        if (MessageProcessor.isYouWin(message)) {
-            setGamePhase(ClientGameEngine.Phase.END_GAME);
-            return;
-        }
-
-        if (MessageProcessor.isYouLose(message)) {
-            setGamePhase(ClientGameEngine.Phase.END_GAME);
+        switch (message) {
+            case Constants.NetworkMessage.YOU_TURN:
+                setGamePhase(ClientGameEngine.Phase.MAKE_SHOT);
+                return;
+            case Constants.NetworkMessage.ENEMY_TURN:
+                setGamePhase(ClientGameEngine.Phase.TAKE_SHOT);
+                return;
+            case Constants.NetworkMessage.YOU_WIN:
+            case Constants.NetworkMessage.YOU_LOSE:
+                setGamePhase(ClientGameEngine.Phase.END_GAME);
+                return;
         }
     }
 

@@ -127,7 +127,7 @@ public class GameServer extends Server {
     }
 
     private void gameEngineProceed(SelectionKey key, String message) throws IOException {
-        if (message.equals(Constants.NetworkMessage.DISCONNECT.toString())) {
+        if (message.equals(Constants.NetworkMessage.DISCONNECT)) {
             log.info("Connection closed upon one's client request");
             sendAllClients(message);
             resetServerGameState();
@@ -135,7 +135,7 @@ public class GameServer extends Server {
         }
         try {
             //if get SEND_SHIP290H|430H|221V|451H|372H|853V|1024V|
-            if (message.startsWith(Constants.NetworkMessage.SEND_SHIPS.toString())) {
+            if (message.startsWith(Constants.NetworkMessage.SEND_SHIPS)) {
                 String[] shipsInfo = MessageProcessor.splitToShipInfo(message);
                 GameField gameField = new GameField(Ship.createShips(shipsInfo));
                 key.attach(gameField);
@@ -147,7 +147,7 @@ public class GameServer extends Server {
         }
         //SHOTXX
         if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
-            if (MessageProcessor.isShotLine(message)) {
+            if (message.startsWith(Constants.NetworkMessage.SHOT)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
                 GameField field = (GameField) key.attachment();
@@ -169,8 +169,8 @@ public class GameServer extends Server {
                 gameEngine.setFirstTurn(false);
                 swapFields();
                 turnHolder = randomConnection();
-                sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN.toString());
-                sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN.toString());
+                sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
+                sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
                 gameEngine.setReadyForBroadcast(true);
             }
             return;
@@ -180,30 +180,30 @@ public class GameServer extends Server {
     private void sendAnswer(SelectionKey key, String message) throws IOException {
         if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
             //SHOTXX
-            if (MessageProcessor.isShotLine(message)) {
+            if (message.startsWith(Constants.NetworkMessage.SHOT)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 GameField field = (GameField) key.attachment();
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
                 if (field.isCellDamaged(adaptedShootCoord)) {
                     //field.printOnConsole();
                     Ship ship = field.getFleet().findShip(adaptedShootCoord);
-                    sendAllClients(Constants.NetworkMessage.HIT.toString() + shootCoord);
+                    sendAllClients(Constants.NetworkMessage.HIT + shootCoord);
                     if (!ship.isAlive()) {
-                        sendAllClients(Constants.NetworkMessage.DESTROYED.toString() + ship.toString());
+                        sendAllClients(Constants.NetworkMessage.DESTROYED + ship.toString());
                         //update ships list
                         field.updateShipList();
                     }
                     if (field.isShipsDestroyed()) {
-                        sendMessage(key, Constants.NetworkMessage.YOU_WIN.toString());
-                        sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE.toString());
+                        sendMessage(key, Constants.NetworkMessage.YOU_WIN);
+                        sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE);
                     } else {
-                        sendMessage(key, Constants.NetworkMessage.YOU_TURN.toString());
-                        sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN.toString());
+                        sendMessage(key, Constants.NetworkMessage.YOU_TURN);
+                        sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN);
                     }
                 } else {
-                    sendAllClients(Constants.NetworkMessage.MISS.toString() + shootCoord);
-                    sendMessage(key, Constants.NetworkMessage.ENEMY_TURN.toString());
-                    turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN.toString());
+                    sendAllClients(Constants.NetworkMessage.MISS + shootCoord);
+                    sendMessage(key, Constants.NetworkMessage.ENEMY_TURN);
+                    turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN);
                 }
             }
         }
@@ -276,6 +276,6 @@ public class GameServer extends Server {
     }
 
     private String addSplitSymbol(String msg) {
-        return msg + Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue();
+        return msg + Constants.NetworkMessage.SPLIT_SYMBOL;
     }
 }

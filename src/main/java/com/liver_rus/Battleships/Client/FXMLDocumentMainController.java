@@ -255,7 +255,7 @@ public class FXMLDocumentMainController implements Initializable {
                 //Флот расставлен. Объявление о готовности игрока.. ################handleToMouseClick###################
                 if (!gameEngine.isShipSelected() && gameEngine.getGameField().getFleet().getShipsLeft() == 0) {
                     gameEngine.setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-                    network.sendMessage(Constants.NetworkMessage.SEND_SHIPS.toString() + gameEngine.getShipsInfoForSend());
+                    network.sendMessage(Constants.NetworkMessage.SEND_SHIPS + gameEngine.getShipsInfoForSend());
                     resetFleetButton.setDisable(true);
                     labelGameStatus.setText("Fleet is deployed. Waiting for second player...");
                 }
@@ -265,7 +265,7 @@ public class FXMLDocumentMainController implements Initializable {
                 if (SceneCoord.isFromSecondPlayerField(event.getSceneX(), event.getSceneY())) {
                     FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
                     Draw.MissCellOnEnemyField(mainCanvas, shootFieldCoord);
-                    network.sendMessage(Constants.NetworkMessage.SHOT.toString() + shootFieldCoord);
+                    network.sendMessage(Constants.NetworkMessage.SHOT + shootFieldCoord);
                     gameEngine.setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
                     gameEngine.setShootCoord(shootFieldCoord);
                 }
@@ -361,8 +361,7 @@ public class FXMLDocumentMainController implements Initializable {
                 statusListView.scrollTo(statusListView.getItems().size() - 1);
             }
         });
-        //TODO оставить hit miss if
-        if (MessageProcessor.isHit(message)) {
+        if (message.startsWith(Constants.NetworkMessage.HIT)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.HitCellOnEnemyField(mainCanvas, gameEngine.getShootCoord());
             }
@@ -371,56 +370,44 @@ public class FXMLDocumentMainController implements Initializable {
             }
             return;
         }
-
-        if (MessageProcessor.isMiss(message)) {
+        if (message.startsWith(Constants.NetworkMessage.MISS)) {
             //on enemy field miss [/] auto placed by gui handler
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
                 Draw.MissCellOnMyField(mainCanvas, gameEngine.getShootCoord());
             }
             return;
         }
-
-        if (MessageProcessor.isDestroyed(message)) {
+        if (message.startsWith(Constants.NetworkMessage.DESTROYED)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Draw.ShipOnEnemyField(mainCanvas, new DrawAdapterShip(
-                        Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED.toString(), ""))));
+                        Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED, ""))));
             }
             //on my field all ships (frame) already has drawn
             return;
         }
-
-        //TODO SWITCH CASE чек констант
-        if (MessageProcessor.isYouTurn(message)) {
-            Platform.runLater(() -> labelGameStatus.setText("Make shoot. Take coordinate"));
-            return;
+        switch (message) {
+            case Constants.NetworkMessage.YOU_TURN:
+                Platform.runLater(() -> labelGameStatus.setText("Make shoot. Take coordinate"));
+                return;
+            case Constants.NetworkMessage.ENEMY_TURN:
+                Platform.runLater(() -> labelGameStatus.setText("Enemy turn. Waiting..."));
+                return;
+            case Constants.NetworkMessage.YOU_WIN:
+                Platform.runLater(() -> labelGameStatus.setText("You Win!!!"));
+                return;
+            case Constants.NetworkMessage.YOU_LOSE:
+                Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
+                return;
+            //TODO Player name exchange
+            /*case Constants.NetworkMessage.isEnemyName:
+                Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
+                return;*/
         }
-
-        if (MessageProcessor.isEnemyTurn(message)) {
-            Platform.runLater(() -> labelGameStatus.setText("Enemy turn. Waiting..."));
-            return;
-        }
-
-        if (MessageProcessor.isYouWin(message)) {
-            Platform.runLater(() -> labelGameStatus.setText("You Win!!!"));
-            return;
-        }
-
-        if (MessageProcessor.isYouLose(message)) {
-            Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
-        }
-
-        //TODO SWITCH CASE
-
-        //TODO Player name exchange
-        //if (MessageProcessor.isEnemyName(message)) {
-        //    Platform.runLater(() -> labelGameStatus.setText("You Lose!!!"));
-        //    return;
-        //}
     }
 
     private String convertInboxToReadableView(String message) {
         //HITXX
-        if (MessageProcessor.isHit(message)) {
+        if (message.startsWith(Constants.NetworkMessage.HIT)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 return gameEngine.getShootCoord().toGameFormat() + " Enemy Ship has Hit";
             }
@@ -429,7 +416,7 @@ public class FXMLDocumentMainController implements Initializable {
             }
         }
         //MISSXX
-        if (MessageProcessor.isMiss(message)) {
+        if (message.startsWith(Constants.NetworkMessage.MISS)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 return gameEngine.getShootCoord().toGameFormat() + " You Missed";
             }
@@ -438,7 +425,7 @@ public class FXMLDocumentMainController implements Initializable {
             }
         }
         //DESTROYEDXX
-        if (MessageProcessor.isDestroyed(message)) {
+        if (message.startsWith(Constants.NetworkMessage.DESTROYED)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
                 return "You Destroy Enemy Ship";
             }
@@ -447,23 +434,19 @@ public class FXMLDocumentMainController implements Initializable {
                 return "Enemy Destroy Your Ship";
             }
         }
-        if (MessageProcessor.isYouWin(message)) {
-            return "You Win";
+        switch (message) {
+            case Constants.NetworkMessage.YOU_WIN:
+                return "You Win";
+            case Constants.NetworkMessage.YOU_LOSE:
+                return "You Lose";
+            case Constants.NetworkMessage.DISCONNECT:
+                return "Disconnect";
+            /*Excessive output
+            case Constants.NetworkMessage.YOU_TURN:
+                return "You Turn";
+            case Constants.NetworkMessage.ENEMY_TURN:
+                return "Enemy Turn"; */
         }
-        if (MessageProcessor.isYouLose(message)) {
-            return "You Lose";
-        }
-        if (MessageProcessor.isDisconnect(message)) {
-            return "Disconnect";
-        }
-        //Excessive output
-//        if (MessageProcessor.isYouTurn(message)) {
-//            return "You Turn";
-//        }
-//
-//        if (MessageProcessor.isEnemyTurn(message)) {
-//            return "Enemy Turn";
-//        }
         return null;
     }
 
@@ -490,7 +473,7 @@ public class FXMLDocumentMainController implements Initializable {
             e.printStackTrace();
         }
         gameEngine.getGameField().printOnConsole();
-        network.sendMessage(Constants.NetworkMessage.SEND_SHIPS.toString() + gameEngine.getShipsInfoForSend());
+        network.sendMessage(Constants.NetworkMessage.SEND_SHIPS + gameEngine.getShipsInfoForSend());
         resetFleetButton.setDisable(true);
         labelGameStatus.setText("Fleet is deployed. Waiting for second player");
     }

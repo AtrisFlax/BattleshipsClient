@@ -9,7 +9,6 @@ public class Fleet {
     private LinkedList<Ship> shipsList;
 
     Fleet() {
-        //Array list либо LinkedList достаточно
         shipsList = new LinkedList<>();
         fleetCounter = new FleetCounter();
     }
@@ -58,7 +57,7 @@ public class Fleet {
     public String toString() {
         StringBuilder result = new StringBuilder();
         for (Ship ship : shipsList) {
-            result.append(ship).append(Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue());
+            result.append(ship).append(Constants.NetworkMessage.SPLIT_SYMBOL);
         }
         return result.toString();
     }

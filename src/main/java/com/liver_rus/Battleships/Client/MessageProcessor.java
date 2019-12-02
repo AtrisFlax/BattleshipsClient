@@ -2,54 +2,9 @@ package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class MessageProcessor {
-    public static boolean isShotLine(String line) {
-        return matchHeadPlusDD(Constants.NetworkMessage.SHOT.toString(), line);
-    }
-
-    static boolean isHit(String line) {
-        return matchHeadPlusDD(Constants.NetworkMessage.HIT.toString(), line);
-    }
-
-    static boolean isMiss(String line) {
-        return matchHeadPlusDD(Constants.NetworkMessage.MISS.toString(), line);
-    }
-
-    static boolean isDestroyed(String line) {
-        return matchHeadPlusDDDT(Constants.NetworkMessage.DESTROYED.toString(), line);
-    }
-
-    //TODO нормальное название +
-
-    //процесорно затратный
-    /*
-     Pattern p = Pattern.compile("^" + head + "\\d{2}$");
-        Matcher m = p.matcher(line);
-        вытащить патерн компайл на ружу
-        и потом уже эксплатировать
-        он долгий!!!
-
-        Оставить только проверку хедеров
-
-        что делать с мусором?7???
-        выкиодывать эксепшен когда идет извелченеие координат!!!! не пропускать
-     */
-    static private boolean matchHeadPlusDD(String head, String line) {
-        Pattern p = Pattern.compile("^" + head + "\\d{2}$");
-        Matcher m = p.matcher(line);
-        return m.matches();
-    }
-
-    //TODOнепонятно что за dddt
-    static private boolean matchHeadPlusDDDT(String head, String line) {
-        Pattern p = Pattern.compile("^" + head + "\\d{3}[VH]$");
-        Matcher m = p.matcher(line);
-        return m.matches();
-    }
-
     public static FieldCoord getShootCoordFromMessage(String message) {
         message = message.replaceAll("\\D+", "");
         int x = Character.getNumericValue(message.charAt(0));
@@ -58,27 +13,7 @@ public class MessageProcessor {
     }
 
     public static String[] splitToShipInfo(String message) {
-        message = message.replace(Constants.NetworkMessage.SEND_SHIPS.toString(), "");
-        return message.split(Pattern.quote(Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue()));
-    }
-
-    static boolean isEnemyTurn(String message) {
-        return message.equals(Constants.NetworkMessage.ENEMY_TURN.toString());
-    }
-
-    static boolean isYouTurn(String message) {
-        return message.equals(Constants.NetworkMessage.YOU_TURN.toString());
-    }
-
-    static boolean isYouWin(String message) {
-        return message.equals(Constants.NetworkMessage.YOU_WIN.toString());
-    }
-
-    static boolean isYouLose(String message) {
-        return message.equals(Constants.NetworkMessage.YOU_LOSE.toString());
-    }
-
-    static boolean isDisconnect(String message) {
-        return message.equals(Constants.NetworkMessage.DISCONNECT.toString());
+        message = message.replace(Constants.NetworkMessage.SEND_SHIPS, "");
+        return message.split(Pattern.quote(Constants.NetworkMessage.SPLIT_SYMBOL));
     }
 }

@@ -122,7 +122,7 @@ public class Client {
                 return;
             String message = new String(buf.array());
 
-            for (String inboxStr : message.trim().split(Pattern.quote(Constants.NetworkMessage.SPLIT_SYMBOL.getTypeValue()))) {
+            for (String inboxStr : message.trim().split(Pattern.quote(Constants.NetworkMessage.SPLIT_SYMBOL))) {
                 if (inboxStr.length() != 0) {
                     inbox.add(inboxStr);
                 }
