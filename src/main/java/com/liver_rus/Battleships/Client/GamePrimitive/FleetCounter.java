@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GamePrimitive;
 
 import java.util.Arrays;
 
@@ -6,12 +6,12 @@ import java.util.Arrays;
  * Класс FleetCounter отвечающий за подсчет количества оставшихся кораблей
  */
 
-class FleetCounter {
+public class FleetCounter {
     static private final int NUM_MAX_SHIPS = Arrays.stream(shipsBuilder()).sum();
     private int[] ships;
     private int left;
 
-    FleetCounter() {
+    public FleetCounter() {
         ships = shipsBuilder();
         left = NUM_MAX_SHIPS;
     }
@@ -36,7 +36,7 @@ class FleetCounter {
         }
     }
 
-    int popShip(Ship.Type shipType) {
+    public int popShip(Ship.Type shipType) {
         int type = Ship.Type.shipTypeToInt(shipType);
         return popShip(type);
     }
@@ -45,7 +45,7 @@ class FleetCounter {
         return NUM_MAX_SHIPS;
     }
 
-    int getShipsLeft() {
+    public int getShipsLeft() {
         return left;
     }
 }

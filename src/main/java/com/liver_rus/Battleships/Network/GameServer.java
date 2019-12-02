@@ -1,7 +1,11 @@
 package com.liver_rus.Battleships.Network;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.*;
+import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
+import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.Tools.MessageAdapterFieldCoord;
+import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;

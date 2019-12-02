@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GUI;
 
 import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.Constants.GUIConstant;
@@ -11,12 +11,12 @@ import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 //TODO добавить тест на класс
 
 //check borders входил ли в рамки
-class SceneCoord {
-    static int transformToFieldX(double x, GUIConstant constants) {
+public class SceneCoord {
+    public static int transformToFieldX(double x, GUIConstant constants) {
         return (int) (Math.floor((x - constants.getLeftX()) / constants.getWidthCell()));
     }
 
-    static int transformToFieldY(double y, GUIConstant constants) {
+    public static int transformToFieldY(double y, GUIConstant constants) {
         return (int) (Math.floor((y - constants.getTopY()) / constants.getWidthCell()));
     }
 

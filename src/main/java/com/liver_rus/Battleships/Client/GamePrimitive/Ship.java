@@ -1,6 +1,7 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GamePrimitive;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
 
 import java.io.IOException;
 
@@ -13,14 +14,14 @@ public class Ship {
     private boolean isHorizontalOrientation;
     private Type type;
 
-    static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
+    public static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
         int type = Ship.Type.shipTypeToInt(shipType);
         return new Ship(x, y, type, isHorizontal);
     }
 
-    static Ship createShip(String shipInfo) throws IOException {
+    public static Ship createShip(String shipInfo) throws IOException {
         if (shipInfo.length() == Constants.ShipInfoLength) {
             int x = Character.getNumericValue(shipInfo.charAt(0));
             int y = Character.getNumericValue(shipInfo.charAt(1));
@@ -33,7 +34,7 @@ public class Ship {
         }
     }
 
-    static Ship createShip(CurrentGUIState currentGUIState) {
+    public static Ship createShip(CurrentGUIState currentGUIState) {
         return createShip(
                 currentGUIState.getFieldCoord(),
                 currentGUIState.getShipType(),
@@ -53,7 +54,7 @@ public class Ship {
         }
     }
 
-    //TODO make private inner realization
+    //TODO make private constructor realization
     public Ship(int x_coord, int y_coord, int shipType, boolean isHorizontal) {
         //shift coord. field(12*12) border
         int x = x_coord + 1;
@@ -72,10 +73,6 @@ public class Ship {
         type = Type.shipIntToType(shipType);
     }
 
-    //TODO метод длины корабля в зависимости от типа
-
-    //TODO сделана двойная работа
-    //
     public enum Type {
         AIRCRAFT_CARRIER(4),
         BATTLESHIP(3),
@@ -91,7 +88,7 @@ public class Ship {
             this.value = value;
         }
 
-        static int shipTypeToInt(Type type) {
+        public static int shipTypeToInt(Type type) {
             return type.value;
         }
 
@@ -109,7 +106,6 @@ public class Ship {
                     return SUBMARINE;
                 default:
                     return UNKNOWN;
-                //TODO generate exception
             }
         }
     }
@@ -118,7 +114,7 @@ public class Ship {
         return shipCoord;
     }
 
-    FieldCoord getShipStartCoord() {
+    public FieldCoord getShipStartCoord() {
         return shipCoord[0];
     }
 
@@ -147,7 +143,7 @@ public class Ship {
                 orientationToChar(isHorizontalOrientation);
     }
 
-    boolean isHorizontal() {
+    public boolean isHorizontal() {
         return isHorizontalOrientation;
     }
 

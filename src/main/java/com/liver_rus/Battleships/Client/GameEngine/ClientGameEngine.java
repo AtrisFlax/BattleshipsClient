@@ -1,14 +1,20 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
+import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
+import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.lang.invoke.MethodHandles;
 import java.util.logging.Logger;
 
 //TODO numTurn tracking, incrementing and reseting
-class ClientGameEngine extends GameEngine {
+public class ClientGameEngine {
 
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    public static ClientGameEngine.Phase phase;
 
     private GameField gameField;
     private Phase gamePhase;
@@ -19,14 +25,14 @@ class ClientGameEngine extends GameEngine {
     private FieldCoord lastMyFieldCoord;
     private FieldCoord lastEnemyFieldCoord;
 
-    enum Phase {
+    public enum Phase {
         INIT, DEPLOYING_FLEET, FLEET_IS_DEPLOYED, WAITING_ANSWER, TAKE_SHOT, MAKE_SHOT, END_GAME;
     }
 
-    ClientGameEngine() {
+    public ClientGameEngine() {
         super();
         gameField = new GameField();
-        setGamePhase(ClientGameEngine.Phase.INIT);
+        setGamePhase(ClientGameEngine.phase.INIT);
         shipSelected = false;
         shootCoord = null;
         currentGUIState = new CurrentGUIState();
@@ -35,61 +41,61 @@ class ClientGameEngine extends GameEngine {
         lastEnemyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
     }
 
-    CurrentGUIState getCurrentGUIState() {
+    public CurrentGUIState getCurrentGUIState() {
         return currentGUIState;
     }
 
-    void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
+    public void setCurrentState(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
         currentGUIState.setFieldCoord(fieldCoord);
         currentGUIState.setShipType(shipType);
         currentGUIState.setOrientation(isHorizontal);
     }
 
-    GameField getGameField() {
+    public GameField getGameField() {
         return gameField;
     }
 
-    String getShipsInfoForSend() {
+    public String getShipsInfoForSend() {
         return gameField.getFleet().toString();
     }
 
-    void setGamePhase(Phase phase) {
+    public void setGamePhase(Phase phase) {
         System.out.println("Phase has been changed to " + phase);
         this.gamePhase = phase;
     }
 
-    final Phase getGamePhase() {
+    public final Phase getGamePhase() {
         return gamePhase;
     }
 
-    void setShipSelected(boolean shipSelected) {
+    public void setShipSelected(boolean shipSelected) {
         this.shipSelected = shipSelected;
     }
 
-    boolean getShipSelected() {
+    public boolean getShipSelected() {
         return shipSelected;
     }
 
-    final boolean isShipSelected() {
+    public final boolean isShipSelected() {
         return shipSelected;
     }
 
-    FieldCoord getShootCoord() {
+    public FieldCoord getShootCoord() {
         return shootCoord;
     }
 
-    void setShootCoord(FieldCoord shootCoord) {
+    public void setShootCoord(FieldCoord shootCoord) {
         this.shootCoord = shootCoord;
     }
 
-    void reset() {
+    public void reset() {
         log.info("GameEnging.reset()");
         gameField = new GameField();
         currentGUIState = new CurrentGUIState();
         shipSelected = false;
     }
 
-    final boolean getShipOrientation() {
+    public final boolean getShipOrientation() {
         return currentGUIState.isHorizontalOrientation();
     }
 
@@ -97,24 +103,17 @@ class ClientGameEngine extends GameEngine {
         currentGUIState.setOrientation(isHorizontal);
     }
 
-    Ship.Type getShipType() {
+    public Ship.Type getShipType() {
         return currentGUIState.getShipType();
     }
 
-    void setType(Ship.Type shipType) {
-        currentGUIState.setShipType(shipType);
-    }
-
-    int selectShip(Ship.Type type) {
+    public int selectShip(Ship.Type type) {
         if (gameField.getFleet().getShipsLeft() > 0) {
             int popShipResult = gameField.getFleet().popShip(type);
-            //TODO используется только минус единица значение
-            //завести константу и сравнивать с ней именованаю (не с -1)
             final int NO_MORE_SHIP_FOR_EXTRACTION = -1;
             if (popShipResult != NO_MORE_SHIP_FOR_EXTRACTION) {
                 setShipSelected(true);
                 currentGUIState.setShipType(type);
-                setType(type);
                 return popShipResult;
             } else {
                 setShipSelected(false);
@@ -125,20 +124,20 @@ class ClientGameEngine extends GameEngine {
         }
     }
 
-    void addShipOnField(Ship ship) {
+    public void addShipOnField(Ship ship) {
         gameField.getFleet().add(ship);
         gameField.markFieldByShip(ship);
     }
 
-    void proceedMessage(String message) {
+    public void proceedMessage(String message) {
         //HITXX
         if (message.startsWith(Constants.NetworkMessage.HIT)) {
             //if you turn
-            if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+            if (getGamePhase() == ClientGameEngine.phase.WAITING_ANSWER) {
                 //shoot coord is set by gui handler before
                 //setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
-            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+            if (getGamePhase() == ClientGameEngine.phase.TAKE_SHOT) {
                 setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
         }
@@ -149,17 +148,17 @@ class ClientGameEngine extends GameEngine {
             //if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
             //    log.info("Client: Server give message to Early");
             //}
-            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+            if (getGamePhase() == ClientGameEngine.phase.TAKE_SHOT) {
                 setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
             return;
         }
 
         if (message.startsWith(Constants.NetworkMessage.DESTROYED)) {
-            if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+            if (getGamePhase() == ClientGameEngine.phase.MAKE_SHOT) {
                 log.info("Client: Server give message to Early");
             }
-            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+            if (getGamePhase() == ClientGameEngine.phase.TAKE_SHOT) {
                 setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
             return;
@@ -167,27 +166,27 @@ class ClientGameEngine extends GameEngine {
 
         switch (message) {
             case Constants.NetworkMessage.YOU_TURN:
-                setGamePhase(ClientGameEngine.Phase.MAKE_SHOT);
+                setGamePhase(ClientGameEngine.phase.MAKE_SHOT);
                 return;
             case Constants.NetworkMessage.ENEMY_TURN:
-                setGamePhase(ClientGameEngine.Phase.TAKE_SHOT);
+                setGamePhase(ClientGameEngine.phase.TAKE_SHOT);
                 return;
             case Constants.NetworkMessage.YOU_WIN:
             case Constants.NetworkMessage.YOU_LOSE:
-                setGamePhase(ClientGameEngine.Phase.END_GAME);
+                setGamePhase(ClientGameEngine.phase.END_GAME);
                 return;
         }
     }
 
-    FieldCoord getLastMyFieldCoord() {
+    public FieldCoord getLastMyFieldCoord() {
         return lastMyFieldCoord;
     }
 
-    void setLastMyFieldCoord(FieldCoord lastMyFieldCoord) {
+    public void setLastMyFieldCoord(FieldCoord lastMyFieldCoord) {
         this.lastMyFieldCoord = lastMyFieldCoord;
     }
 
-    void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
+    public void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
         this.lastEnemyFieldCoord = lastEnemyFieldCoord;
     }
 }

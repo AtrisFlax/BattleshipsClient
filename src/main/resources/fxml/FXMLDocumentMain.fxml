@@ -7,7 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-<StackPane fx:id="topLevelStackPane" maxHeight="965.0" maxWidth="700.0" minHeight="965.0" minWidth="700.0" prefHeight="965.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.FXMLDocumentMainController">
+<StackPane fx:id="topLevelStackPane" maxHeight="965.0" maxWidth="700.0" minHeight="965.0" minWidth="700.0" prefHeight="965.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController">
     <children>
         <ImageView fx:id="imgView" fitHeight="950.0" fitWidth="700.0" pickOnBounds="true" preserveRatio="true" smooth="false" StackPane.alignment="TOP_CENTER">
             <StackPane.margin>

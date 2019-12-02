@@ -1,18 +1,23 @@
 package com.liver_rus.Battleships.Network;
 
-import com.liver_rus.Battleships.Client.GameEngine;
-
-public class ServerGameEngine extends GameEngine {
+class ServerGameEngine {
     private static final int MAX_PLAYERS = 2;
     private Phase gamePhase;
     private boolean isReadyForBroadcast = false;
+
+    private int numTurn;
+    private boolean isFirstTurn;
+    private int numRound;
 
     enum Phase {
         INIT, END_GAME;
     }
 
     ServerGameEngine() {
-        super(); setGamePhase(Phase.INIT);
+        setGamePhase(Phase.INIT);
+        numTurn = 1;
+        isFirstTurn = true;
+        numRound = 1;
     }
 
     boolean isBroadcastEnabled() {
@@ -23,7 +28,7 @@ public class ServerGameEngine extends GameEngine {
         isReadyForBroadcast = readyForBroadcast;
     }
 
-    public Phase getGamePhase() {
+    final public Phase getGamePhase() {
         return gamePhase;
     }
 
@@ -33,5 +38,13 @@ public class ServerGameEngine extends GameEngine {
 
     static int maxPlayers() {
         return MAX_PLAYERS;
+    }
+
+    final boolean isFirstTurn() {
+        return isFirstTurn;
+    }
+
+    void setFirstTurn(boolean firstTurn) {
+        isFirstTurn = firstTurn;
     }
 }

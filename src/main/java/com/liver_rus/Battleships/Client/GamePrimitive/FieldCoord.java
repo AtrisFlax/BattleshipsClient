@@ -1,6 +1,7 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GamePrimitive;
 
 import com.liver_rus.Battleships.Client.Constants.GUIConstant;
+import com.liver_rus.Battleships.Client.GUI.SceneCoord;
 
 public class FieldCoord {
     private final int x, y;
@@ -23,11 +24,11 @@ public class FieldCoord {
         this.y = SceneCoord.transformToFieldY(sceneY, constants);
     }
 
-    final int getX() {
+    public final int getX() {
         return x;
     }
 
-    final int getY() {
+    public final int getY() {
         return y;
     }
 
@@ -45,7 +46,7 @@ public class FieldCoord {
     }
 
     //Char + Num format A1
-    String toGameFormat() {
+    public String toGameFormat() {
         int tmpX = x + 1;
         int tmpY = y + 1;
         String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char) (tmpY + 'A' - 1)) : null;

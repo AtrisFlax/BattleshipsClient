@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GamePrimitive;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
 
@@ -8,12 +8,12 @@ public class Fleet {
     private FleetCounter fleetCounter;
     private LinkedList<Ship> shipsList;
 
-    Fleet() {
+    public Fleet() {
         shipsList = new LinkedList<>();
         fleetCounter = new FleetCounter();
     }
 
-    void add(Ship ship) {
+    public void add(Ship ship) {
         if (shipsList.size() < FleetCounter.getNumMaxShip()) {
             shipsList.add(ship);
         } else {
@@ -22,7 +22,7 @@ public class Fleet {
         }
     }
 
-    LinkedList<Ship> getShipsOnField() {
+    public LinkedList<Ship> getShipsOnField() {
         return shipsList;
     }
 
@@ -37,19 +37,19 @@ public class Fleet {
         return null;
     }
 
-    int getShipsLeft() {
+    public int getShipsLeft() {
         return fleetCounter.getShipsLeft();
     }
 
-    int popShip(Ship.Type shipType) {
+    public int popShip(Ship.Type shipType) {
         return fleetCounter.popShip(shipType);
     }
 
-    void clear() {
+    public void clear() {
         shipsList.clear();
     }
 
-    void remove(Ship ship) {
+    public void remove(Ship ship) {
         shipsList.remove(ship);
     }
 

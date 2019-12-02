@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GUI;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;

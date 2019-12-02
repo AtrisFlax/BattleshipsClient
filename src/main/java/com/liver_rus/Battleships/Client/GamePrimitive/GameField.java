@@ -1,4 +1,6 @@
-package com.liver_rus.Battleships.Client;
+package com.liver_rus.Battleships.Client.GamePrimitive;
+
+import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
 
 /**
  * Класс игрового поле с фикированным размером размером 10x10
@@ -14,7 +16,7 @@ public class GameField {
         CLEAR, MISS, SHIP, NEAR_WITH_SHIP, BORDER, DAMAGED_SHIP
     }
 
-    GameField() {
+    public GameField() {
         fleet = new Fleet();
 
         field = new Cell[FIELD_SIZE][FIELD_SIZE];
@@ -81,7 +83,7 @@ public class GameField {
     }
 
     //Отметка клеток корабля и ближлежайших клеток
-    void markFieldByShip(Ship ship) {
+    public void markFieldByShip(Ship ship) {
         FieldCoord shipCoord = ship.getShipStartCoord();
         int x = shipCoord.getX();
         int y = shipCoord.getY();
@@ -153,7 +155,7 @@ public class GameField {
         }
     }
 
-    boolean isPossibleLocateShip(CurrentGUIState currentGUIState) {
+    public boolean isPossibleLocateShip(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
         boolean isHorizontal = currentGUIState.isHorizontalOrientation();
@@ -181,7 +183,7 @@ public class GameField {
         return isPossibleLocateShipFlag;
     }
 
-    boolean isNotIntersectionShipWithBorder(CurrentGUIState currentGUIState) {
+    public boolean isNotIntersectionShipWithBorder(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
         boolean isHorizontal = currentGUIState.isHorizontalOrientation();
@@ -207,7 +209,7 @@ public class GameField {
         return isPossibleLocateShipFlag;
     }
 
-    void printOnConsole() {
+    public void printOnConsole() {
         for (int i = 0; i < FIELD_SIZE; i++) {
             for (int j = 0; j < FIELD_SIZE; j++) {
                 if (field[j][i] == Cell.CLEAR) {
@@ -237,5 +239,4 @@ public class GameField {
             System.out.println();
         }
     }
-
 }

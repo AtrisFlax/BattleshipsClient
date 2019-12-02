@@ -1,5 +1,8 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
+import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
