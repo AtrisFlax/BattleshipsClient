@@ -108,8 +108,8 @@ public class Ship {
                 case 0:
                     return SUBMARINE;
                 default:
-                    //TODO generate exception
                     return UNKNOWN;
+                //TODO generate exception
             }
         }
     }

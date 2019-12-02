@@ -71,19 +71,18 @@ class Draw {
     private static void ShipOnField(GraphicsContext gc, GUIConstant constants, Ship ship) {
         int x = ship.getShipStartCoord().getX();
         int y = ship.getShipStartCoord().getY();
-        int type = Ship.Type.shipTypeToInt(ship.getType());
+        int shipLength = convertTypeToShipLength(ship.getType());
         boolean isHorizontal = ship.isHorizontal();
-        ShipOnField(gc, constants, x, y, type, isHorizontal);
+        ShipOnField(gc, constants, x, y, shipLength, isHorizontal);
     }
 
-    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, int x, int y, int type, boolean isHorizontal) {
+    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, int x, int y, int shipLength, boolean isHorizontal) {
         if (isHorizontal) {
             //horizontal
             gc.strokeRect(
                     constants.getLeftX() + x * constants.getWidthCell(),
                     constants.getTopY() + y * constants.getWidthCell(),
-                    //TODO может быть неупорядоченный типы/ Линейная зависимость можеть прпоасть/ Иметь метод конвертации enum в длину корабля
-                    constants.getWidthCell() * (type + 1),
+                    constants.getWidthCell() * shipLength,
                     constants.getWidthCell()
             );
         } else {
@@ -92,8 +91,19 @@ class Draw {
                     constants.getLeftX() + x * constants.getWidthCell(),
                     constants.getTopY() + y * constants.getWidthCell(),
                     constants.getWidthCell(),
-                    constants.getWidthCell() * (type + 1)
+                    constants.getWidthCell() * shipLength
             );
         }
     }
+
+    /**
+     * @param type
+     * @return linear conversion type to ship length
+     * ship with type N has length N + 1
+     */
+    private static int convertTypeToShipLength(Ship.Type type) {
+        return Ship.Type.shipTypeToInt(type) + 1;
+    }
 }
+
+
