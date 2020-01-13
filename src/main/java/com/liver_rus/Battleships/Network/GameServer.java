@@ -8,16 +8,19 @@ import com.liver_rus.Battleships.Client.Tools.MessageAdapterFieldCoord;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.ArrayList;
+import java.nio.channels.spi.SelectorProvider;
+import java.util.Iterator;
 import java.util.Random;
-import java.util.Set;
 import java.util.logging.Logger;
 
 import static java.nio.ByteBuffer.allocate;
+import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 //TODO GameServer один метод hangleMessage procceedMessga(от входященго меняю значение GameFiled'а)
 
@@ -78,83 +81,188 @@ bash скрипт для этого
 ide делать артефакт? (но делаем на билд сервер (скрипт))
  */
 
-public class GameServer extends Server {
+public class GameServer implements Runnable {
+
+    public enum TurnOrder {
+        FIRST_CONNECTED,
+        SECOND_CONNECTED,
+        RANDOM_TURN
+    }
+
     //TODO make one buffer for all write methods
     private static final int WRITE_BUFFER_SIZE = 8192;
     private static final int READ_BUFFER_SIZE = 8192;
     private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
     private ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);
 
+    private ServerSocketChannel serverChannel = null;
+    private Selector selector;
+
     //TODO different severity logging
-    private static final Logger log = Logger.getLogger(String.valueOf(Server.class));
+    private static final Logger log = Logger.getLogger(String.valueOf(GameServer.class));
 
     private ServerGameEngine gameEngine;
-    private SelectionKey turnHolder;
+    private SocketChannel turnHolder;
 
     private final static int MAX_CONNECTIONS = ServerGameEngine.maxPlayers();
     private int numAcceptedConnections = 0;
 
+    private MetaInfo metaInfo;
+    private int port;
+
+    private TurnOrder turnOrder;
+
     public GameServer(int port) throws IOException {
-        super(port);
+        this.port = port;
+        metaInfo = new MetaInfo(new GameField[MAX_CONNECTIONS]);
+        turnOrder = TurnOrder.RANDOM_TURN;
+        configureServer();
     }
 
-    @Override
-    public void configureServer() throws IOException {
-        super.configureServer();
+    /**
+     * GameServer constructor with injection GameField[] for testing
+     *
+     * @param port             server port
+     * @param injectGameFields injected game primitives
+     * @param turnOrder        determinate whose turn is the first
+     * @throws IOException
+     */
+
+    public GameServer(int port, GameField[] injectGameFields, TurnOrder turnOrder) throws IOException {
+        this.port = port;
+        if (injectGameFields.length != MAX_CONNECTIONS) {
+            //TODO create custom exception
+            throw new IllegalArgumentException("GameServer constructor accepted gameFields with invalid length. Valid" +
+                    "length=" + MAX_CONNECTIONS);
+        } else {
+            metaInfo = new MetaInfo(injectGameFields);
+        }
+        this.turnOrder = turnOrder;
+        configureServer();
+    }
+
+    private void configureServer() throws IOException {
+        serverChannel = ServerSocketChannel.open();
+        serverChannel.configureBlocking(false);
+        InetSocketAddress inetSocketAddress = new InetSocketAddress(ServerConstants.getLocalHost(), port);
+        serverChannel.socket().bind(inetSocketAddress);
+        selector = SelectorProvider.provider().openSelector();
+        serverChannel.register(selector, OP_ACCEPT);
         gameEngine = new ServerGameEngine();
     }
 
-    @Override
-    void acceptConnection(SelectionKey key) throws IOException {
+    private void acceptConnection(SelectionKey key) throws IOException {
         SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();
         if (numAcceptedConnections < MAX_CONNECTIONS) {
-            numAcceptedConnections++;
             String port = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
             socketChannel.configureBlocking(false);
-            socketChannel.register(super.selector, SelectionKey.OP_READ, port);
-            key.attach(null);
+            socketChannel.register(selector, SelectionKey.OP_READ, port);
             log.info("accepted connection from: " + port);
+            metaInfo.put(socketChannel, numAcceptedConnections);
+            numAcceptedConnections++;
         } else {
             String msg = "too many connections. Max connections =" + MAX_CONNECTIONS;
             log.info(msg);
-            sendMessage(key, msg);
+            sendMessage(socketChannel, msg);
             socketChannel.close();
         }
     }
 
+    /**
+     * Reading SelectionKey results and react on events
+     */
     @Override
-    public void proceedMessage(SelectionKey key, String message) throws IOException {
-        gameEngineProceed(key, message);
-        sendAnswer(key, message);
-        //print field for debug
-        //connections.get(key).printOnConsole();
+    public void run() {
+        while (!Thread.currentThread().isInterrupted()) {
+            try {
+                Iterator<SelectionKey> keys;
+                SelectionKey key;
+                while (serverChannel.isOpen()) {
+                    selector.select();
+                    keys = selector.selectedKeys().iterator();
+                    while (keys.hasNext()) {
+                        key = keys.next();
+                        keys.remove();
+                        if (key.isValid()) {
+                            if (key.isAcceptable())
+                                acceptConnection(key);
+                            if (key.isReadable())
+                                readMessage(key);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                try {
+                    serverChannel.close();
+                } catch (IOException ignored) {
+
+                }
+            }
+        }
     }
 
-    private void gameEngineProceed(SelectionKey key, String message) throws IOException {
+    /**
+     * Read message from client
+     *
+     * @param key
+     * @throws IOException
+     */
+    private void readMessage(SelectionKey key) throws IOException {
+        SocketChannel socketChannel = (SocketChannel) key.channel();
+        StringBuilder messageBuilder = new StringBuilder();
+        readBuffer.clear();
+        int read = 0;
+        while ((read = socketChannel.read(readBuffer)) > 0) {
+            readBuffer.flip();
+            byte[] bytes = new byte[readBuffer.limit()];
+            readBuffer.get(bytes);
+            messageBuilder.append(new String(bytes));
+            readBuffer.clear();
+        }
+        String message;
+        if (read < 0) {
+            message = key.attachment() + " left the server.";
+            socketChannel.close();
+        } else {
+            message = messageBuilder.toString();
+        }
+
+        proceedMessage(socketChannel, message);
+    }
+
+    private void proceedMessage(SocketChannel channel , String message) throws IOException {
         if (message.equals(Constants.NetworkMessage.DISCONNECT)) {
             log.info("Connection closed upon one's client request");
             sendAllClients(message);
             resetServerGameState();
             return;
         }
+
+        gameEngineProceed(channel, message);
+        sendAnswer(channel, message);
+    }
+
+    private void gameEngineProceed(SocketChannel channel, String message) throws IOException {
         try {
-            //if get SEND_SHIP290H|430H|221V|451H|372H|853V|1024V|
             if (message.startsWith(Constants.NetworkMessage.SEND_SHIPS)) {
                 String[] shipsInfo = MessageProcessor.splitToShipInfo(message);
-                GameField gameField = new GameField(Ship.createShips(shipsInfo));
-                key.attach(gameField);
+                Ship[] ships = Ship.createShips(shipsInfo);
+                GameField field = metaInfo.getField(channel);
+                for (Ship ship : ships) {
+                    field.addShip(ship);
+                }
+                metaInfo.setReady(channel);
             }
         } catch (IOException ex) {
-            sendMessage(key, "Incorrect fleet format");
-            key.attach(null);
+            sendMessage(channel, "Incorrect fleet format");
             log.info("Incorrect fleet format" + ex);
         }
-        //SHOTXX
-        if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
+
+        if (gameEngine.isBroadcastEnabled() && turnHolder == channel) {
             if (message.startsWith(Constants.NetworkMessage.SHOT)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
-                GameField field = (GameField) key.attachment();
+                GameField field = metaInfo.getField(channel);
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
                 field.setCellAsDamaged(adaptedShootCoord);
                 if (field.isCellDamaged(adaptedShootCoord)) {
@@ -167,26 +275,34 @@ public class GameServer extends Server {
                 return;
             }
         }
-        if (gameEngine.isFirstTurn()) {
-            if (isReadyBothChannel()) {
-                log.info("both clients ready to game");
-                gameEngine.setFirstTurn(false);
-                swapFields();
-                turnHolder = randomConnection();
-                sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
-                sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
-                gameEngine.setReadyForBroadcast(true);
+        if (gameEngine.isFirstTurn() && isReadyBothChannel()) {
+            log.info("Server: Both clients ready to game");
+            gameEngine.setFirstTurn(false);
+            metaInfo.swapFields();
+            switch (turnOrder) {
+                case FIRST_CONNECTED:
+                    turnHolder = metaInfo.getFirstConnectedPlayerChannel();
+                    break;
+                case SECOND_CONNECTED:
+                    turnHolder = metaInfo.getSecondConnectedPlayerChannel();
+                    break;
+                case RANDOM_TURN:
+                    turnHolder = randomConnection();
+                    break;
             }
+            sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
+            sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
+            gameEngine.setReadyForBroadcast(true);
             return;
         }
     }
 
-    private void sendAnswer(SelectionKey key, String message) throws IOException {
-        if (gameEngine.isBroadcastEnabled() && turnHolder == key) {
+    private void sendAnswer(SocketChannel channel, String message) throws IOException {
+        if (gameEngine.isBroadcastEnabled() && turnHolder == channel) {
             //SHOTXX
             if (message.startsWith(Constants.NetworkMessage.SHOT)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
-                GameField field = (GameField) key.attachment();
+                GameField field = metaInfo.getField(channel);
                 FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
                 if (field.isCellDamaged(adaptedShootCoord)) {
                     //field.printOnConsole();
@@ -198,83 +314,87 @@ public class GameServer extends Server {
                         field.updateShipList();
                     }
                     if (field.isShipsDestroyed()) {
-                        sendMessage(key, Constants.NetworkMessage.YOU_WIN);
-                        sendOtherClient(key, Constants.NetworkMessage.YOU_LOSE);
+                        sendMessage(channel, Constants.NetworkMessage.YOU_WIN);
+                        sendOtherClient(channel, Constants.NetworkMessage.YOU_LOSE);
                     } else {
-                        sendMessage(key, Constants.NetworkMessage.YOU_TURN);
-                        sendOtherClient(key, Constants.NetworkMessage.ENEMY_TURN);
+                        sendMessage(channel, Constants.NetworkMessage.YOU_TURN);
+                        sendOtherClient(channel, Constants.NetworkMessage.ENEMY_TURN);
                     }
                 } else {
                     sendAllClients(Constants.NetworkMessage.MISS + shootCoord);
-                    sendMessage(key, Constants.NetworkMessage.ENEMY_TURN);
-                    turnHolder = sendOtherClient(key, Constants.NetworkMessage.YOU_TURN);
+                    sendMessage(channel, Constants.NetworkMessage.ENEMY_TURN);
+                    turnHolder = sendOtherClient(channel, Constants.NetworkMessage.YOU_TURN);
                 }
             }
         }
     }
 
-    //channel[0] -> field[1]
-    //channel[1] -> field[0]
-    private void swapFields() {
-        ArrayList<SelectionKey> selectionKeys = new ArrayList<>(MAX_CONNECTIONS);
-        for (SelectionKey key : selector.keys()) {
-            if (key.isValid() && key.channel() instanceof SocketChannel) {
-                selectionKeys.add(key);
-            }
-        }
-        Object field0 = selectionKeys.get(0).attachment();
-        selectionKeys.get(0).attach(selectionKeys.get(1).attachment());
-        selectionKeys.get(1).attach(field0);
+    private SocketChannel randomConnection() {
+        int randID = new Random(System.currentTimeMillis()).nextInt(MAX_CONNECTIONS);
+        SocketChannel[] channels = metaInfo.getChannels();
+        return channels[randID];
     }
 
-    private SelectionKey randomConnection() {
-        ArrayList<SelectionKey> selectionKeysList = new ArrayList<>(MAX_CONNECTIONS);
-        for (SelectionKey key : selector.keys()) {
-            if (key.isValid() && key.channel() instanceof SocketChannel) {
-                selectionKeysList.add(key);
-            }
-        }
-        return selectionKeysList.get(new Random(System.currentTimeMillis()).nextInt(selectionKeysList.size()));
-    }
-
+    //TODO normal state server tracking
     private void resetServerGameState() {
-        Set<SelectionKey> keys = selector.selectedKeys();
-        for (SelectionKey selectionKey : keys) {
-            selectionKey.attach(null);
-        }
+        metaInfo = new MetaInfo(new GameField[MAX_CONNECTIONS]);
         gameEngine.setFirstTurn(true);
         gameEngine.setReadyForBroadcast(false);
     }
 
-    //numConnections with GameField attachment. If both not null then ready
     private boolean isReadyBothChannel() {
-        int numConnections = 0;
-        for (SelectionKey key : selector.keys()) {
-            if (key.isValid() && key.channel() instanceof SocketChannel) {
-                if (key.attachment() instanceof GameField) {
-                    numConnections++;
-                }
+        boolean result = true;
+        for (int i = 0; i < MAX_CONNECTIONS; i++) {
+            if (!metaInfo.isReady(i)) {
+                result = false;
+                break;
             }
         }
-        return numConnections == MAX_CONNECTIONS;
+        return result;
     }
 
-    @Override
-    public SelectionKey sendOtherClient(SelectionKey receiverKey, String msg) throws IOException {
-        return super.sendOtherClient(receiverKey, addSplitSymbol(msg));
+    public SocketChannel sendOtherClient(SocketChannel receiverChannel, String msg) throws IOException {
+        msg = addSplitSymbol(msg);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+        SocketChannel otherClientChannel = metaInfo.getOtherClientChannel(receiverChannel);
+        otherClientChannel.write(messageBuffer);
+        messageBuffer.rewind();
+        return otherClientChannel;
     }
 
-    @Override
+    /**
+     * //     * Broadcast clients about events for all clients
+     * //     *
+     * //     * @param msg
+     * //     * @throws IOException
+     * //
+     */
     public void sendAllClients(String msg) throws IOException {
-        super.sendAllClients(addSplitSymbol(msg));
+        msg = addSplitSymbol(msg);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+        for (SelectionKey key : selector.keys()) {
+            if (key.isValid() && key.channel() instanceof SocketChannel) {
+                SocketChannel socketChannel = (SocketChannel) key.channel();
+                socketChannel.write(messageBuffer);
+                messageBuffer.rewind();
+            }
+        }
+
     }
 
-    @Override
-    public void sendMessage(SelectionKey key, String msg) throws IOException {
-        super.sendMessage(key, addSplitSymbol(msg));
+    /**
+     * Broadcast msg to key
+     *
+     * @param msg
+     * a@throws IOException
+     */
+    public void sendMessage(SocketChannel socketChannel, String msg) throws IOException {
+        msg = addSplitSymbol(msg);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+        socketChannel.write(messageBuffer);
+        messageBuffer.rewind();
     }
 
-    @Override
     public String toString() {
         return "Server in port:" + ServerConstants.getDefaultPort();
     }

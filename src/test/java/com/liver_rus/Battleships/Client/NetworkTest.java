@@ -1,5 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
+import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
 import javafx.collections.FXCollections;
@@ -24,12 +26,19 @@ class NetworkTest {
     Client client1;
     Client client2;
 
+    static final int MAX_CONNECTIONS = 2;
+
     @BeforeEach
     void setUp() throws IOException {
         int port = 10071;
         String host = "127.0.0.1";
 
-        serverThread = new Thread(new GameServer(port));
+        GameField[] gameFields = new GameField[2];
+        for (int i = 0; i < MAX_CONNECTIONS; i++) {
+            gameFields[i] = new GameField();
+        }
+
+        serverThread = new Thread(new GameServer(port, gameFields, GameServer.TurnOrder.RANDOM_TURN));
         serverThread.start();
 
         ObservableList<String> inbox1 = FXCollections.observableArrayList();
@@ -92,12 +101,12 @@ class NetworkTest {
         for (int i = 0; i < SHIPS_INFO_LIMIT; i++)
             splitAndSend(sendInfo[i]);
         //SEND SHOTS
-        //TODO вызвать из констант "YOU_TURN"
-        boolean client1FirstTurn = client1.getInbox().get(client1.getInbox().size() - 1).equals("YOU_TURN");
+        boolean client1FirstTurn = client1.getInbox().get(client1.getInbox().size() - 1).equals(Constants.NetworkMessage.YOU_TURN);
         if (client1FirstTurn) {
             //skip fake shot (MISS_SHOT) for client2 first turn
             for (int i = SHIPS_INFO_LIMIT + 1; i < sendInfo.length; i++)
                 splitAndSend(sendInfo[i]);
+                System.out.println();
         } else {
             for (int i = SHIPS_INFO_LIMIT; i < sendInfo.length; i++)
                 splitAndSend(sendInfo[i]);
@@ -105,11 +114,11 @@ class NetworkTest {
 
         //TODO непонятен скип прописать где чего
         //CHECK INBOX
-        final int SKIP_ANOTHER_TURN_INDEX = 2;
+        final int SKIP_TURNS = 2;
         if (client1FirstTurn) {
             //TODO тут естьString[]::new
-            assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.skip(SKIP_ANOTHER_TURN_INDEX).toArray(String[]::new), client1.getInbox().toArray()));
-            assertTrue(Arrays.deepEquals(client2ExpectedInboxStream.skip(SKIP_ANOTHER_TURN_INDEX).toArray(String[]::new), client2.getInbox().toArray()));
+            assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.skip(SKIP_TURNS).toArray(), client1.getInbox().toArray()));
+            assertTrue(Arrays.deepEquals(client2ExpectedInboxStream.skip(SKIP_TURNS).toArray(), client2.getInbox().toArray()));
         } else {
             //TODO тут нет toArray()
             assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.toArray(), client1.getInbox().toArray()));
@@ -130,17 +139,9 @@ class NetworkTest {
         String[] splitStr = str.split("\\s+");
         if (splitStr[0].equals("client1")) {
             send(client1, splitStr[1]);
-            return;
         } else {
-            if (splitStr[0].equals("client2")) {
-                send(client2, splitStr[1]);
-                return;
-            }
-            else {
-                //TODO Exeption
-            }
+            send(client2, splitStr[1]);
         }
-
     }
 
     private Stream<String> getStringStreamFromFile(String fileName) {

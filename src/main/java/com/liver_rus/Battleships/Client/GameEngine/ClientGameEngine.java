@@ -32,7 +32,7 @@ public class ClientGameEngine {
     public ClientGameEngine() {
         super();
         gameField = new GameField();
-        setGamePhase(ClientGameEngine.phase.INIT);
+        setGamePhase(Phase.INIT);
         shipSelected = false;
         shootCoord = null;
         currentGUIState = new CurrentGUIState();
@@ -133,11 +133,11 @@ public class ClientGameEngine {
         //HITXX
         if (message.startsWith(Constants.NetworkMessage.HIT)) {
             //if you turn
-            if (getGamePhase() == ClientGameEngine.phase.WAITING_ANSWER) {
+            if (getGamePhase() == Phase.WAITING_ANSWER) {
                 //shoot coord is set by gui handler before
                 //setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
-            if (getGamePhase() == ClientGameEngine.phase.TAKE_SHOT) {
+            if (getGamePhase() == Phase.TAKE_SHOT) {
                 setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
         }
@@ -148,17 +148,17 @@ public class ClientGameEngine {
             //if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
             //    log.info("Client: Server give message to Early");
             //}
-            if (getGamePhase() == ClientGameEngine.phase.TAKE_SHOT) {
+            if (getGamePhase() == Phase.TAKE_SHOT) {
                 setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
             return;
         }
 
         if (message.startsWith(Constants.NetworkMessage.DESTROYED)) {
-            if (getGamePhase() == ClientGameEngine.phase.MAKE_SHOT) {
+            if (getGamePhase() == Phase.MAKE_SHOT) {
                 log.info("Client: Server give message to Early");
             }
-            if (getGamePhase() == ClientGameEngine.phase.TAKE_SHOT) {
+            if (getGamePhase() == Phase.TAKE_SHOT) {
                 setShootCoord(MessageProcessor.getShootCoordFromMessage(message));
             }
             return;
@@ -166,14 +166,14 @@ public class ClientGameEngine {
 
         switch (message) {
             case Constants.NetworkMessage.YOU_TURN:
-                setGamePhase(ClientGameEngine.phase.MAKE_SHOT);
+                setGamePhase(Phase.MAKE_SHOT);
                 return;
             case Constants.NetworkMessage.ENEMY_TURN:
-                setGamePhase(ClientGameEngine.phase.TAKE_SHOT);
+                setGamePhase(Phase.TAKE_SHOT);
                 return;
             case Constants.NetworkMessage.YOU_WIN:
             case Constants.NetworkMessage.YOU_LOSE:
-                setGamePhase(ClientGameEngine.phase.END_GAME);
+                setGamePhase(Phase.END_GAME);
                 return;
         }
     }

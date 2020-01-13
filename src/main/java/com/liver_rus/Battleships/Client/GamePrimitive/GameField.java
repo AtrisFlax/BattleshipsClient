@@ -18,68 +18,30 @@ public class GameField {
 
     public GameField() {
         fleet = new Fleet();
-
         field = new Cell[FIELD_SIZE][FIELD_SIZE];
-        for (int i = 1; i < FIELD_SIZE - 1; i++) {
-            for (int j = 1; j < FIELD_SIZE - 1; j++) {
-                field[j][i] = Cell.CLEAR;
-            }
-        }
-        //верхняя часть кольца
-        for (int j = 0; j < FIELD_SIZE; j++) {
-            field[0][j] = Cell.BORDER;
-        }
-        //нижняя часть кольца
-        for (int j = 0; j < FIELD_SIZE; j++) {
-            field[FIELD_SIZE - 1][j] = Cell.BORDER;
-        }
-        //левая часть кольца
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            field[i][0] = Cell.BORDER;
-        }
-        //правая часть кольца
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            field[i][FIELD_SIZE - 1] = Cell.BORDER;
-        }
+        initField();
     }
+
 
     public GameField(Ship[] ships) {
         this();
         for (Ship ship : ships) {
-            markFieldByShip(ship);
-            getFleet().add(ship);
+            addShip(ship);
         }
+    }
+
+    public void addShip(Ship ship) {
+        markFieldByShip(ship);
+        getFleet().add(ship);
+    }
+
+    public void clear() {
+        fleet.clear();
+        initField();
     }
 
     public Fleet getFleet() {
         return fleet;
-    }
-
-    private void markShipCells(int x, int y, int shipType, boolean shipOrientation) {
-        //horizontal
-        if (shipOrientation) {
-            for (int i = 0; i < shipType + 1; i++) {
-                setCellAsShip(x + i, y);
-            }
-        }
-        //vertical
-        else {
-            for (int i = 0; i < shipType + 1; i++) {
-                setCellAsShip(x, y + i);
-            }
-        }
-    }
-
-    //Отметка попадания в корабль
-    private void tagShipsByCoord(int x, int y) {
-        for (Ship ship : fleet.getShipsOnField()) {
-            for (FieldCoord shipCoord : ship.getShipCoords()) {
-                if (shipCoord.getX() == x && shipCoord.getY() == y) {
-                    shipCoord.setTag();
-                    return;
-                }
-            }
-        }
     }
 
     //Отметка клеток корабля и ближлежайших клеток
@@ -145,15 +107,6 @@ public class GameField {
         return field[x][y] == Cell.DAMAGED_SHIP;
     }
 
-    private void setCellAsShip(int x, int y) {
-        field[x][y] = Cell.SHIP;
-    }
-
-    private void setCellAsNearWithShip(int x, int y) {
-        if (field[x][y] != Cell.BORDER) {
-            field[x][y] = Cell.NEAR_WITH_SHIP;
-        }
-    }
 
     public boolean isPossibleLocateShip(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
@@ -239,4 +192,67 @@ public class GameField {
             System.out.println();
         }
     }
+
+    private void setCellAsShip(int x, int y) {
+        field[x][y] = Cell.SHIP;
+    }
+
+    private void setCellAsNearWithShip(int x, int y) {
+        if (field[x][y] != Cell.BORDER) {
+            field[x][y] = Cell.NEAR_WITH_SHIP;
+        }
+    }
+
+    private void initField(){
+        for (int i = 1; i < FIELD_SIZE - 1; i++) {
+            for (int j = 1; j < FIELD_SIZE - 1; j++) {
+                field[j][i] = Cell.CLEAR;
+            }
+        }
+        //верхняя часть кольца
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            field[0][j] = Cell.BORDER;
+        }
+        //нижняя часть кольца
+        for (int j = 0; j < FIELD_SIZE; j++) {
+            field[FIELD_SIZE - 1][j] = Cell.BORDER;
+        }
+        //левая часть кольца
+        for (int i = 0; i < FIELD_SIZE; i++) {
+            field[i][0] = Cell.BORDER;
+        }
+        //правая часть кольца
+        for (int i = 0; i < FIELD_SIZE; i++) {
+            field[i][FIELD_SIZE - 1] = Cell.BORDER;
+        }
+    }
+
+    private void markShipCells(int x, int y, int shipType, boolean shipOrientation) {
+        //horizontal
+        if (shipOrientation) {
+            for (int i = 0; i < shipType + 1; i++) {
+                setCellAsShip(x + i, y);
+            }
+        }
+        //vertical
+        else {
+            for (int i = 0; i < shipType + 1; i++) {
+                setCellAsShip(x, y + i);
+            }
+        }
+    }
+
+    //Отметка попадания в корабль
+    private void tagShipsByCoord(int x, int y) {
+        for (Ship ship : fleet.getShipsOnField()) {
+            for (FieldCoord shipCoord : ship.getShipCoords()) {
+                if (shipCoord.getX() == x && shipCoord.getY() == y) {
+                    shipCoord.setTag();
+                    return;
+                }
+            }
+        }
+    }
+
+
 }

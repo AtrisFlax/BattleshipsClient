@@ -3,7 +3,6 @@ package com.liver_rus.Battleships.Client;
 import com.liver_rus.Battleships.Client.GamePrimitive.FleetCounter;
 import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertAll;
@@ -17,9 +16,8 @@ class FleetCounterTest {
         fleetCounter = new FleetCounter();
     }
 
-    @DisplayName("ship left after pops")
     @Test
-    void getShipsLeft() {
+    void shipLefAfterPop() {
         fleetCounter.popShip(Ship.Type.DESTROYER);
         fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER);
         fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER);
@@ -42,70 +40,67 @@ class FleetCounterTest {
         assertEquals(0, fleetCounter.getShipsLeft());
     }
 
-    @DisplayName("ship left after new ArrangeFleetHolder()")
+    //ship left after new ArrangeFleetHolder()
     @Test
     void getShipsLeftWithoutPopShip() {
         final int EXPECTED_SHIP_LEFT = 7;
         assertEquals(EXPECTED_SHIP_LEFT, fleetCounter.getShipsLeft());
     }
 
-    @DisplayName("sequential pop and check amount left")
+    //sequential pop and check amount left
     @Test
-    void sequentialPopLeftShipsByType() {
+    void sequentialPop() {
+        int NO_MORE_SHIP_FOR_EXTRACTION = -1;
         assertAll("Should return amount left ships by Type after sequential pop",
-                //TODO no more ships именованая константа
-                // остальные значения 1 2 в java doc
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.CRUISER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.CRUISER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.CRUISER)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
                 () -> assertEquals(1, fleetCounter.popShip(Ship.Type.DESTROYER)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.DESTROYER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.DESTROYER)),
                 () -> assertEquals(1, fleetCounter.popShip(Ship.Type.SUBMARINE)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.SUBMARINE)),
 
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.CRUISER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.SUBMARINE))
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.CRUISER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.DESTROYER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.SUBMARINE))
         );
-
         assertEquals(0, fleetCounter.getShipsLeft());
     }
 
-    @DisplayName("non sequential pop and check amount left")
     @Test
     void nonSequentialPopLeftShipsByType() {
+        int NO_MORE_SHIP_FOR_EXTRACTION = -1;
         assertAll("Should return amount left ships by Type after non sequential pop",
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.CRUISER)),
                 () -> assertEquals(1, fleetCounter.popShip(Ship.Type.SUBMARINE)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.SUBMARINE)),
                 () -> assertEquals(1, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.CRUISER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.CRUISER)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
                 () -> assertEquals(0, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.CRUISER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.CRUISER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.DESTROYER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.DESTROYER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
 
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.CRUISER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.DESTROYER)),
-                () -> assertEquals(-1, fleetCounter.popShip(Ship.Type.SUBMARINE))
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.AIRCRAFT_CARRIER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.BATTLESHIP)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.CRUISER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.DESTROYER)),
+                () -> assertEquals(NO_MORE_SHIP_FOR_EXTRACTION, fleetCounter.popShip(Ship.Type.SUBMARINE))
         );
-
         assertEquals(0, fleetCounter.getShipsLeft());
     }
 }

@@ -46,6 +46,7 @@ public class Fleet {
     }
 
     public void clear() {
+        fleetCounter = new FleetCounter();
         shipsList.clear();
     }
 

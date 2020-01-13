@@ -5,9 +5,7 @@ class ServerGameEngine {
     private Phase gamePhase;
     private boolean isReadyForBroadcast = false;
 
-    private int numTurn;
     private boolean isFirstTurn;
-    private int numRound;
 
     enum Phase {
         INIT, END_GAME;
@@ -15,9 +13,7 @@ class ServerGameEngine {
 
     ServerGameEngine() {
         setGamePhase(Phase.INIT);
-        numTurn = 1;
         isFirstTurn = true;
-        numRound = 1;
     }
 
     boolean isBroadcastEnabled() {
