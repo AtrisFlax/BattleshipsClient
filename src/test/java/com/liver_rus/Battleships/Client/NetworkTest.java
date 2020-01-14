@@ -4,8 +4,6 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,27 +39,14 @@ class NetworkTest {
         serverThread = new Thread(new GameServer(port, gameFields, GameServer.TurnOrder.RANDOM_TURN));
         serverThread.start();
 
-        ObservableList<String> inbox1 = FXCollections.observableArrayList();
-        ObservableList<String> inbox2 = FXCollections.observableArrayList();
+        try {
+            client1 = new Client(host, port);
+            client2 = new Client(host, port);
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        client1 = new Client(inbox1, host, port);
-        client2 = new Client(inbox2, host, port);
-    }
-
-    //TODO asserton with time out
-    //delete sleep
-    void connectClientToServer(Client client) throws InterruptedException {
-        CountDownLatch connectionLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            try {
-                client.makeConnection();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            connectionLatch.countDown();
-        }).start();
-        connectionLatch.await();
-        Thread.sleep(500);
     }
 
     //TODO asserton with time out
@@ -85,15 +70,30 @@ class NetworkTest {
         }
     }
 
+    //TODO написать тест с проверкой содержимого GameField'ов
+    //после отправки SEND_SHIPS,SHOT, MISS
+
+
+    //тестирование заранее прописаного цикла игры с проверкой инбоксов клиентов
+    //В sendToServer.txt прописаны сообщения отправляемы от клиента к серверу
+    //awaitedInboxClient1.txt и awaitedInboxClient2.txt описаны ожидаемые значения отправленные от сервера к клиентам
+    //В тесте просиходит
+    //1. Зачитывание файлов для отправки
+    //2. Отправка SEND_SHIPS сообщений
+    //3. Проверка по размеру инбокса какого клиента ход первый
+    //4. Отправка сообщений с клиентов на сервер
+    //4.1 В случае если ход первого клиента необходимо пропустить одно сообщение выстрел (SHOT) (Тестовая последовательность
+    //написана с дополнительным выстрелом в случае если превый ход второго клиента, чтобы выравнять очередность
+    //5. Проверка инбоксов.
+    //5.1 Пропуск лишних строк их файла инбокса с учетом очередности хода. См 4.1
+    // ** файлы содержат лишний заголовок для проверки содержимого в случае "неправильной" генирации хода
+
     @Test
     void gameCycle() throws InterruptedException {
         //TODO TestCases/Case1 подсатвлять конкатить внутрь  getStringStreamFromFile
-        Stream<String> sendInfoStream = getStringStreamFromFile("TestCases/Case1/sendToServer.txt");
-        Stream<String> client1ExpectedInboxStream = getStringStreamFromFile("TestCases/Case1/awaitedInboxClient1.txt");
-        Stream<String> client2ExpectedInboxStream = getStringStreamFromFile("TestCases/Case1/awaitedInboxClient2.txt");
-        //CONNECT TO SERVER
-        connectClientToServer(client1);
-        connectClientToServer(client2);
+        Stream<String> sendInfoStream = getStringStreamFromFile("Case1/sendToServer.txt");
+        Stream<String> client1ExpectedInboxStream = getStringStreamFromFile("Case1/awaitedInboxClient1.txt");
+        Stream<String> client2ExpectedInboxStream = getStringStreamFromFile("Case1/awaitedInboxClient2.txt");
         //SEND SHIP INFO
         final int SHIPS_INFO_LIMIT = 2;
         String[] sendInfo = sendInfoStream.toArray(String[]::new);
@@ -129,8 +129,6 @@ class NetworkTest {
     @AfterEach
     void tearDown() {
         log.info("tearDown");
-        client1.close();
-        client2.close();
         serverThread.interrupt();
     }
 
@@ -145,7 +143,8 @@ class NetworkTest {
     }
 
     private Stream<String> getStringStreamFromFile(String fileName) {
-        InputStreamReader inputStreamReader = new InputStreamReader(ClassLoader.getSystemResourceAsStream(fileName));
+        String testResourceFolder = "TestCases/";
+        InputStreamReader inputStreamReader = new InputStreamReader(ClassLoader.getSystemResourceAsStream(testResourceFolder + fileName));
         return new BufferedReader(inputStreamReader).lines();
     }
 

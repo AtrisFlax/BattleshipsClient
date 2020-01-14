@@ -2,7 +2,6 @@ package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
 import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
-import com.liver_rus.Battleships.Client.Tools.MessageAdapterFieldCoord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -20,15 +19,15 @@ class ShipTest {
     @Test
     void getIsShipAlive() {
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,4)));
+        ship.tagShipCell(new FieldCoord(2,4));
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,5)));
+        ship.tagShipCell(new FieldCoord(2,5));
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,2)));
+        ship.tagShipCell(new FieldCoord(2,2));
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,6)));
+        ship.tagShipCell(new FieldCoord(2,6));
         assertTrue(ship.isAlive());
-        ship.tagShipCell(new MessageAdapterFieldCoord(new FieldCoord(2,3)));
+        ship.tagShipCell(new FieldCoord(2,3));
         assertFalse(ship.isAlive());
     }
 }

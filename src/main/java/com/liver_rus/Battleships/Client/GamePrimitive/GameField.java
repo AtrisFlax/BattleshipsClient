@@ -7,13 +7,12 @@ import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
  */
 
 public class GameField {
-    ///П10*10 окружено кольцом CellStatus.BORDER -> Поле 12*12
-    private static final int FIELD_SIZE = 12;
+    private static final int FIELD_SIZE = 10;
     private Cell[][] field;
     private Fleet fleet;
 
     private enum Cell {
-        CLEAR, MISS, SHIP, NEAR_WITH_SHIP, BORDER, DAMAGED_SHIP
+        CLEAR, MISS, SHIP, NEAR_WITH_SHIP, DAMAGED_SHIP
     }
 
     public GameField() {
@@ -21,7 +20,6 @@ public class GameField {
         field = new Cell[FIELD_SIZE][FIELD_SIZE];
         initField();
     }
-
 
     public GameField(Ship[] ships) {
         this();
@@ -31,7 +29,7 @@ public class GameField {
     }
 
     public void addShip(Ship ship) {
-        markFieldByShip(ship);
+        markFieldCellsByShip(ship);
         getFleet().add(ship);
     }
 
@@ -45,7 +43,7 @@ public class GameField {
     }
 
     //Отметка клеток корабля и ближлежайших клеток
-    public void markFieldByShip(Ship ship) {
+    public void markFieldCellsByShip(Ship ship) {
         FieldCoord shipCoord = ship.getShipStartCoord();
         int x = shipCoord.getX();
         int y = shipCoord.getY();
@@ -140,26 +138,14 @@ public class GameField {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
         boolean isHorizontal = currentGUIState.isHorizontalOrientation();
-        boolean isPossibleLocateShipFlag = true;
         int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
-        int x = coord.getX() + 1;
-        int y = coord.getY() + 1;
+        int x = coord.getX();
+        int y = coord.getY();
         if (isHorizontal) {
-            for (int i = x; i < x + shipTypeInt + 1; i++) {
-                if (field[i][y] == Cell.BORDER) {
-                    isPossibleLocateShipFlag = false;
-                    break;
-                }
-            }
+            return x + shipTypeInt < FIELD_SIZE;
         } else {
-            for (int i = y; i < y + shipTypeInt + 1; i++) {
-                if (field[x][i] == Cell.BORDER) {
-                    isPossibleLocateShipFlag = false;
-                    break;
-                }
-            }
+            return y + shipTypeInt < FIELD_SIZE;
         }
-        return isPossibleLocateShipFlag;
     }
 
     public void printOnConsole() {
@@ -181,10 +167,6 @@ public class GameField {
                     System.out.print(" * ");
                     continue;
                 }
-                if (field[j][i] == Cell.BORDER) {
-                    System.out.print(" # ");
-                    continue;
-                }
                 if (field[j][i] == Cell.DAMAGED_SHIP) {
                     System.out.print(" x ");
                 }
@@ -198,43 +180,25 @@ public class GameField {
     }
 
     private void setCellAsNearWithShip(int x, int y) {
-        if (field[x][y] != Cell.BORDER) {
+        if (x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE) {
             field[x][y] = Cell.NEAR_WITH_SHIP;
         }
     }
 
     private void initField(){
-        for (int i = 1; i < FIELD_SIZE - 1; i++) {
-            for (int j = 1; j < FIELD_SIZE - 1; j++) {
+        for (int i = 0; i < FIELD_SIZE; i++) {
+            for (int j = 0; j < FIELD_SIZE; j++) {
                 field[j][i] = Cell.CLEAR;
             }
         }
-        //верхняя часть кольца
-        for (int j = 0; j < FIELD_SIZE; j++) {
-            field[0][j] = Cell.BORDER;
-        }
-        //нижняя часть кольца
-        for (int j = 0; j < FIELD_SIZE; j++) {
-            field[FIELD_SIZE - 1][j] = Cell.BORDER;
-        }
-        //левая часть кольца
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            field[i][0] = Cell.BORDER;
-        }
-        //правая часть кольца
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            field[i][FIELD_SIZE - 1] = Cell.BORDER;
-        }
     }
 
-    private void markShipCells(int x, int y, int shipType, boolean shipOrientation) {
-        //horizontal
-        if (shipOrientation) {
+    private void markShipCells(int x, int y, int shipType, boolean isHorizontal) {
+        if (isHorizontal) {
             for (int i = 0; i < shipType + 1; i++) {
                 setCellAsShip(x + i, y);
             }
         }
-        //vertical
         else {
             for (int i = 0; i < shipType + 1; i++) {
                 setCellAsShip(x, y + i);
@@ -253,6 +217,4 @@ public class GameField {
             }
         }
     }
-
-
 }

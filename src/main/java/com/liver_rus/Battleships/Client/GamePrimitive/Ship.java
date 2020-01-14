@@ -55,10 +55,7 @@ public class Ship {
     }
 
     //TODO make private constructor realization
-    public Ship(int x_coord, int y_coord, int shipType, boolean isHorizontal) {
-        //shift coord. field(12*12) border
-        int x = x_coord + 1;
-        int y = y_coord + 1;
+    public Ship(int x, int y, int shipType, boolean isHorizontal) {
         shipCoord = new FieldCoord[shipType + 1];
         if (isHorizontal) {
             for (int i = 0; i < shipCoord.length; i++) {
@@ -137,8 +134,8 @@ public class Ship {
 
     @Override
     public String toString() {
-        return Integer.toString((shipCoord[0].getX() - 1)) +
-                (shipCoord[0].getY() - 1) +
+        return Integer.toString((shipCoord[0].getX())) +
+                (shipCoord[0].getY()) +
                 Type.shipTypeToInt(type) +
                 orientationToChar(isHorizontalOrientation);
     }
@@ -172,6 +169,7 @@ public class Ship {
     }
 
     void printOnConsole() {
+        System.out.println("x=:" + getShipStartCoord().getX() + "y=:" + getShipStartCoord().getY());
         System.out.println(type);
         for (FieldCoord cell : shipCoord) {
             if (!cell.getTag()) {

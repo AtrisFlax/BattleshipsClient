@@ -12,7 +12,6 @@ import java.util.logging.Logger;
 
 //TODO numTurn tracking, incrementing and reseting
 public class ClientGameEngine {
-
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     public static ClientGameEngine.Phase phase;
 
@@ -99,10 +98,6 @@ public class ClientGameEngine {
         return currentGUIState.isHorizontalOrientation();
     }
 
-    private void setShipOrientation(boolean isHorizontal) {
-        currentGUIState.setOrientation(isHorizontal);
-    }
-
     public Ship.Type getShipType() {
         return currentGUIState.getShipType();
     }
@@ -126,7 +121,7 @@ public class ClientGameEngine {
 
     public void addShipOnField(Ship ship) {
         gameField.getFleet().add(ship);
-        gameField.markFieldByShip(ship);
+        gameField.markFieldCellsByShip(ship);
     }
 
     public void proceedMessage(String message) {

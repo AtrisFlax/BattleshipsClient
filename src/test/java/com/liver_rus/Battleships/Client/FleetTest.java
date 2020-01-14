@@ -3,7 +3,6 @@ package com.liver_rus.Battleships.Client;
 import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
 import com.liver_rus.Battleships.Client.GamePrimitive.Fleet;
 import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
-import com.liver_rus.Battleships.Client.Tools.MessageAdapterFieldCoord;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -72,7 +71,7 @@ class FleetTest {
         fleet.add(findingShip);
         fleet.add(Ship.createShip(new FieldCoord(7,6), Ship.Type.SUBMARINE, true));
         fleet.add(Ship.createShip(new FieldCoord(9,7), Ship.Type.SUBMARINE, true));
-        assertEquals(findingShip, fleet.findShip(new MessageAdapterFieldCoord(findCoord)));
+        assertEquals(findingShip, fleet.findShip(findCoord));
         assertNull(fleet.findShip(wrongCoord));
     }
 

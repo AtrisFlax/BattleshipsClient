@@ -4,7 +4,6 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
 import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
 import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
-import com.liver_rus.Battleships.Client.Tools.MessageAdapterFieldCoord;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.io.IOException;
@@ -231,15 +230,18 @@ public class GameServer implements Runnable {
     }
 
     private void proceedMessage(SocketChannel channel , String message) throws IOException {
+        checkDisconnect(message);
+        gameEngineProceed(channel, message);;
+        sendAnswer(channel, message);
+    }
+
+    private void checkDisconnect(String message) throws IOException {
         if (message.equals(Constants.NetworkMessage.DISCONNECT)) {
             log.info("Connection closed upon one's client request");
             sendAllClients(message);
             resetServerGameState();
             return;
         }
-
-        gameEngineProceed(channel, message);
-        sendAnswer(channel, message);
     }
 
     private void gameEngineProceed(SocketChannel channel, String message) throws IOException {
@@ -263,11 +265,10 @@ public class GameServer implements Runnable {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
                 GameField field = metaInfo.getField(channel);
-                FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
-                field.setCellAsDamaged(adaptedShootCoord);
-                if (field.isCellDamaged(adaptedShootCoord)) {
-                    Ship ship = field.getFleet().findShip(adaptedShootCoord);
-                    ship.tagShipCell(adaptedShootCoord);
+                field.setCellAsDamaged(shootCoord);
+                if (field.isCellDamaged(shootCoord)) {
+                    Ship ship = field.getFleet().findShip(shootCoord);
+                    ship.tagShipCell(shootCoord);
                     if (field.isShipsDestroyed()) {
                         gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
                     }
@@ -290,7 +291,9 @@ public class GameServer implements Runnable {
                     turnHolder = randomConnection();
                     break;
             }
+            System.out.println("SERVER SEND YOU TURN");
             sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
+            System.out.println("SERVER SEND ENEMY_TURN");
             sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
             gameEngine.setReadyForBroadcast(true);
             return;
@@ -303,10 +306,9 @@ public class GameServer implements Runnable {
             if (message.startsWith(Constants.NetworkMessage.SHOT)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 GameField field = metaInfo.getField(channel);
-                FieldCoord adaptedShootCoord = new MessageAdapterFieldCoord(shootCoord);
-                if (field.isCellDamaged(adaptedShootCoord)) {
+                if (field.isCellDamaged(shootCoord)) {
                     //field.printOnConsole();
-                    Ship ship = field.getFleet().findShip(adaptedShootCoord);
+                    Ship ship = field.getFleet().findShip(shootCoord);
                     sendAllClients(Constants.NetworkMessage.HIT + shootCoord);
                     if (!ship.isAlive()) {
                         sendAllClients(Constants.NetworkMessage.DESTROYED + ship.toString());

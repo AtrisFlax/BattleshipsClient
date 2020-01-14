@@ -1,6 +1,8 @@
 package com.liver_rus.Battleships.Network;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.io.IOException;
@@ -12,9 +14,11 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.EventListener;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Pattern;
@@ -24,33 +28,42 @@ import static java.nio.channels.SelectionKey.*;
 public class Client {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     private static final int QUEUE_SIZE = 2;
+
     private SocketChannel channel = null;
     private Selector selector = null;
     private ReceiveThread clientReceiver = null;
     private BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
-    private int port = 0;
-    private InetAddress address = null;
-    private ObservableList<String> inbox;
 
-    public Client(ObservableList<String> inbox, String address, int port) {
-        this.inbox = inbox;
+    private ObservableList<String> inbox;
+    private InetAddress address;
+    private int port;
+
+    EventListener listener;
+
+    public Client(String address, int port) throws IOException {
+        this.inbox = FXCollections.observableArrayList();
         try {
             this.address = InetAddress.getByName(address);
         } catch (UnknownHostException e) {
             e.printStackTrace();
         }
         this.port = port;
-    }
 
-
-    //TODO занести внутрь клиента конструкторв Client и makeConnection и сделать его private
-    public void makeConnection() throws IOException {
         channel = SocketChannel.open();
         channel.configureBlocking(false);
         selector = Selector.open();
         channel.register(selector, OP_CONNECT);
         channel.connect(new InetSocketAddress(ServerConstants.getLocalHost(), port));
         startClientReceiver();
+    }
+
+    public void subscribeForInbox(Consumer<String> consumer) {
+        inbox.addListener((ListChangeListener<String>) listener -> {
+            String received_msg = inbox.get(inbox.size() - 1);
+            log.info("Client Message receive: " + received_msg);
+            consumer.accept(received_msg);
+            inbox.clear();
+        });
     }
 
     public void sendMessage(String message) {
@@ -62,6 +75,20 @@ public class Client {
         } catch (InterruptedException ignored) {
             log.log(Level.SEVERE, "Send message failed");
         }
+    }
+
+    public void finalize() {
+        try {
+            channel.close();
+            selector.close();
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Client: Failed while closing", e);
+        }
+        clientReceiver.interrupt();
+    }
+
+    public ObservableList<String> getInbox() {
+        return inbox;
     }
 
     private void startClientReceiver() {
@@ -128,29 +155,6 @@ public class Client {
                 }
             }
         }
-    }
-
-
-    //TODO перегузить finilize и вызывать его
-    //close приватный
-    public void close() {
-        try {
-            try {
-                channel.close();
-            } catch (IOException e) {
-                log.log(Level.SEVERE, "Failed while closing Client channel.", e);
-            }
-            selector.close();
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed while closing Client selector.", e);
-        }
-        clientReceiver.interrupt();
-    }
-
-
-    //TODO inbox живет внутри клиента инициализуируется и clear вызвает
-    public ObservableList<String> getInbox() {
-        return inbox;
     }
 }
 

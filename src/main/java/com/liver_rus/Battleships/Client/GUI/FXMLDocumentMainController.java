@@ -6,13 +6,9 @@ import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
 import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
 import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
-import com.liver_rus.Battleships.Client.Tools.DrawAdapterShip;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -88,42 +84,14 @@ public class FXMLDocumentMainController implements Initializable {
 
     private Thread serverThread;
 
-    private ObservableList<String> networkInbox;
-
     private GraphicsContext overlayCanvas;
     private GraphicsContext mainCanvas;
     private boolean isFirstChangeLastFieldCoord = true;
 
     @Override
-    public void initialize(URL url, ResourceBundle rb) {
-        initNetwork();
+    public void initialize(URL url, ResourceBundle rb)   {
         initGUI();
         initGameEngine();
-    }
-
-    private void initNetwork() {
-        //TODO создание inbox сам клиент должен создавать клиент
-        networkInbox = FXCollections.observableArrayList();
-        //связка сразу после создания
-
-        //подписался на update работаем со значением(после инициализации подписка)
-        //либо у клиента get inbox get lisener предеать ему new ListChangeListener<String> и он предложит перегрузить onChange метод
-        //либо внитри клиента подписатся на add listener (этот код перенести) а наружу отдавать observable сообщений
-        //inbox дернул -> main controleler делать лисенеров -> сам внутри делал clear
-
-        networkInbox.addListener((ListChangeListener<String>) listener -> {
-
-            String received_msg = networkInbox.get(networkInbox.size() - 1);
-            log.info("Client Message receive: " + received_msg);
-            try {
-                proceedMessage(received_msg);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            //клиент должен сам заботится об инбоксе
-            //можно наружу отдавать
-            networkInbox.clear();
-        });
     }
 
     private void initGameEngine() {
@@ -297,9 +265,13 @@ public class FXMLDocumentMainController implements Initializable {
                 String host = controller.getHost();
                 String port = controller.getPort();
                 if (host != null && port != null) {
-                    network = new Client(networkInbox, host, Integer.parseInt(port));
                     try {
-                        network.makeConnection();
+                        network = new Client(host, Integer.parseInt(port));
+                        network.subscribeForInbox((message) -> {
+                            log.info("Client inbox message " + message);
+                            gameEngine.proceedMessage(message); //must be before gui
+                            guiProceed(message);
+                        });
                     } catch (IOException e) {
                         statusListView.getItems().add("Fail to make connection");
                         log.log(Level.SEVERE, "Fail to make connection", e);
@@ -315,7 +287,7 @@ public class FXMLDocumentMainController implements Initializable {
                     gameEngine.setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
                     labelGameStatus.setText("Deploying fleet. Select and place ship");
                     //auto deployment ships for debug
-                    //testShipsDeployment();
+                    testShipsDeployment();
                 } else {
                     close.consume();
                 }
@@ -345,7 +317,7 @@ public class FXMLDocumentMainController implements Initializable {
 
     @FXML
     void handleDisconnectMenuItem() {
-        network.close();
+        //network.finalize();
         if (serverThread != null) {
             serverThread.interrupt();
         }
@@ -357,7 +329,7 @@ public class FXMLDocumentMainController implements Initializable {
         guiProceed(message);
     }
 
-    private void guiProceed(String message) throws IOException {
+    private void guiProceed(String message)  {
         Platform.runLater(() -> {
             String readableString = convertInboxToReadableView(message);
             if (readableString != null) {
@@ -383,8 +355,11 @@ public class FXMLDocumentMainController implements Initializable {
         }
         if (message.startsWith(Constants.NetworkMessage.DESTROYED)) {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-                Draw.ShipOnEnemyField(mainCanvas, new DrawAdapterShip(
-                        Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED, ""))));
+                try {
+                    Draw.ShipOnEnemyField(mainCanvas, Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED, "")));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
             //on my field all ships (frame) already has drawn
             return;
@@ -468,7 +443,7 @@ public class FXMLDocumentMainController implements Initializable {
             gameEngine.addShipOnField(ship);
         }
         for (Ship ship : ships) {
-            Draw.ShipOnMyField(mainCanvas, new DrawAdapterShip(ship));
+            Draw.ShipOnMyField(mainCanvas, ship);
         }
         gameEngine.setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
         try {
@@ -477,6 +452,7 @@ public class FXMLDocumentMainController implements Initializable {
             e.printStackTrace();
         }
         gameEngine.getGameField().printOnConsole();
+
         network.sendMessage(Constants.NetworkMessage.SEND_SHIPS + gameEngine.getShipsInfoForSend());
         resetFleetButton.setDisable(true);
         labelGameStatus.setText("Fleet is deployed. Waiting for second player");

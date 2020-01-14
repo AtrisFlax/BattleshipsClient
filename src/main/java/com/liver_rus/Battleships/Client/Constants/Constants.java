@@ -1,8 +1,5 @@
 package com.liver_rus.Battleships.Client.Constants;
 
-
-//TODO подумать что с пакетами сделать(разбить)
-
 //TODO GUI <=> newtork interface
 
 public class Constants {
