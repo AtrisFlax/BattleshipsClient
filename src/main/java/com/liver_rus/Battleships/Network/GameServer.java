@@ -1,9 +1,10 @@
 package com.liver_rus.Battleships.Network;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
-import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
-import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
+import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.WrongShipInfoSizeException;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.io.IOException;
@@ -20,48 +21,6 @@ import java.util.logging.Logger;
 
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
-
-//TODO GameServer один метод hangleMessage procceedMessga(от входященго меняю значение GameFiled'а)
-
-
-/* TODO interface
-public SelectionKey sendOtherClient(SelectionKey receiverKey, String msg) throws IOException {
-        return super.sendOtherClient(receiverKey, addSplitSymbol(msg));
-        }
-
-@Override
-public void sendAllClients(String msg) throws IOException {
-        super.sendAllClients(addSplitSymbol(msg));
-        }
-
-@Override
-public void sendMessage(SelectionKey key, String msg) throws IOException {
-        super.sendMessage(key, addSplitSymbol(msg));
-        }
-*/
-
-/*
-интерфес метаинфо возрващающий мапу с данными
-сервер метфо инфо, который по ключу возвращает объект селекон ки
- */
-
-/*
-+test game server
-приходит сообщение
-проверяем game field как поменялся
-написать метод служебный для полученя gamefield
-
- */
-
-
-/*
-передают gameSever gamefield
-и смотрим как gameserver себя ведет. из теста имеет доступ gameField из теста
-
-
-
- */
-
 
 /*
 скрипт который пакует в jar и работает ли на разных машинах
@@ -80,24 +39,20 @@ bash скрипт для этого
 ide делать артефакт? (но делаем на билд сервер (скрипт))
  */
 
-public class GameServer implements Runnable {
-
+public class GameServer implements Runnable, IGameServer {
     public enum TurnOrder {
         FIRST_CONNECTED,
         SECOND_CONNECTED,
         RANDOM_TURN
     }
 
-    //TODO make one buffer for all write methods
     private static final int WRITE_BUFFER_SIZE = 8192;
-    private static final int READ_BUFFER_SIZE = 8192;
     private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
     private ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);
 
     private ServerSocketChannel serverChannel = null;
     private Selector selector;
 
-    //TODO different severity logging
     private static final Logger log = Logger.getLogger(String.valueOf(GameServer.class));
 
     private ServerGameEngine gameEngine;
@@ -138,6 +93,60 @@ public class GameServer implements Runnable {
         }
         this.turnOrder = turnOrder;
         configureServer();
+    }
+
+    //return SocketChannel of Another client.
+    // Only to SocketChannel in game sendAnotherClient return a different channel from receiverChannel
+    public SocketChannel sendAnotherClient(SocketChannel receiverChannel, String msg) throws IOException {
+        msg = addSplitSymbol(msg);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+        SocketChannel otherClientChannel = metaInfo.getOtherClientChannel(receiverChannel);
+        otherClientChannel.write(messageBuffer);
+        messageBuffer.rewind();
+        return otherClientChannel;
+    }
+
+    /**
+     * //     * Broadcast clients about events for all clients
+     * //     *
+     * //     * @param msg
+     * //     * @throws IOException
+     * //
+     */
+    public void sendAllClients(String msg) throws IOException {
+        msg = addSplitSymbol(msg);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+        for (SelectionKey key : selector.keys()) {
+            if (key.isValid() && key.channel() instanceof SocketChannel) {
+                SocketChannel socketChannel = (SocketChannel) key.channel();
+                socketChannel.write(messageBuffer);
+                messageBuffer.rewind();
+            }
+        }
+
+    }
+
+    /**
+     * Broadcast msg to key
+     *
+     * @param msg
+     * a@throws IOException
+     */
+    public void sendMessage(SocketChannel socketChannel, String msg) throws IOException {
+        msg = addSplitSymbol(msg);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+        socketChannel.write(messageBuffer);
+        messageBuffer.rewind();
+    }
+
+    //return injected GameFields
+    public GameField[] getFields() {
+        return metaInfo.getFields();
+    }
+
+
+    public String toString() {
+        return "Server in port:" + ServerConstants.getDefaultPort();
     }
 
     private void configureServer() throws IOException {
@@ -255,7 +264,7 @@ public class GameServer implements Runnable {
                 }
                 metaInfo.setReady(channel);
             }
-        } catch (IOException ex) {
+        } catch (IOException | WrongShipInfoSizeException ex) {
             sendMessage(channel, "Incorrect fleet format");
             log.info("Incorrect fleet format" + ex);
         }
@@ -291,10 +300,8 @@ public class GameServer implements Runnable {
                     turnHolder = randomConnection();
                     break;
             }
-            System.out.println("SERVER SEND YOU TURN");
             sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
-            System.out.println("SERVER SEND ENEMY_TURN");
-            sendOtherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
+            sendAnotherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
             gameEngine.setReadyForBroadcast(true);
             return;
         }
@@ -317,15 +324,15 @@ public class GameServer implements Runnable {
                     }
                     if (field.isShipsDestroyed()) {
                         sendMessage(channel, Constants.NetworkMessage.YOU_WIN);
-                        sendOtherClient(channel, Constants.NetworkMessage.YOU_LOSE);
+                        sendAnotherClient(channel, Constants.NetworkMessage.YOU_LOSE);
                     } else {
                         sendMessage(channel, Constants.NetworkMessage.YOU_TURN);
-                        sendOtherClient(channel, Constants.NetworkMessage.ENEMY_TURN);
+                        sendAnotherClient(channel, Constants.NetworkMessage.ENEMY_TURN);
                     }
                 } else {
                     sendAllClients(Constants.NetworkMessage.MISS + shootCoord);
                     sendMessage(channel, Constants.NetworkMessage.ENEMY_TURN);
-                    turnHolder = sendOtherClient(channel, Constants.NetworkMessage.YOU_TURN);
+                    turnHolder = sendAnotherClient(channel, Constants.NetworkMessage.YOU_TURN);
                 }
             }
         }
@@ -353,52 +360,6 @@ public class GameServer implements Runnable {
             }
         }
         return result;
-    }
-
-    public SocketChannel sendOtherClient(SocketChannel receiverChannel, String msg) throws IOException {
-        msg = addSplitSymbol(msg);
-        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
-        SocketChannel otherClientChannel = metaInfo.getOtherClientChannel(receiverChannel);
-        otherClientChannel.write(messageBuffer);
-        messageBuffer.rewind();
-        return otherClientChannel;
-    }
-
-    /**
-     * //     * Broadcast clients about events for all clients
-     * //     *
-     * //     * @param msg
-     * //     * @throws IOException
-     * //
-     */
-    public void sendAllClients(String msg) throws IOException {
-        msg = addSplitSymbol(msg);
-        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
-        for (SelectionKey key : selector.keys()) {
-            if (key.isValid() && key.channel() instanceof SocketChannel) {
-                SocketChannel socketChannel = (SocketChannel) key.channel();
-                socketChannel.write(messageBuffer);
-                messageBuffer.rewind();
-            }
-        }
-
-    }
-
-    /**
-     * Broadcast msg to key
-     *
-     * @param msg
-     * a@throws IOException
-     */
-    public void sendMessage(SocketChannel socketChannel, String msg) throws IOException {
-        msg = addSplitSymbol(msg);
-        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
-        socketChannel.write(messageBuffer);
-        messageBuffer.rewind();
-    }
-
-    public String toString() {
-        return "Server in port:" + ServerConstants.getDefaultPort();
     }
 
     private String addSplitSymbol(String msg) {

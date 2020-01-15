@@ -2,9 +2,10 @@ package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
-import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
-import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
-import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
+import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.TryingAddToManyShipsOnFieldException;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.lang.invoke.MethodHandles;
@@ -120,7 +121,11 @@ public class ClientGameEngine {
     }
 
     public void addShipOnField(Ship ship) {
-        gameField.getFleet().add(ship);
+        try {
+            gameField.getFleet().add(ship);
+        } catch (TryingAddToManyShipsOnFieldException e) {
+            e.printStackTrace();
+        }
         gameField.markFieldCellsByShip(ship);
     }
 
@@ -183,5 +188,9 @@ public class ClientGameEngine {
 
     public void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
         this.lastEnemyFieldCoord = lastEnemyFieldCoord;
+    }
+
+    public int[] getShipsLeftByType() {
+        return gameField.getFleet().getFleetCounter().getShipsLeftByType();
     }
 }

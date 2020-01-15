@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client.Tools;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
 
 import java.util.regex.Pattern;
 

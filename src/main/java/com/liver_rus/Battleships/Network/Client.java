@@ -9,12 +9,10 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.EventListener;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -25,28 +23,23 @@ import java.util.regex.Pattern;
 
 import static java.nio.channels.SelectionKey.*;
 
-public class Client {
+public class Client implements IClient {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     private static final int QUEUE_SIZE = 2;
 
-    private SocketChannel channel = null;
-    private Selector selector = null;
-    private ReceiveThread clientReceiver = null;
+    private SocketChannel channel;
+    private Selector selector;
+    private ReceiveThread clientReceiver;
     private BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     private ObservableList<String> inbox;
-    private InetAddress address;
-    private int port;
 
-    EventListener listener;
+    private InetAddress inetAddress;
+    private int port;
 
     public Client(String address, int port) throws IOException {
         this.inbox = FXCollections.observableArrayList();
-        try {
-            this.address = InetAddress.getByName(address);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
+        this.inetAddress = InetAddress.getByName(address);
         this.port = port;
 
         channel = SocketChannel.open();
@@ -55,6 +48,14 @@ public class Client {
         channel.register(selector, OP_CONNECT);
         channel.connect(new InetSocketAddress(ServerConstants.getLocalHost(), port));
         startClientReceiver();
+    }
+
+    public InetAddress getInetAddress() {
+        return inetAddress;
+    }
+
+    public int getPort() {
+        return port;
     }
 
     public void subscribeForInbox(Consumer<String> consumer) {

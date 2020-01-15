@@ -4,8 +4,9 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
-import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
-import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.WrongShipInfoSizeException;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
 import javafx.application.Platform;
@@ -182,12 +183,12 @@ public class FXMLDocumentMainController implements Initializable {
         resetFleetButton.setDisable(true);
         clearCanvas(overlayCanvas);
         clearCanvas(mainCanvas);
-        //TODO get text for left ships. не оставлять пробел "  x"  смотри     button.setText(popedShip + "  x");
-        shipType4Button.setText("1  x");
-        shipType3Button.setText("1  x");
-        shipType2Button.setText("1  x");
-        shipType1Button.setText("2  x");
-        shipType0Button.setText("2  x");
+        int[] amountShipByType = gameEngine.getShipsLeftByType();
+        shipType4Button.setText(amountShipByType[4] + " x");
+        shipType3Button.setText(amountShipByType[3] + " x");
+        shipType2Button.setText(amountShipByType[2] + " x");
+        shipType1Button.setText(amountShipByType[1] + " x");
+        shipType0Button.setText(amountShipByType[0] + " x");
     }
 
     //TODO handlers вынести в отдельные класса static методы
@@ -265,6 +266,15 @@ public class FXMLDocumentMainController implements Initializable {
                 String host = controller.getHost();
                 String port = controller.getPort();
                 if (host != null && port != null) {
+                    if (controller.isStartServer()) {
+                        try {
+                            serverThread = new Thread(new GameServer(Integer.parseInt(port)));
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                        serverThread.start();
+                    }
+
                     try {
                         network = new Client(host, Integer.parseInt(port));
                         network.subscribeForInbox((message) -> {
@@ -276,14 +286,7 @@ public class FXMLDocumentMainController implements Initializable {
                         statusListView.getItems().add("Fail to make connection");
                         log.log(Level.SEVERE, "Fail to make connection", e);
                     }
-                    if (controller.isServerSelected()) {
-                        try {
-                            serverThread = new Thread(new GameServer(Integer.parseInt(port)));
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        serverThread.start();
-                    }
+
                     gameEngine.setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
                     labelGameStatus.setText("Deploying fleet. Select and place ship");
                     //auto deployment ships for debug
@@ -357,7 +360,7 @@ public class FXMLDocumentMainController implements Initializable {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 try {
                     Draw.ShipOnEnemyField(mainCanvas, Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED, "")));
-                } catch (IOException e) {
+                } catch (WrongShipInfoSizeException | IOException e) {
                     e.printStackTrace();
                 }
             }

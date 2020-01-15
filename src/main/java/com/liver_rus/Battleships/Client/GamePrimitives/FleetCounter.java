@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client.GamePrimitive;
+package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import java.util.Arrays;
 
@@ -8,6 +8,7 @@ import java.util.Arrays;
 
 public class FleetCounter {
     static private final int NUM_MAX_SHIPS = Arrays.stream(shipsBuilder()).sum();
+
     private int[] ships;
     private int left;
 
@@ -16,12 +17,29 @@ public class FleetCounter {
         left = NUM_MAX_SHIPS;
     }
 
-    private static int[] shipsBuilder(){
+    public int[] getShipsLeftByType() {
+        return ships;
+    }
+
+    public int popShip(Ship.Type shipType) {
+        int type = Ship.Type.shipTypeToInt(shipType);
+        return popShip(type);
+    }
+
+    static public int getNumMaxShip() {
+        return NUM_MAX_SHIPS;
+    }
+
+    public int getShipsLeft() {
+        return left;
+    }
+
+    //amount ships by type
+    private static int[] shipsBuilder() {
         return new int[]{2, 2, 1, 1, 1};
     }
 
     /**
-     *
      * @param type - ship type for extraction
      * @return left ships by type. If no more ships left then return -1
      */
@@ -34,18 +52,5 @@ public class FleetCounter {
         } else {
             return -1;
         }
-    }
-
-    public int popShip(Ship.Type shipType) {
-        int type = Ship.Type.shipTypeToInt(shipType);
-        return popShip(type);
-    }
-
-    static int getNumMaxShip() {
-        return NUM_MAX_SHIPS;
-    }
-
-    public int getShipsLeft() {
-        return left;
     }
 }

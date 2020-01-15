@@ -3,8 +3,8 @@ package com.liver_rus.Battleships.Client.GUI;
 import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.Constants.GUIConstant;
 import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
-import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 

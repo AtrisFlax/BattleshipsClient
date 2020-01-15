@@ -1,18 +1,19 @@
 package com.liver_rus.Battleships.Network;
 
-import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
+import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 
 import java.nio.channels.SocketChannel;
 
 //class binding connection info (SocketChannel) and game primitives (GameField, ready flag)
 class MetaInfo {
 
-    final static int FIRST_CONNECTED_PLAYER_ID = 0;
+    final static int FIRST_CONNECTED_PLAYER_ID  = 0;
     final static int SECOND_CONNECTED_PLAYER_ID = 1;
 
     private final static int MAX_CONNECTIONS = ServerGameEngine.maxPlayers();
 
     SocketChannel[] channels;
+
     GameField[] fields;
     boolean[] ready;
 
@@ -82,4 +83,9 @@ class MetaInfo {
         if (channels[1] == receiverChannel) otherChannel = channels[0];
         return otherChannel;
     }
+
+    public GameField[] getFields() {
+        return fields;
+    }
+
 }

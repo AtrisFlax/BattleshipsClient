@@ -101,7 +101,7 @@ public class FXMLDocumentConnectGame {
         myName = nameTextField.getText();
     }
 
-    boolean isServerSelected() {
+    boolean isStartServer() {
         return checkBox.isSelected();
     }
 

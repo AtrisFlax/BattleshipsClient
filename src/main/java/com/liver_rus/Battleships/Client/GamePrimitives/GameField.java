@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client.GamePrimitive;
+package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
 
@@ -30,7 +30,11 @@ public class GameField {
 
     public void addShip(Ship ship) {
         markFieldCellsByShip(ship);
-        getFleet().add(ship);
+        try {
+            getFleet().add(ship);
+        } catch (TryingAddToManyShipsOnFieldException e) {
+            e.printStackTrace();
+        }
     }
 
     public void clear() {
@@ -105,7 +109,6 @@ public class GameField {
         return field[x][y] == Cell.DAMAGED_SHIP;
     }
 
-
     public boolean isPossibleLocateShip(CurrentGUIState currentGUIState) {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
@@ -173,6 +176,7 @@ public class GameField {
             }
             System.out.println();
         }
+        getFleet().printOnConsole();
     }
 
     private void setCellAsShip(int x, int y) {

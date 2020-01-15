@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client.GamePrimitive;
+package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.Constants.GUIConstant;
 import com.liver_rus.Battleships.Client.GUI.SceneCoord;

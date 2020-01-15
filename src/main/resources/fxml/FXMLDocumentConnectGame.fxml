@@ -25,8 +25,8 @@
                <children>
                   <Label text="IP" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label text="Port" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <TextField fx:id="ipTextField" text="localhost" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                  <TextField fx:id="portTextField" text="2019" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                  <TextField fx:id="ipTextField" text="127.0.0.1" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <TextField fx:id="portTextField" text="10071" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                   <Button fx:id="buttonConnect" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleButtonConnect" text="Connect" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="5">
                      <GridPane.margin>
                         <Insets left="20.0" top="18.0" />

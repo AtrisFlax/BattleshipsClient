@@ -2,8 +2,8 @@ package com.liver_rus.Battleships.Client.GUI;
 
 //Class describes virtual ship for draw
 
-import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
-import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
+import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 
 public class CurrentGUIState {
     private FieldCoord fieldCoord;

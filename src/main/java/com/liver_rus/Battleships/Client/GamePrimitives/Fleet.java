@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client.GamePrimitive;
+package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
 
@@ -13,12 +13,11 @@ public class Fleet {
         fleetCounter = new FleetCounter();
     }
 
-    public void add(Ship ship) {
+    public void add(Ship ship) throws TryingAddToManyShipsOnFieldException {
         if (shipsList.size() < FleetCounter.getNumMaxShip()) {
             shipsList.add(ship);
         } else {
-            //TODO custom exception
-            throw new ArrayIndexOutOfBoundsException("Trying to add too many ships on field");
+            throw new TryingAddToManyShipsOnFieldException(shipsList.size());
         }
     }
 
@@ -63,7 +62,17 @@ public class Fleet {
         return result.toString();
     }
 
-    boolean isEmpty() {
+    public boolean isEmpty() {
         return shipsList.isEmpty();
+    }
+
+    public void printOnConsole() {
+        for (Ship ship : shipsList) {
+            ship.printOnConsole();
+        }
+    }
+
+    public FleetCounter getFleetCounter() {
+        return fleetCounter;
     }
 }

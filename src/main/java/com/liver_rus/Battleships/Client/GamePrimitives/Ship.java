@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.Client.GamePrimitive;
+package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
@@ -21,7 +21,7 @@ public class Ship {
         return new Ship(x, y, type, isHorizontal);
     }
 
-    public static Ship createShip(String shipInfo) throws IOException {
+    public static Ship createShip(String shipInfo) throws IOException, WrongShipInfoSizeException {
         if (shipInfo.length() == Constants.ShipInfoLength) {
             int x = Character.getNumericValue(shipInfo.charAt(0));
             int y = Character.getNumericValue(shipInfo.charAt(1));
@@ -29,8 +29,7 @@ public class Ship {
             boolean isHorizontal = charToIsHorizontal(shipInfo.charAt(3));
             return new Ship(x, y, type, isHorizontal);
         } else {
-            //TODO custom exception
-            throw new IOException("Not enough symbols in ship. Can't create ship");
+            throw new WrongShipInfoSizeException(shipInfo);
         }
     }
 
@@ -42,7 +41,7 @@ public class Ship {
         );
     }
 
-    public static Ship[] createShips(String[] shipsInfo) throws IOException {
+    public static Ship[] createShips(String[] shipsInfo) throws IOException, WrongShipInfoSizeException {
         if (shipsInfo.length != FleetCounter.getNumMaxShip()) {
             throw new IllegalArgumentException("Not enough symbols in ship. Can't create fleet");
         } else {
@@ -54,8 +53,7 @@ public class Ship {
         }
     }
 
-    //TODO make private constructor realization
-    public Ship(int x, int y, int shipType, boolean isHorizontal) {
+    private Ship(int x, int y, int shipType, boolean isHorizontal) {
         shipCoord = new FieldCoord[shipType + 1];
         if (isHorizontal) {
             for (int i = 0; i < shipCoord.length; i++) {
@@ -169,8 +167,8 @@ public class Ship {
     }
 
     void printOnConsole() {
-        System.out.println("x=:" + getShipStartCoord().getX() + "y=:" + getShipStartCoord().getY());
-        System.out.println(type);
+        System.out.print("x=" + getShipStartCoord().getX() + " y=" + getShipStartCoord().getY() + " ");
+        System.out.print(type + " ");
         for (FieldCoord cell : shipCoord) {
             if (!cell.getTag()) {
                 System.out.print("|#|");

@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.GamePrimitive.GameField;
+import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
 import org.junit.jupiter.api.AfterEach;
@@ -72,6 +72,17 @@ class NetworkTest {
 
     //TODO написать тест с проверкой содержимого GameField'ов
     //после отправки SEND_SHIPS,SHOT, MISS
+    /*
+    +test game server
+    приходит сообщение
+    проверяем game field как поменялся
+    написать метод служебный для полученя gamefield
+     */
+
+    /*
+    передают gameSever gamefield
+    и смотрим как gameserver себя ведет. из теста имеет доступ gameField из теста
+     */
 
 
     //тестирование заранее прописаного цикла игры с проверкой инбоксов клиентов
@@ -106,7 +117,7 @@ class NetworkTest {
             //skip fake shot (MISS_SHOT) for client2 first turn
             for (int i = SHIPS_INFO_LIMIT + 1; i < sendInfo.length; i++)
                 splitAndSend(sendInfo[i]);
-                System.out.println();
+            System.out.println();
         } else {
             for (int i = SHIPS_INFO_LIMIT; i < sendInfo.length; i++)
                 splitAndSend(sendInfo[i]);
