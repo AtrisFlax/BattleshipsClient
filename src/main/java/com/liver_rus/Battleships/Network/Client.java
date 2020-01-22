@@ -25,7 +25,7 @@ import static java.nio.channels.SelectionKey.*;
 
 public class Client implements IClient {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
-    private static final int QUEUE_SIZE = 2;
+    private static final int QUEUE_SIZE = 16;
 
     private SocketChannel channel;
     private Selector selector;
@@ -37,16 +37,22 @@ public class Client implements IClient {
     private InetAddress inetAddress;
     private int port;
 
-    public Client(String address, int port) throws IOException {
-        this.inbox = FXCollections.observableArrayList();
-        this.inetAddress = InetAddress.getByName(address);
+    /***
+     *
+     * @param ipAddress IPv4 address
+     * @param port
+     * @throws IOException
+     */
+    public Client(String ipAddress, int port) throws IOException {
+        this.inetAddress = InetAddress.getByName(ipAddress);
         this.port = port;
+        this.inbox = FXCollections.observableArrayList();
 
         channel = SocketChannel.open();
         channel.configureBlocking(false);
         selector = Selector.open();
         channel.register(selector, OP_CONNECT);
-        channel.connect(new InetSocketAddress(ServerConstants.getLocalHost(), port));
+        channel.connect(new InetSocketAddress(this.inetAddress, port));
         startClientReceiver();
     }
 
@@ -68,6 +74,8 @@ public class Client implements IClient {
     }
 
     public void sendMessage(String message) {
+        //TODO DELETE
+        System.out.println("CLIENT SEND MESSAGE =" + message);
         try {
             messageSynchronize.put(message);
             SelectionKey key = channel.keyFor(selector);

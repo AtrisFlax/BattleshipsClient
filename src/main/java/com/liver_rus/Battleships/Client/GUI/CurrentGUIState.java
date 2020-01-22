@@ -40,7 +40,7 @@ public class CurrentGUIState {
         isHorizontalShipOrientation = isHorizontal;
     }
 
-    void changeShipOrientation() {
+    public void changeShipOrientation() {
         isHorizontalShipOrientation = !isHorizontalShipOrientation;
     }
 

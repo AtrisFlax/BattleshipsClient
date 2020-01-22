@@ -17,6 +17,8 @@ class MetaInfo {
     GameField[] fields;
     boolean[] ready;
 
+    int numAcceptedConnections;
+
     MetaInfo(GameField[] fields) {
         channels = new SocketChannel[MAX_CONNECTIONS];
         this.fields = fields;
@@ -24,6 +26,7 @@ class MetaInfo {
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
             ready[i] = false;
         }
+        numAcceptedConnections = 0;
     }
 
     SocketChannel[] getChannels() {
@@ -46,8 +49,8 @@ class MetaInfo {
     }
 
     //insert only unique key
-    void put(SocketChannel key, int index) {
-        channels[index] = key;
+    void put(SocketChannel key) {
+        channels[numAcceptedConnections++] = key;
     }
 
     void swapFields() {
@@ -88,4 +91,7 @@ class MetaInfo {
         return fields;
     }
 
+    public int getNumAcceptedConnections() {
+        return numAcceptedConnections;
+    }
 }

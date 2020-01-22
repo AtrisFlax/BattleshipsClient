@@ -4,7 +4,6 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Client;
 import com.liver_rus.Battleships.Network.GameServer;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -24,6 +23,8 @@ class NetworkTest {
     Client client1;
     Client client2;
 
+    GameField[] gameFields;
+
     static final int MAX_CONNECTIONS = 2;
 
     @BeforeEach
@@ -31,18 +32,18 @@ class NetworkTest {
         int port = 10071;
         String host = "127.0.0.1";
 
-        GameField[] gameFields = new GameField[2];
+        gameFields = new GameField[2];
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
             gameFields[i] = new GameField();
         }
 
-        serverThread = new Thread(new GameServer(port, gameFields, GameServer.TurnOrder.RANDOM_TURN));
+        serverThread = new Thread(new GameServer(host, port, gameFields, GameServer.TurnOrder.RANDOM_TURN));
         serverThread.start();
 
         try {
             client1 = new Client(host, port);
             client2 = new Client(host, port);
-            Thread.sleep(500);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -50,12 +51,6 @@ class NetworkTest {
     }
 
     //TODO asserton with time out
-
-    //попробовать сделать send messege на треде теста
-    //sendMessageLatch выполнять на треде теста
-    //тест должен отрабатывать контакт
-    //сейчас кажется что sendmessga синхронный
-    //латч возможно лишний
     private void send(Client client, String msg) {
         CountDownLatch sendMessageLatch = new CountDownLatch(1);
         new Thread(() -> {
@@ -64,13 +59,14 @@ class NetworkTest {
         }).start();
         try {
             sendMessageLatch.await();
-            Thread.sleep(200);
+            //Thread.sleep(250);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    //TODO написать тест с проверкой содержимого GameField'ов
+
+
     //после отправки SEND_SHIPS,SHOT, MISS
     /*
     +test game server
@@ -111,6 +107,8 @@ class NetworkTest {
         //SEND SHIP INFO
         for (int i = 0; i < SHIPS_INFO_LIMIT; i++)
             splitAndSend(sendInfo[i]);
+        Thread.sleep(3000);
+        System.out.println("Check inbox first turn");
         //SEND SHOTS
         boolean client1FirstTurn = client1.getInbox().get(client1.getInbox().size() - 1).equals(Constants.NetworkMessage.YOU_TURN);
         if (client1FirstTurn) {
@@ -122,7 +120,7 @@ class NetworkTest {
             for (int i = SHIPS_INFO_LIMIT; i < sendInfo.length; i++)
                 splitAndSend(sendInfo[i]);
         }
-
+        System.out.println("Check inbox other turn");
         //TODO непонятен скип прописать где чего
         //CHECK INBOX
         final int SKIP_TURNS = 2;
@@ -137,13 +135,8 @@ class NetworkTest {
         }
     }
 
-    @AfterEach
-    void tearDown() {
-        log.info("tearDown");
-        serverThread.interrupt();
-    }
-
     void splitAndSend(String str) {
+        System.out.println("NETWORK TEST splitAndSend STR=" + str);
         //TODO \\s+ можно убрать. заменить на только пробельные символы
         String[] splitStr = str.split("\\s+");
         if (splitStr[0].equals("client1")) {

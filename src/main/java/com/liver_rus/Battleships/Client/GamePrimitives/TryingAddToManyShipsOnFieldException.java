@@ -8,6 +8,6 @@ public class TryingAddToManyShipsOnFieldException extends Throwable {
     }
 
     public String toString() {
-        return "Trying add to many ships. Max fleet size = " + FleetCounter.getNumMaxShip();
+        return "Trying add to many ships. Max fleet size = " + Fleet.getNumMaxShip();
     }
 }

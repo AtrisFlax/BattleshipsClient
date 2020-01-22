@@ -2,6 +2,7 @@ package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.Constants.GUIConstant;
 import com.liver_rus.Battleships.Client.GUI.SceneCoord;
+import javafx.scene.input.MouseEvent;
 
 public class FieldCoord {
     private final int x, y;
@@ -19,9 +20,9 @@ public class FieldCoord {
         this.tag = false;
     }
 
-    public FieldCoord(double sceneX, double sceneY, GUIConstant constants) {
-        this.x = SceneCoord.transformToFieldX(sceneX, constants);
-        this.y = SceneCoord.transformToFieldY(sceneY, constants);
+    public FieldCoord(MouseEvent event, GUIConstant constants) {
+        this.x = SceneCoord.transformToFieldX(event.getSceneX(), constants);
+        this.y = SceneCoord.transformToFieldY(event.getSceneY(), constants);
     }
 
     public final int getX() {
@@ -32,11 +33,11 @@ public class FieldCoord {
         return y;
     }
 
-    boolean getTag() {
+    public boolean getTag() {
         return tag;
     }
 
-    void setTag() {
+    public void setTag() {
         tag = true;
     }
 

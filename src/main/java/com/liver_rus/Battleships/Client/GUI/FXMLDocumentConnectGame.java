@@ -14,7 +14,7 @@ public class FXMLDocumentConnectGame {
     private static final Pattern IPv4Pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
     private static final int MIN_VALUE_PORT = 0;
     private static final int MAX_VALUE_PORT = 65535;
-    private static String host = null;
+    private static String ip = null;
     private static String port = null;
     private static String myName = null;
 
@@ -34,10 +34,10 @@ public class FXMLDocumentConnectGame {
     void handleButtonConnect(ActionEvent event) {
         if (portTextField.getText() != null && !portTextField.getText().isEmpty() &&
                 ipTextField.getText() != null && !ipTextField.getText().isEmpty()) {
-            host = ipTextField.getText();
+            ip = ipTextField.getText();
             port = portTextField.getText();
             myName = nameTextField.getText();
-            if (isIPAddress(host)) {
+            if (isIPAddress(ip)) {
                 if (isPort(port)) {
                     Node source = (Node) event.getSource();
                     Stage stage = (Stage) source.getScene().getWindow();
@@ -77,11 +77,11 @@ public class FXMLDocumentConnectGame {
     }
 
     String getHost() {
-        return host;
+        return ip;
     }
 
-    String getPort() {
-        return port;
+    int getPort() {
+        return Integer.parseInt(port);
     }
 
     String getMyName() {
@@ -89,8 +89,8 @@ public class FXMLDocumentConnectGame {
     }
 
     void setIPAndPortFields() {
-        if (host != null) {
-            ipTextField.setText(host);
+        if (ip != null) {
+            ipTextField.setText(ip);
         }
         if (port != null) {
             portTextField.setText(port);

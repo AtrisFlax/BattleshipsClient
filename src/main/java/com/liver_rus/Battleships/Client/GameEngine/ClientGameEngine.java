@@ -9,6 +9,7 @@ import com.liver_rus.Battleships.Client.GamePrimitives.TryingAddToManyShipsOnFie
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.lang.invoke.MethodHandles;
+import java.util.LinkedList;
 import java.util.logging.Logger;
 
 //TODO numTurn tracking, incrementing and reseting
@@ -25,6 +26,12 @@ public class ClientGameEngine {
     private FieldCoord lastMyFieldCoord;
     private FieldCoord lastEnemyFieldCoord;
 
+    private boolean isFirstChangeFieldCoordMyFIeld;
+    private boolean isFirstChangeFieldCoordEnemyField;
+
+    private boolean isNotIntersectionShipWithBorder;
+    private boolean isPossibleLocateShip;
+
     public enum Phase {
         INIT, DEPLOYING_FLEET, FLEET_IS_DEPLOYED, WAITING_ANSWER, TAKE_SHOT, MAKE_SHOT, END_GAME;
     }
@@ -39,6 +46,9 @@ public class ClientGameEngine {
 
         lastMyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
         lastEnemyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
+
+        isFirstChangeFieldCoordMyFIeld = true;
+        isFirstChangeFieldCoordEnemyField = true;
     }
 
     public CurrentGUIState getCurrentGUIState() {
@@ -49,6 +59,12 @@ public class ClientGameEngine {
         currentGUIState.setFieldCoord(fieldCoord);
         currentGUIState.setShipType(shipType);
         currentGUIState.setOrientation(isHorizontal);
+        isNotIntersectionShipWithBorder = gameField.isNotIntersectionShipWithBorder(currentGUIState);
+        if (isNotIntersectionShipWithBorder) {
+            isPossibleLocateShip = gameField.isPossibleLocateShip(currentGUIState);
+        } else {
+            isPossibleLocateShip = false;
+        }
     }
 
     public GameField getGameField() {
@@ -182,8 +198,8 @@ public class ClientGameEngine {
         return lastMyFieldCoord;
     }
 
-    public void setLastMyFieldCoord(FieldCoord lastMyFieldCoord) {
-        this.lastMyFieldCoord = lastMyFieldCoord;
+    public void setLastMyFieldCoord() {
+        this.lastMyFieldCoord = getCurrentGUIState().getFieldCoord();
     }
 
     public void setLastEnemyFieldCoord(FieldCoord lastEnemyFieldCoord) {
@@ -191,6 +207,49 @@ public class ClientGameEngine {
     }
 
     public int[] getShipsLeftByType() {
-        return gameField.getFleet().getFleetCounter().getShipsLeftByType();
+        return gameField.getFleet().getShipsLeftByType();
     }
+
+    public boolean isNotAllShipsDeployed() {
+        return getGameField().getFleet().getShipsLeft() >= 0;
+    }
+
+    public boolean NoMoreShipLeft() {
+        return getGameField().getFleet().getShipsLeft() == 0;
+    }
+
+
+    public void changeShipOrientation() {
+        getCurrentGUIState().changeShipOrientation();
+    }
+
+    public boolean isNotIntersectionShipWithBorder() {
+        return isNotIntersectionShipWithBorder;
+    }
+
+    public boolean isPossibleLocateShip() {
+        return isPossibleLocateShip;
+    }
+
+    public LinkedList<Ship> getShips() {
+        return gameField.getFleet().getShips();
+    }
+
+    public boolean isFirstChangeFieldCoordMyField() {
+        return isFirstChangeFieldCoordMyFIeld;
+    }
+
+    public void setIsFirstChangeFieldCoordMyField(boolean isFirstChange) {
+        isFirstChangeFieldCoordMyFIeld = isFirstChange;
+    }
+
+    public boolean isFirstChangeFieldCoordEnemyField() {
+        return isFirstChangeFieldCoordEnemyField;
+    }
+
+    public void setFirstChangeFieldCoordEnemyField(boolean firstChangeFieldCoordEnemyFIeld) {
+        isFirstChangeFieldCoordEnemyField = firstChangeFieldCoordEnemyFIeld;
+    }
+
+
 }

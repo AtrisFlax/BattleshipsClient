@@ -42,7 +42,7 @@ public class Ship {
     }
 
     public static Ship[] createShips(String[] shipsInfo) throws IOException, WrongShipInfoSizeException {
-        if (shipsInfo.length != FleetCounter.getNumMaxShip()) {
+        if (shipsInfo.length != Fleet.getNumMaxShip()) {
             throw new IllegalArgumentException("Not enough symbols in ship. Can't create fleet");
         } else {
             Ship[] ships = new Ship[shipsInfo.length];

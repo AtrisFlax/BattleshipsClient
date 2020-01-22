@@ -8,6 +8,7 @@ import com.liver_rus.Battleships.Client.GamePrimitives.WrongShipInfoSizeExceptio
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
@@ -59,16 +60,20 @@ public class GameServer implements Runnable, IGameServer {
     private SocketChannel turnHolder;
 
     private final static int MAX_CONNECTIONS = ServerGameEngine.maxPlayers();
-    private int numAcceptedConnections = 0;
 
     private MetaInfo metaInfo;
+    private InetAddress inetAddress;
     private int port;
-
     private TurnOrder turnOrder;
 
-    public GameServer(int port) throws IOException {
+    public GameServer(String ipAddress, int port) throws IOException {
+        this.inetAddress = InetAddress.getByName(ipAddress);
         this.port = port;
-        metaInfo = new MetaInfo(new GameField[MAX_CONNECTIONS]);
+        GameField[] fields = new GameField[MAX_CONNECTIONS];
+        for (int i = 0; i < fields.length; i++) {
+            fields[i] = new GameField();
+        }
+        metaInfo = new MetaInfo(fields);
         turnOrder = TurnOrder.RANDOM_TURN;
         configureServer();
     }
@@ -82,8 +87,9 @@ public class GameServer implements Runnable, IGameServer {
      * @throws IOException
      */
 
-    public GameServer(int port, GameField[] injectGameFields, TurnOrder turnOrder) throws IOException {
+    public GameServer(String ipAddress, int port, GameField[] injectGameFields, TurnOrder turnOrder) throws IOException {
         this.port = port;
+        this.inetAddress = InetAddress.getByName(ipAddress);
         if (injectGameFields.length != MAX_CONNECTIONS) {
             //TODO create custom exception
             throw new IllegalArgumentException("GameServer constructor accepted gameFields with invalid length. Valid" +
@@ -144,7 +150,6 @@ public class GameServer implements Runnable, IGameServer {
         return metaInfo.getFields();
     }
 
-
     public String toString() {
         return "Server in port:" + ServerConstants.getDefaultPort();
     }
@@ -152,8 +157,7 @@ public class GameServer implements Runnable, IGameServer {
     private void configureServer() throws IOException {
         serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
-        InetSocketAddress inetSocketAddress = new InetSocketAddress(ServerConstants.getLocalHost(), port);
-        serverChannel.socket().bind(inetSocketAddress);
+        serverChannel.socket().bind(new InetSocketAddress(inetAddress, port));
         selector = SelectorProvider.provider().openSelector();
         serverChannel.register(selector, OP_ACCEPT);
         gameEngine = new ServerGameEngine();
@@ -161,19 +165,20 @@ public class GameServer implements Runnable, IGameServer {
 
     private void acceptConnection(SelectionKey key) throws IOException {
         SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();
-        if (numAcceptedConnections < MAX_CONNECTIONS) {
+        if (metaInfo.getNumAcceptedConnections() < MAX_CONNECTIONS) {
             String port = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
             socketChannel.configureBlocking(false);
             socketChannel.register(selector, SelectionKey.OP_READ, port);
             log.info("accepted connection from: " + port);
-            metaInfo.put(socketChannel, numAcceptedConnections);
-            numAcceptedConnections++;
+            metaInfo.put(socketChannel);
         } else {
             String msg = "too many connections. Max connections =" + MAX_CONNECTIONS;
             log.info(msg);
             sendMessage(socketChannel, msg);
             socketChannel.close();
         }
+        //TODO delete
+        System.out.println("acceptConnection channel= " + socketChannel);
     }
 
     /**
@@ -200,12 +205,17 @@ public class GameServer implements Runnable, IGameServer {
                     }
                 }
             } catch (Exception e) {
-                try {
-                    serverChannel.close();
-                } catch (IOException ignored) {
-
-                }
+                log.info("Server Error:" + e);
+                closeServerChannel();
             }
+        }
+    }
+
+    private void closeServerChannel() {
+        try {
+            serverChannel.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
     }
 
@@ -234,11 +244,11 @@ public class GameServer implements Runnable, IGameServer {
         } else {
             message = messageBuilder.toString();
         }
-
         proceedMessage(socketChannel, message);
     }
 
     private void proceedMessage(SocketChannel channel , String message) throws IOException {
+        System.out.println("SERVER GET MESSAGE=" + message + " FROM CHANNEL=" + channel);
         checkDisconnect(message);
         gameEngineProceed(channel, message);;
         sendAnswer(channel, message);
@@ -286,6 +296,7 @@ public class GameServer implements Runnable, IGameServer {
             }
         }
         if (gameEngine.isFirstTurn() && isReadyBothChannel()) {
+            System.out.println("isReadyBothChannel");
             log.info("Server: Both clients ready to game");
             gameEngine.setFirstTurn(false);
             metaInfo.swapFields();

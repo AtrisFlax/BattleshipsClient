@@ -2,6 +2,8 @@ package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
 
+import java.util.Arrays;
+
 /**
  * Класс игрового поле с фикированным размером размером 10x10
  */
@@ -21,13 +23,6 @@ public class GameField {
         initField();
     }
 
-    public GameField(Ship[] ships) {
-        this();
-        for (Ship ship : ships) {
-            addShip(ship);
-        }
-    }
-
     public void addShip(Ship ship) {
         markFieldCellsByShip(ship);
         try {
@@ -35,11 +30,6 @@ public class GameField {
         } catch (TryingAddToManyShipsOnFieldException e) {
             e.printStackTrace();
         }
-    }
-
-    public void clear() {
-        fleet.clear();
-        initField();
     }
 
     public Fleet getFleet() {
@@ -113,37 +103,33 @@ public class GameField {
         FieldCoord coord = currentGUIState.getFieldCoord();
         Ship.Type shipType = currentGUIState.getShipType();
         boolean isHorizontal = currentGUIState.isHorizontalOrientation();
-        boolean isPossibleLocateShipFlag = true;
-        int x = coord.getX() + 1;
-        int y = coord.getY() + 1;
+        int x = coord.getX();
+        int y = coord.getY();
         int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
         if (isHorizontal) {
-            for (int i = x; i < x + shipTypeInt + 1; i++) {
-                if (field[i][y] == Cell.SHIP ||
-                        field[i][y] == Cell.NEAR_WITH_SHIP) {
-                    isPossibleLocateShipFlag = false;
-                    break;
+            for (int i = x; i < x + shipTypeInt; i++) {
+                if (field[i][y] == Cell.SHIP || field[i][y] == Cell.NEAR_WITH_SHIP) {
+                    return false;
+
                 }
             }
         } else {
-            for (int i = y; i < y + shipTypeInt + 1; i++) {
-                if (field[x][i] == Cell.SHIP ||
-                        field[x][i] == Cell.NEAR_WITH_SHIP) {
-                    isPossibleLocateShipFlag = false;
-                    break;
+            for (int i = y; i < y + shipTypeInt; i++) {
+                if (field[x][i] == Cell.SHIP || field[x][i] == Cell.NEAR_WITH_SHIP) {
+                    return false;
                 }
             }
         }
-        return isPossibleLocateShipFlag;
+        return true;
     }
 
     public boolean isNotIntersectionShipWithBorder(CurrentGUIState currentGUIState) {
-        FieldCoord coord = currentGUIState.getFieldCoord();
-        Ship.Type shipType = currentGUIState.getShipType();
+        int x = currentGUIState.getFieldCoord().getX();
+        int y = currentGUIState.getFieldCoord().getY();
+        if (x < 0 || x >= FIELD_SIZE) return false;
+        if (y < 0 || y >= FIELD_SIZE) return false;
+        int shipTypeInt = Ship.Type.shipTypeToInt(currentGUIState.getShipType());
         boolean isHorizontal = currentGUIState.isHorizontalOrientation();
-        int shipTypeInt = Ship.Type.shipTypeToInt(shipType);
-        int x = coord.getX();
-        int y = coord.getY();
         if (isHorizontal) {
             return x + shipTypeInt < FIELD_SIZE;
         } else {
@@ -220,5 +206,22 @@ public class GameField {
                 }
             }
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GameField gameField = (GameField) o;
+
+        if (!Arrays.deepEquals(field, gameField.field)) return false;
+        return fleet.equals(gameField.fleet);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.deepHashCode(field);
+        result = 31 * result + fleet.hashCode();
+        return result;
     }
 }

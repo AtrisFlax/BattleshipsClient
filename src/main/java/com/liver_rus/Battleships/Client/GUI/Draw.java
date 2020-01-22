@@ -30,11 +30,11 @@ class Draw {
     }
 
     static void ShipOnMyField(GraphicsContext gc, CurrentGUIState currentGUIState) {
-        ShipOnField(gc, FirstPlayerGUIConstants.getGUIConstant(),
-                currentGUIState.getFieldCoord().getX(),
-                currentGUIState.getFieldCoord().getY(),
-                Ship.Type.shipTypeToInt(currentGUIState.getShipType()),
-                currentGUIState.isHorizontalOrientation());
+        int x = currentGUIState.getFieldCoord().getX();
+        int y = currentGUIState.getFieldCoord().getY();
+        int shipLength = convertTypeToShipLength(currentGUIState.getShipType());
+        boolean isHorizontal = currentGUIState.isHorizontalOrientation();
+        ShipOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), x, y, shipLength, isHorizontal);
     }
 
     //draw ship frame

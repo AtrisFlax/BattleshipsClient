@@ -1,7 +1,5 @@
 package com.liver_rus.Battleships.Client.Constants;
 
-//TODO GUI <=> newtork interface
-
 public class Constants {
     public static class Window {
         public final static int WIDTH = 700;
