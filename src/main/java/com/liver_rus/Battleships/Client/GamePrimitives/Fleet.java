@@ -19,11 +19,11 @@ public class Fleet {
         left = NUM_MAX_SHIPS;
     }
 
-    public void add(Ship ship) throws TryingAddToManyShipsOnFieldException {
+    public void add(Ship ship) throws TryingAddTooManyShipsOnFieldException {
         if (shipsList.size() < NUM_MAX_SHIPS) {
             shipsList.add(ship);
         } else {
-            throw new TryingAddToManyShipsOnFieldException(shipsList.size());
+            throw new TryingAddTooManyShipsOnFieldException(shipsList.size());
         }
     }
 
@@ -108,4 +108,23 @@ public class Fleet {
         return NUM_MAX_SHIPS;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Fleet fleet = (Fleet) o;
+
+        if (left != fleet.left) return false;
+        if (!Arrays.equals(ships, fleet.ships)) return false;
+        return shipsList.equals(fleet.shipsList);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(ships);
+        result = 31 * result + left;
+        result = 31 * result + shipsList.hashCode();
+        return result;
+    }
 }

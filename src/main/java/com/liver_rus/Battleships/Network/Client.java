@@ -53,7 +53,9 @@ public class Client implements IClient {
         selector = Selector.open();
         channel.register(selector, OP_CONNECT);
         channel.connect(new InetSocketAddress(this.inetAddress, port));
-        startClientReceiver();
+
+        clientReceiver = new ReceiveThread(channel, inbox);
+        clientReceiver.start();
     }
 
     public InetAddress getInetAddress() {
@@ -74,8 +76,6 @@ public class Client implements IClient {
     }
 
     public void sendMessage(String message) {
-        //TODO DELETE
-        System.out.println("CLIENT SEND MESSAGE =" + message);
         try {
             messageSynchronize.put(message);
             SelectionKey key = channel.keyFor(selector);
@@ -100,9 +100,9 @@ public class Client implements IClient {
         return inbox;
     }
 
-    private void startClientReceiver() {
-        clientReceiver = new ReceiveThread(channel, inbox);
-        clientReceiver.start();
+
+    public void clearInbox() {
+        inbox.clear();
     }
 
     private class ReceiveThread extends Thread {

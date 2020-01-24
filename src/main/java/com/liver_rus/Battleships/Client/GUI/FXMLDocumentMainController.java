@@ -207,19 +207,19 @@ public class FXMLDocumentMainController implements Initializable {
 
     //auto deployment for debug
     public void debugShipsDeployment() {
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(1, 8), Ship.Type.SUBMARINE, true));
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(3, 2), Ship.Type.SUBMARINE, true));
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(1, 1), Ship.Type.DESTROYER, false));
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(3, 4), Ship.Type.DESTROYER, true));
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(2, 6), Ship.Type.CRUISER, true));
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, false));
-        gameEngine.addShipOnField(Ship.createShip(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, false));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(1, 8), Ship.Type.SUBMARINE, true));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(3, 2), Ship.Type.SUBMARINE, true));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(1, 1), Ship.Type.DESTROYER, false));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(3, 4), Ship.Type.DESTROYER, true));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(2, 6), Ship.Type.CRUISER, true));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(7, 4), Ship.Type.BATTLESHIP, false));
+        gameEngine.addShipOnField(Ship.create(new FieldCoord(9, 1), Ship.Type.AIRCRAFT_CARRIER, false));
         for (Ship ship : gameEngine.getShips()) {
             Draw.ShipOnMyField(mainCanvas, ship);
         }
         gameEngine.setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
         gameEngine.getGameField().printOnConsole();
-        network.sendMessage(Constants.NetworkMessage.SEND_SHIPS + gameEngine.getShipsInfoForSend());
+        network.sendMessage(gameEngine.getShipsInfoForSend());
         resetFleetButton.setDisable(true);
         labelGameStatus.setText("Fleet is deployed. Waiting for second player");
     }
@@ -241,7 +241,7 @@ public class FXMLDocumentMainController implements Initializable {
         if (isShipSelectedAndNotAllDeployed(event)) {
             resetFleetButton.setDisable(false);
             if (isPoissibleLocateShipAndNotAllShipsDeployed()) {
-                gameEngine.addShipOnField(Ship.createShip(gameEngine.getCurrentGUIState()));
+                gameEngine.addShipOnField(Ship.create(gameEngine.getCurrentGUIState()));
                 Draw.ShipOnMyField(mainCanvas, gameEngine.getCurrentGUIState());
                 gameEngine.setShipSelected(false);
             }
@@ -273,7 +273,7 @@ public class FXMLDocumentMainController implements Initializable {
     private void checkAndSetFleetIsDeployed() {
         if (!gameEngine.isShipSelected() && gameEngine.NoMoreShipLeft()) {
             gameEngine.setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-            network.sendMessage(Constants.NetworkMessage.SEND_SHIPS + gameEngine.getShipsInfoForSend());
+            network.sendMessage(gameEngine.getShipsInfoForSend());
             resetFleetButton.setDisable(true);
             labelGameStatus.setText("Fleet is deployed. Waiting for second player...");
         }
@@ -320,7 +320,7 @@ public class FXMLDocumentMainController implements Initializable {
             if (gameEngine.getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
                 Ship ship = null;
                 try {
-                    ship = Ship.createShip(message.replace(Constants.NetworkMessage.DESTROYED, ""));
+                    ship = Ship.create(message.replace(Constants.NetworkMessage.DESTROYED, ""));
 
                 } catch (WrongShipInfoSizeException | IOException e) {
                     e.printStackTrace();

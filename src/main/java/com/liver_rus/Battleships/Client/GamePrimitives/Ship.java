@@ -4,6 +4,7 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
 
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Класс Ship содержащий инормацию о расположении коробля(коррдинатах, ориентации и типе) в игровом поле GameField
@@ -14,14 +15,18 @@ public class Ship {
     private boolean isHorizontalOrientation;
     private Type type;
 
-    public static Ship createShip(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
+    public static Ship create(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
         int type = Ship.Type.shipTypeToInt(shipType);
         return new Ship(x, y, type, isHorizontal);
     }
 
-    public static Ship createShip(String shipInfo) throws IOException, WrongShipInfoSizeException {
+    //shipInfo format - XYZO
+    //XY - x,y coordiate from 0 to 9
+    //Z - type from 0 to 4
+    //O - letter 'H' or 'V'
+    public static Ship create(String shipInfo) throws IOException, WrongShipInfoSizeException {
         if (shipInfo.length() == Constants.ShipInfoLength) {
             int x = Character.getNumericValue(shipInfo.charAt(0));
             int y = Character.getNumericValue(shipInfo.charAt(1));
@@ -33,8 +38,8 @@ public class Ship {
         }
     }
 
-    public static Ship createShip(CurrentGUIState currentGUIState) {
-        return createShip(
+    public static Ship create(CurrentGUIState currentGUIState) {
+        return create(
                 currentGUIState.getFieldCoord(),
                 currentGUIState.getShipType(),
                 currentGUIState.isHorizontalOrientation()
@@ -47,26 +52,12 @@ public class Ship {
         } else {
             Ship[] ships = new Ship[shipsInfo.length];
             for (int i = 0; i < shipsInfo.length; i++) {
-                ships[i] = Ship.createShip(shipsInfo[i]);
+                ships[i] = Ship.create(shipsInfo[i]);
             }
             return ships;
         }
     }
 
-    private Ship(int x, int y, int shipType, boolean isHorizontal) {
-        shipCoord = new FieldCoord[shipType + 1];
-        if (isHorizontal) {
-            for (int i = 0; i < shipCoord.length; i++) {
-                shipCoord[i] = new FieldCoord(x + i, y);
-            }
-        } else {
-            for (int i = 0; i < shipCoord.length; i++) {
-                shipCoord[i] = new FieldCoord(x, y + i);
-            }
-        }
-        isHorizontalOrientation = isHorizontal;
-        type = Type.shipIntToType(shipType);
-    }
 
     public enum Type {
         AIRCRAFT_CARRIER(4),
@@ -146,6 +137,33 @@ public class Ship {
         return type;
     }
 
+    private Ship(int x, int y, int shipType, boolean isHorizontal) {
+        checkBounce(x, y, shipType, isHorizontal);
+
+        shipCoord = new FieldCoord[shipType + 1];
+        if (isHorizontal) {
+            for (int i = 0; i < shipCoord.length; i++) {
+                shipCoord[i] = new FieldCoord(x + i, y);
+            }
+        } else {
+            for (int i = 0; i < shipCoord.length; i++) {
+                shipCoord[i] = new FieldCoord(x, y + i);
+            }
+        }
+        isHorizontalOrientation = isHorizontal;
+        type = Type.shipIntToType(shipType);
+    }
+
+    private void checkBounce(int x, int y, int shipType, boolean isHorizontal) {
+        if (isHorizontal) {
+            if (x + shipType >= GameField.FIELD_SIZE)
+                throw new IllegalArgumentException("Trying create ship out of field bounce");
+        } else {
+            if (y + shipType >= GameField.FIELD_SIZE)
+                throw new IllegalArgumentException("Trying create ship out of field bounce");
+        }
+    }
+
     private static boolean charToIsHorizontal(char c) throws IOException {
         if (c == 'H') {
             return true;
@@ -178,5 +196,25 @@ public class Ship {
             System.out.print(" ");
         }
         System.out.println();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Ship ship = (Ship) o;
+
+        if (isHorizontalOrientation != ship.isHorizontalOrientation) return false;
+        if (!Arrays.equals(shipCoord, ship.shipCoord)) return false;
+        return type == ship.type;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(shipCoord);
+        result = 31 * result + (isHorizontalOrientation ? 1 : 0);
+        result = 31 * result + type.hashCode();
+        return result;
     }
 }

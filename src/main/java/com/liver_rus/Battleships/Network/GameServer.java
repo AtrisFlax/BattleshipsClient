@@ -23,24 +23,8 @@ import java.util.logging.Logger;
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
-/*
-скрипт который пакует в jar и работает ли на разных машинах
-
-
- */
-
-/*
-научится деплоить скриптами
-bash скрипт для этого
-(любая среда для запуска linux команд
-
-в папочку ложим сгенированый jar
-
-
-ide делать артефакт? (но делаем на билд сервер (скрипт))
- */
-
 public class GameServer implements Runnable, IGameServer {
+
     public enum TurnOrder {
         FIRST_CONNECTED,
         SECOND_CONNECTED,
@@ -64,7 +48,8 @@ public class GameServer implements Runnable, IGameServer {
     private MetaInfo metaInfo;
     private InetAddress inetAddress;
     private int port;
-    private TurnOrder turnOrder;
+
+    private TurnOrder initTurnOrder;
 
     public GameServer(String ipAddress, int port) throws IOException {
         this.inetAddress = InetAddress.getByName(ipAddress);
@@ -74,7 +59,7 @@ public class GameServer implements Runnable, IGameServer {
             fields[i] = new GameField();
         }
         metaInfo = new MetaInfo(fields);
-        turnOrder = TurnOrder.RANDOM_TURN;
+        initTurnOrder = TurnOrder.RANDOM_TURN;
         configureServer();
     }
 
@@ -83,11 +68,10 @@ public class GameServer implements Runnable, IGameServer {
      *
      * @param port             server port
      * @param injectGameFields injected game primitives
-     * @param turnOrder        determinate whose turn is the first
      * @throws IOException
      */
 
-    public GameServer(String ipAddress, int port, GameField[] injectGameFields, TurnOrder turnOrder) throws IOException {
+    public GameServer(String ipAddress, int port, GameField[] injectGameFields) throws IOException {
         this.port = port;
         this.inetAddress = InetAddress.getByName(ipAddress);
         if (injectGameFields.length != MAX_CONNECTIONS) {
@@ -97,7 +81,7 @@ public class GameServer implements Runnable, IGameServer {
         } else {
             metaInfo = new MetaInfo(injectGameFields);
         }
-        this.turnOrder = turnOrder;
+        this.initTurnOrder = TurnOrder.RANDOM_TURN;
         configureServer();
     }
 
@@ -154,6 +138,18 @@ public class GameServer implements Runnable, IGameServer {
         return "Server in port:" + ServerConstants.getDefaultPort();
     }
 
+    public void setTurnOrder(TurnOrder turnOrder) {
+        this.initTurnOrder = turnOrder;
+    }
+
+    //TODO reset server
+    //reset game state. not connection
+    public void reset() {
+        metaInfo.reset();
+        gameEngine = new ServerGameEngine();
+        setTurnOrder(TurnOrder.RANDOM_TURN);
+    }
+
     private void configureServer() throws IOException {
         serverChannel = ServerSocketChannel.open();
         serverChannel.configureBlocking(false);
@@ -177,8 +173,6 @@ public class GameServer implements Runnable, IGameServer {
             sendMessage(socketChannel, msg);
             socketChannel.close();
         }
-        //TODO delete
-        System.out.println("acceptConnection channel= " + socketChannel);
     }
 
     /**
@@ -248,7 +242,7 @@ public class GameServer implements Runnable, IGameServer {
     }
 
     private void proceedMessage(SocketChannel channel , String message) throws IOException {
-        System.out.println("SERVER GET MESSAGE=" + message + " FROM CHANNEL=" + channel);
+        //System.out.println("SERVER GET MESSAGE=" + message + " FROM CHANNEL=" + channel);
         checkDisconnect(message);
         gameEngineProceed(channel, message);;
         sendAnswer(channel, message);
@@ -258,20 +252,14 @@ public class GameServer implements Runnable, IGameServer {
         if (message.equals(Constants.NetworkMessage.DISCONNECT)) {
             log.info("Connection closed upon one's client request");
             sendAllClients(message);
-            resetServerGameState();
-            return;
+            reset();
         }
     }
 
     private void gameEngineProceed(SocketChannel channel, String message) throws IOException {
         try {
             if (message.startsWith(Constants.NetworkMessage.SEND_SHIPS)) {
-                String[] shipsInfo = MessageProcessor.splitToShipInfo(message);
-                Ship[] ships = Ship.createShips(shipsInfo);
-                GameField field = metaInfo.getField(channel);
-                for (Ship ship : ships) {
-                    field.addShip(ship);
-                }
+                addShipsOnField(metaInfo.getField(channel), message);
                 metaInfo.setReady(channel);
             }
         } catch (IOException | WrongShipInfoSizeException ex) {
@@ -284,82 +272,99 @@ public class GameServer implements Runnable, IGameServer {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 //get and mark on enemy field
                 GameField field = metaInfo.getField(channel);
-                field.setCellAsDamaged(shootCoord);
-                if (field.isCellDamaged(shootCoord)) {
-                    Ship ship = field.getFleet().findShip(shootCoord);
-                    ship.tagShipCell(shootCoord);
-                    if (field.isShipsDestroyed()) {
-                        gameEngine.setGamePhase(ServerGameEngine.Phase.END_GAME);
-                    }
+                Ship ship = field.getFleet().findShip(shootCoord);
+                field.shoot(shootCoord);
+                if (ship != null && !ship.isAlive()) {
+                    gameEngine.setDestroyedShip(ship);
                 }
                 return;
             }
         }
         if (gameEngine.isFirstTurn() && isReadyBothChannel()) {
-            System.out.println("isReadyBothChannel");
-            log.info("Server: Both clients ready to game");
-            gameEngine.setFirstTurn(false);
-            metaInfo.swapFields();
-            switch (turnOrder) {
-                case FIRST_CONNECTED:
-                    turnHolder = metaInfo.getFirstConnectedPlayerChannel();
-                    break;
-                case SECOND_CONNECTED:
-                    turnHolder = metaInfo.getSecondConnectedPlayerChannel();
-                    break;
-                case RANDOM_TURN:
-                    turnHolder = randomConnection();
-                    break;
-            }
-            sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
-            sendAnotherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
-            gameEngine.setReadyForBroadcast(true);
-            return;
+            sendStartGameForClients();
+        }
+    }
+
+    private void sendStartGameForClients() throws IOException {
+        log.info("Server: Both clients ready to game");
+        gameEngine.setFirstTurn(false);
+        metaInfo.swapFields();
+        setFirstTurnHolder();
+        sendMessage(turnHolder, Constants.NetworkMessage.YOU_TURN);
+        sendAnotherClient(turnHolder, Constants.NetworkMessage.ENEMY_TURN);
+        gameEngine.setReadyForBroadcast(true);
+    }
+
+    private void setFirstTurnHolder() {
+        switch (initTurnOrder) {
+            case FIRST_CONNECTED:
+                turnHolder = metaInfo.getFirstConnectedPlayerChannel();
+                break;
+            case SECOND_CONNECTED:
+                turnHolder = metaInfo.getSecondConnectedPlayerChannel();
+                break;
+            case RANDOM_TURN:
+                turnHolder = randomConnection();
+                break;
+        }
+    }
+
+    private void addShipsOnField(GameField field, String message) throws IOException, WrongShipInfoSizeException {
+        String[] shipsInfo = MessageProcessor.splitToShipInfo(message);
+        Ship[] ships = Ship.createShips(shipsInfo);
+        for (Ship ship : ships) {
+            field.addShip(ship);
         }
     }
 
     private void sendAnswer(SocketChannel channel, String message) throws IOException {
         if (gameEngine.isBroadcastEnabled() && turnHolder == channel) {
-            //SHOTXX
             if (message.startsWith(Constants.NetworkMessage.SHOT)) {
                 FieldCoord shootCoord = MessageProcessor.getShootCoordFromMessage(message);
                 GameField field = metaInfo.getField(channel);
                 if (field.isCellDamaged(shootCoord)) {
-                    //field.printOnConsole();
-                    Ship ship = field.getFleet().findShip(shootCoord);
-                    sendAllClients(Constants.NetworkMessage.HIT + shootCoord);
-                    if (!ship.isAlive()) {
-                        sendAllClients(Constants.NetworkMessage.DESTROYED + ship.toString());
-                        //update ships list
-                        field.updateShipList();
-                    }
-                    if (field.isShipsDestroyed()) {
-                        sendMessage(channel, Constants.NetworkMessage.YOU_WIN);
-                        sendAnotherClient(channel, Constants.NetworkMessage.YOU_LOSE);
-                    } else {
-                        sendMessage(channel, Constants.NetworkMessage.YOU_TURN);
-                        sendAnotherClient(channel, Constants.NetworkMessage.ENEMY_TURN);
-                    }
+                    sendHit(channel, shootCoord, field);
                 } else {
-                    sendAllClients(Constants.NetworkMessage.MISS + shootCoord);
-                    sendMessage(channel, Constants.NetworkMessage.ENEMY_TURN);
-                    turnHolder = sendAnotherClient(channel, Constants.NetworkMessage.YOU_TURN);
+                    sendMiss(channel, shootCoord);
                 }
             }
         }
+    }
+
+    private void sendHit(SocketChannel channel, FieldCoord shootCoord, GameField field) throws IOException {
+        sendAllClients(Constants.NetworkMessage.HIT + shootCoord);
+        checkAndSendShipDestruction();
+        checkAndSendFleetDestruction(channel, field);
+    }
+
+    private void checkAndSendFleetDestruction(SocketChannel channel, GameField field) throws IOException {
+        if (field.allShipsDestroyed()) {
+            sendMessage(channel, Constants.NetworkMessage.YOU_WIN);
+            sendAnotherClient(channel, Constants.NetworkMessage.YOU_LOSE);
+        } else {
+            sendMessage(channel, Constants.NetworkMessage.YOU_TURN);
+            sendAnotherClient(channel, Constants.NetworkMessage.ENEMY_TURN);
+        }
+    }
+
+    private void checkAndSendShipDestruction() throws IOException {
+        Ship destroyedShip = gameEngine.getDestroyedShip();
+        if(destroyedShip != null) {
+            sendAllClients(Constants.NetworkMessage.DESTROYED + destroyedShip);
+            gameEngine.setDestroyedShip(null);
+        }
+    }
+
+    private void sendMiss(SocketChannel channel, FieldCoord shootCoord) throws IOException {
+        sendAllClients(Constants.NetworkMessage.MISS + shootCoord);
+        sendMessage(channel, Constants.NetworkMessage.ENEMY_TURN);
+        turnHolder = sendAnotherClient(channel, Constants.NetworkMessage.YOU_TURN);
     }
 
     private SocketChannel randomConnection() {
         int randID = new Random(System.currentTimeMillis()).nextInt(MAX_CONNECTIONS);
         SocketChannel[] channels = metaInfo.getChannels();
         return channels[randID];
-    }
-
-    //TODO normal state server tracking
-    private void resetServerGameState() {
-        metaInfo = new MetaInfo(new GameField[MAX_CONNECTIONS]);
-        gameEngine.setFirstTurn(true);
-        gameEngine.setReadyForBroadcast(false);
     }
 
     private boolean isReadyBothChannel() {

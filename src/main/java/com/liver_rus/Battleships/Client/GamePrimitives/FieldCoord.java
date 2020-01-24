@@ -15,6 +15,11 @@ public class FieldCoord {
     }
 
     public FieldCoord(int x, int y) {
+        if (x < 0 || x >= GameField.FIELD_SIZE)
+            throw new IllegalArgumentException("x should be x>=0 and x< "+ GameField.FIELD_SIZE + " Real x=" + x);
+        if (y < 0 || y >= GameField.FIELD_SIZE)
+            throw new IllegalArgumentException("y should be y>=0 and y< "+ GameField.FIELD_SIZE + " Real y=" + y);
+
         this.x = x;
         this.y = y;
         this.tag = false;
@@ -59,7 +64,7 @@ public class FieldCoord {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         FieldCoord that = (FieldCoord) o;
-        return x != that.x || y != that.y;
+        return x == that.x && y == that.y;
     }
 
     @Override

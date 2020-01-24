@@ -12,16 +12,20 @@ class MetaInfo {
 
     private final static int MAX_CONNECTIONS = ServerGameEngine.maxPlayers();
 
-    SocketChannel[] channels;
-
+    //after accepting SEND_SHIPS message fields should be swapped
     GameField[] fields;
+    SocketChannel[] channels;
     boolean[] ready;
-
     int numAcceptedConnections;
 
-    MetaInfo(GameField[] fields) {
-        channels = new SocketChannel[MAX_CONNECTIONS];
+    /**
+     *
+     * @param fields injected game fields. Max size 2
+     */
+    public MetaInfo(GameField[] fields) {
+        if (fields.length != 2) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
         this.fields = fields;
+        channels = new SocketChannel[MAX_CONNECTIONS];
         ready = new boolean[MAX_CONNECTIONS];
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
             ready[i] = false;
@@ -29,11 +33,11 @@ class MetaInfo {
         numAcceptedConnections = 0;
     }
 
-    SocketChannel[] getChannels() {
+    public SocketChannel[] getChannels() {
         return channels;
     }
 
-    GameField getField(SocketChannel key) {
+    public GameField getField(SocketChannel key) {
         GameField result = null;
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
             if (key == channels[i]) {
@@ -44,16 +48,19 @@ class MetaInfo {
         return result;
     }
 
-    SocketChannel getKey(int i) {
+    public SocketChannel getChannel(int i) {
         return channels[i];
     }
 
     //insert only unique key
-    void put(SocketChannel key) {
+    public void put(SocketChannel key) {
         channels[numAcceptedConnections++] = key;
     }
 
-    void swapFields() {
+    //swap game fields before shooting
+    //player0 now shoot to player1 field
+    //player1 now shoot to player0 field
+    public void swapFields() {
         GameField temp = fields[0];
         fields[0] = fields[1];
         fields[1] = temp;
@@ -93,5 +100,16 @@ class MetaInfo {
 
     public int getNumAcceptedConnections() {
         return numAcceptedConnections;
+    }
+
+    public void reset() {
+        for (GameField field : fields) {
+            field.reset();
+        }
+        //swap back
+        swapFields();
+        for (int i = 0; i < MAX_CONNECTIONS; i++) {
+            ready[i] = false;
+        }
     }
 }

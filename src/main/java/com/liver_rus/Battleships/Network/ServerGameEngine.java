@@ -1,19 +1,18 @@
 package com.liver_rus.Battleships.Network;
 
+import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+
 class ServerGameEngine {
     private static final int MAX_PLAYERS = 2;
-    private Phase gamePhase;
-    private boolean isReadyForBroadcast = false;
 
+    private boolean isReadyForBroadcast;
     private boolean isFirstTurn;
-
-    enum Phase {
-        INIT, END_GAME;
-    }
+    Ship destroyedShip;
 
     ServerGameEngine() {
-        setGamePhase(Phase.INIT);
+        isReadyForBroadcast = false;
         isFirstTurn = true;
+        destroyedShip = null;
     }
 
     boolean isBroadcastEnabled() {
@@ -22,14 +21,6 @@ class ServerGameEngine {
 
     void setReadyForBroadcast(boolean readyForBroadcast) {
         isReadyForBroadcast = readyForBroadcast;
-    }
-
-    final public Phase getGamePhase() {
-        return gamePhase;
-    }
-
-    void setGamePhase(Phase gamePhase) {
-        this.gamePhase = gamePhase;
     }
 
     static int maxPlayers() {
@@ -42,5 +33,13 @@ class ServerGameEngine {
 
     void setFirstTurn(boolean firstTurn) {
         isFirstTurn = firstTurn;
+    }
+
+    public Ship getDestroyedShip() {
+        return destroyedShip;
+    }
+
+    public void setDestroyedShip(Ship destroyedShip) {
+        this.destroyedShip = destroyedShip;
     }
 }

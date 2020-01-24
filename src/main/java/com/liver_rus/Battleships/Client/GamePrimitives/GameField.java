@@ -9,7 +9,7 @@ import java.util.Arrays;
  */
 
 public class GameField {
-    private static final int FIELD_SIZE = 10;
+    public static final int FIELD_SIZE = 10;
     private Cell[][] field;
     private Fleet fleet;
 
@@ -19,15 +19,19 @@ public class GameField {
 
     public GameField() {
         fleet = new Fleet();
+        field = createField();
+    }
+
+    public void reset() {
+        fleet = new Fleet();
         field = new Cell[FIELD_SIZE][FIELD_SIZE];
-        initField();
     }
 
     public void addShip(Ship ship) {
         markFieldCellsByShip(ship);
         try {
             getFleet().add(ship);
-        } catch (TryingAddToManyShipsOnFieldException e) {
+        } catch (TryingAddTooManyShipsOnFieldException e) {
             e.printStackTrace();
         }
     }
@@ -63,17 +67,7 @@ public class GameField {
     }
 
     //Возвращает ture, если все корабли уничтожены(игра закончена)
-    public void updateShipList() {
-        for (Ship ship : fleet.getShipsOnField()) {
-            if (!ship.isAlive()) {
-                fleet.remove(ship);
-                return;
-            }
-        }
-    }
-
-    //Возвращает ture, если все корабли уничтожены(игра закончена)
-    public boolean isShipsDestroyed() {
+    public boolean allShipsDestroyed() {
         for (Ship ship : fleet.getShipsOnField()) {
             if (ship.isAlive()) {
                 return false;
@@ -82,7 +76,22 @@ public class GameField {
         return true;
     }
 
-    public void setCellAsDamaged(FieldCoord fieldCoord) {
+    public void shoot(FieldCoord fieldCoord) {
+        markField(fieldCoord);
+        markShip(fieldCoord);
+    }
+
+    private void markShip(FieldCoord fieldCoord) {
+        Ship ship = fleet.findShip(fieldCoord);
+        if (isCellDamaged(fieldCoord)) {
+            ship.tagShipCell(fieldCoord);
+        }
+        if (ship!= null && !ship.isAlive()) {
+            fleet.remove(ship);
+        }
+    }
+
+    private void markField(FieldCoord fieldCoord) {
         int x = fieldCoord.getX();
         int y = fieldCoord.getY();
         if (field[x][y] == Cell.SHIP) {
@@ -165,6 +174,17 @@ public class GameField {
         getFleet().printOnConsole();
     }
 
+    private static Cell[][] createField() {
+        Cell[][] gameField = new Cell[FIELD_SIZE][FIELD_SIZE];
+        for (int i = 0; i < FIELD_SIZE; i++) {
+            for (int j = 0; j < FIELD_SIZE; j++) {
+                gameField[j][i] = Cell.CLEAR;
+            }
+        }
+        return gameField;
+    }
+
+
     private void setCellAsShip(int x, int y) {
         field[x][y] = Cell.SHIP;
     }
@@ -172,14 +192,6 @@ public class GameField {
     private void setCellAsNearWithShip(int x, int y) {
         if (x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE) {
             field[x][y] = Cell.NEAR_WITH_SHIP;
-        }
-    }
-
-    private void initField(){
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            for (int j = 0; j < FIELD_SIZE; j++) {
-                field[j][i] = Cell.CLEAR;
-            }
         }
     }
 

@@ -5,7 +5,7 @@ import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
 import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
 import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
-import com.liver_rus.Battleships.Client.GamePrimitives.TryingAddToManyShipsOnFieldException;
+import com.liver_rus.Battleships.Client.GamePrimitives.TryingAddTooManyShipsOnFieldException;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 
 import java.lang.invoke.MethodHandles;
@@ -72,11 +72,10 @@ public class ClientGameEngine {
     }
 
     public String getShipsInfoForSend() {
-        return gameField.getFleet().toString();
+        return Constants.NetworkMessage.SEND_SHIPS + gameField.getFleet().toString();
     }
 
     public void setGamePhase(Phase phase) {
-        System.out.println("Phase has been changed to " + phase);
         this.gamePhase = phase;
     }
 
@@ -139,7 +138,7 @@ public class ClientGameEngine {
     public void addShipOnField(Ship ship) {
         try {
             gameField.getFleet().add(ship);
-        } catch (TryingAddToManyShipsOnFieldException e) {
+        } catch (TryingAddTooManyShipsOnFieldException e) {
             e.printStackTrace();
         }
         gameField.markFieldCellsByShip(ship);
