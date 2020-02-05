@@ -31,5 +31,4 @@ public class Constants {
 
     public final static int ShipInfoLength = 4;
 
-    public final static int NONE_SELECTED_FIELD_COORD = -1;
 }

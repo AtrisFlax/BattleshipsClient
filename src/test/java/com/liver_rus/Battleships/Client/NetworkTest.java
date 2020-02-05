@@ -193,7 +193,7 @@ class NetworkTest {
 
     @AfterEach
     void reset() {
-        log.info("Reset server state between tests");
+        log.info("Reset server state");
         gameServer.reset();
         client1.clearInbox();
         client2.clearInbox();
@@ -225,7 +225,6 @@ class NetworkTest {
         fields[1] = temp;
     }
 
-    //TODO asserton with time out
     private void send(Client client, String msg) {
         CountDownLatch sendMessageLatch = new CountDownLatch(1);
         new Thread(() -> {

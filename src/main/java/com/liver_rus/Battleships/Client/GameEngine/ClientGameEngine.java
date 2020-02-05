@@ -44,8 +44,8 @@ public class ClientGameEngine {
         shootCoord = null;
         currentGUIState = new CurrentGUIState();
 
-        lastMyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
-        lastEnemyFieldCoord = new FieldCoord((byte) Constants.NONE_SELECTED_FIELD_COORD, (byte) Constants.NONE_SELECTED_FIELD_COORD);
+        lastMyFieldCoord = null;
+        lastEnemyFieldCoord = null;
 
         isFirstChangeFieldCoordMyFIeld = true;
         isFirstChangeFieldCoordEnemyField = true;
