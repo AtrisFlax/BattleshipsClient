@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client.GamePrimitives;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.GUI.CurrentGUIState;
+import com.liver_rus.Battleships.Client.GUI.GUIState;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -15,9 +15,7 @@ public class Ship {
     private boolean isHorizontalOrientation;
     private Type type;
 
-    public static Ship create(FieldCoord fieldCoord, Ship.Type shipType, boolean isHorizontal) {
-        int x = fieldCoord.getX();
-        int y = fieldCoord.getY();
+    public static Ship create(int x, int y, Ship.Type shipType, boolean isHorizontal) {
         int type = Ship.Type.shipTypeToInt(shipType);
         return new Ship(x, y, type, isHorizontal);
     }
@@ -38,12 +36,8 @@ public class Ship {
         }
     }
 
-    public static Ship create(CurrentGUIState currentGUIState) {
-        return create(
-                currentGUIState.getFieldCoord(),
-                currentGUIState.getShipType(),
-                currentGUIState.isHorizontalOrientation()
-        );
+    public static Ship create(GUIState state) {
+        return create(state.getX(), state.getY(), state.getShipType(), state.isHorizontalOrientation());
     }
 
     public static Ship[] createShips(String[] shipsInfo) throws IOException, WrongShipInfoSizeException {
@@ -78,7 +72,7 @@ public class Ship {
             return type.value;
         }
 
-        static Type shipIntToType(int intType) {
+        public static Type shipIntToType(int intType) {
             switch (intType) {
                 case 4:
                     return AIRCRAFT_CARRIER;
@@ -104,11 +98,11 @@ public class Ship {
         return shipCoord[0];
     }
 
-    public void tagShipCell(FieldCoord coord) {
+    public void tagShipCell(int x, int y) {
         if (isHorizontalOrientation) {
-            this.shipCoord[coord.getX() - shipCoord[0].getX()].setTag();
+            this.shipCoord[x - shipCoord[0].getX()].setTag();
         } else {
-            this.shipCoord[coord.getY() - shipCoord[0].getY()].setTag();
+            this.shipCoord[y - shipCoord[0].getY()].setTag();
         }
     }
 
@@ -164,14 +158,14 @@ public class Ship {
         }
     }
 
-    private static boolean charToIsHorizontal(char c) throws IOException {
+    public static boolean charToIsHorizontal(char c) throws IOException {
         if (c == 'H') {
             return true;
         } else {
             if (c == 'V') {
                 return false;
             } else {
-                throw new IOException();
+                throw new IOException("Wrong Char in orientation ship string definition!");
             }
         }
     }

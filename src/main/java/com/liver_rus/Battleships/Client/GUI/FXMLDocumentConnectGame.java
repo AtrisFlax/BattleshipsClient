@@ -14,9 +14,10 @@ public class FXMLDocumentConnectGame {
     private static final Pattern IPv4Pattern = Pattern.compile("^(([01]?\\d\\d?|2[0-4]\\d|25[0-5])\\.){3}([01]?\\d\\d?|2[0-4]\\d|25[0-5])$");
     private static final int MIN_VALUE_PORT = 0;
     private static final int MAX_VALUE_PORT = 65535;
-    private static String ip = null;
-    private static String port = null;
-    private static String myName = null;
+    private static String ip;
+    private static String port;
+    private static String myName;
+    private boolean isStartClient;
 
     @FXML
     private TextField portTextField;
@@ -32,46 +33,20 @@ public class FXMLDocumentConnectGame {
 
     @FXML
     void handleButtonConnect(ActionEvent event) {
-        if (portTextField.getText() != null && !portTextField.getText().isEmpty() &&
-                ipTextField.getText() != null && !ipTextField.getText().isEmpty()) {
-            ip = ipTextField.getText();
-            port = portTextField.getText();
-            myName = nameTextField.getText();
-            if (isIPAddress(ip)) {
-                if (isPort(port)) {
-                    Node source = (Node) event.getSource();
-                    Stage stage = (Stage) source.getScene().getWindow();
-                    stage.close();
-                } else {
-                    Alert alert = new Alert(Alert.AlertType.WARNING);
-                    alert.setTitle("Not Port");
-                    alert.setHeaderText("Input port");
-                    alert.setContentText("");
-                    alert.showAndWait();
-                    if (isMyName(myName)) {
-                        Node source = (Node) event.getSource();
-                        Stage stage = (Stage) source.getScene().getWindow();
-                        stage.close();
-                    } else {
-                        Alert alertName = new Alert(Alert.AlertType.WARNING);
-                        alertName.setTitle("Empty Name");
-                        alertName.setHeaderText("Enter Name");
-                        alertName.setContentText("");
-                        alertName.showAndWait();
-                    }
-                }
-            } else {
-                Alert alert = new Alert(Alert.AlertType.WARNING);
-                alert.setTitle("Not valid IP");
-                alert.setHeaderText("Input Valid ip");
-                alert.setContentText("");
-                alert.showAndWait();
-            }
+        isStartClient = false;
+        ip = ipTextField.getText();
+        port = portTextField.getText();
+        myName = nameTextField.getText();
+        if (isIPAddress(ip) && isPort(port)) {
+            isStartClient = true;
+            Node source = (Node) event.getSource();
+            Stage stage = (Stage) source.getScene().getWindow();
+            stage.close();
         } else {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Empty Field");
-            alert.setHeaderText("Wrong value");
-            alert.setContentText("Input IP address and Pass");
+            alert.setTitle("Invalid pair IP and Port");
+            alert.setHeaderText("Check IP address and Port");
+            alert.setContentText("");
             alert.showAndWait();
         }
     }
@@ -105,6 +80,10 @@ public class FXMLDocumentConnectGame {
         return checkBox.isSelected();
     }
 
+    boolean isStartClient() {
+        return isStartClient;
+    }
+
     private static boolean isNumeric(String strNum) {
         boolean isNum = true;
         try {
@@ -127,10 +106,6 @@ public class FXMLDocumentConnectGame {
         } else {
             return false;
         }
-    }
-
-    private static boolean isMyName(String str) {
-        return (!str.equals(""));
     }
 
     private static boolean isIPAddress(final String ip) {

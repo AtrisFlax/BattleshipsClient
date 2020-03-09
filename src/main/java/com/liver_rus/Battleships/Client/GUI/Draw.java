@@ -1,86 +1,54 @@
 package com.liver_rus.Battleships.Client.GUI;
 
-import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.Constants.GUIConstant;
-import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
+import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.Constants.GUIConstants;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-class Draw {
-    static void MissCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
-        MissCellOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), fieldCoord);
-    }
+public class Draw {
 
-    static void MissCellOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord) {
-        MissCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), fieldCoord);
-    }
+    private final static int CELL_LINE_WIDTH = 2;
+    private final static int SHIP_LINE_WIDTH = 2;
+    private final static Color MISS_CELL_COLOR = Color.BLACK;
+    private final static Color HIT_CELL_COLOR = Color.BLACK;
 
-    static void HitCellOnMyField(GraphicsContext gc, FieldCoord fieldCoord) {
-        HitCellOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), fieldCoord);
-    }
+    private Draw() {}
 
-    static void HitCellOnEnemyField(GraphicsContext gc, FieldCoord fieldCoord) {
-        HitCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), fieldCoord);
-    }
-
-    static void ShipOnMyField(GraphicsContext gc, Ship ship) {
-        ShipOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), ship);
-    }
-
-    static void ShipOnMyField(GraphicsContext gc, CurrentGUIState currentGUIState) {
-        int x = currentGUIState.getFieldCoord().getX();
-        int y = currentGUIState.getFieldCoord().getY();
-        int shipLength = convertTypeToShipLength(currentGUIState.getShipType());
-        boolean isHorizontal = currentGUIState.isHorizontalOrientation();
-        ShipOnField(gc, FirstPlayerGUIConstants.getGUIConstant(), x, y, shipLength, isHorizontal);
-    }
-
-    //draw ship frame
-    static void ShipOnEnemyField(GraphicsContext gc, Ship ship) {
-        ShipOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), ship);
-    }
-
-    private static void MissCellOnField(GraphicsContext graphicContext, GUIConstant constants, FieldCoord fieldCoord) {
-        int x = fieldCoord.getX();
-        int y = fieldCoord.getY();
+    public static void MissCellOnField(GraphicsContext graphicContext, GUIConstants constants, int x, int y) {
         double width = constants.getWidthCell();
-        graphicContext.setStroke(Color.BLACK);
-        graphicContext.setLineWidth(2);
-        graphicContext.strokeLine(x * width + constants.getLeftX(),
+        graphicContext.setStroke(MISS_CELL_COLOR);
+        graphicContext.setLineWidth(CELL_LINE_WIDTH);
+        graphicContext.strokeLine(
+                x * width + constants.getLeftX(),
                 y * width + constants.getTopY() + width,
                 x * width + constants.getLeftX() + width,
                 y * width + constants.getTopY());
     }
 
-    private static void HitCellOnField(GraphicsContext gc, GUIConstant constants, FieldCoord fieldCoord) {
-        int x = fieldCoord.getX();
-        int y = fieldCoord.getY();
+    public static void HitCellOnField(GraphicsContext gc, GUIConstants constants, int x, int y) {
         double width = constants.getWidthCell();
-        gc.setStroke(Color.BLACK);
-        gc.setLineWidth(2);
-        gc.strokeLine(x * width + constants.getLeftX(),
+        gc.setStroke(HIT_CELL_COLOR);
+        gc.setLineWidth(CELL_LINE_WIDTH);
+        gc.strokeLine(
+                x * width + constants.getLeftX(),
                 y * width + constants.getTopY(),
                 x * width + constants.getLeftX() + width,
-                y * width + constants.getTopY() + width);
-        gc.strokeLine(x * width + constants.getLeftX(),
+                y * width + constants.getTopY() + width
+        );
+        gc.strokeLine(
+                x * width + constants.getLeftX(),
                 y * width + constants.getTopY() + width,
                 x * width + constants.getLeftX() + width,
-                y * width + constants.getTopY());
+                y * width + constants.getTopY()
+        );
     }
 
-    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, Ship ship) {
-        int x = ship.getShipStartCoord().getX();
-        int y = ship.getShipStartCoord().getY();
-        int shipLength = convertTypeToShipLength(ship.getType());
-        boolean isHorizontal = ship.isHorizontal();
-        ShipOnField(gc, constants, x, y, shipLength, isHorizontal);
-    }
-
-    private static void ShipOnField(GraphicsContext gc, GUIConstant constants, int x, int y, int shipLength, boolean isHorizontal) {
+    public static void ShipOnField(GraphicsContext gc, Color shipColor, GUIConstants constants,
+                                   int x, int y, int shipLength, boolean isHorizontal) {
+        gc.setStroke(shipColor);
+        gc.setLineWidth(SHIP_LINE_WIDTH);
         if (isHorizontal) {
-            //horizontal
             gc.strokeRect(
                     constants.getLeftX() + x * constants.getWidthCell(),
                     constants.getTopY() + y * constants.getWidthCell(),
@@ -88,7 +56,6 @@ class Draw {
                     constants.getWidthCell()
             );
         } else {
-            //vertical
             gc.strokeRect(
                     constants.getLeftX() + x * constants.getWidthCell(),
                     constants.getTopY() + y * constants.getWidthCell(),
@@ -98,14 +65,22 @@ class Draw {
         }
     }
 
-    /**
-     * @param type
-     * @return linear conversion type to ship length
-     * ship with type N has length N + 1
-     */
-    private static int convertTypeToShipLength(Ship.Type type) {
+    public static int convertTypeToShipLength(Ship.Type type) {
         return Ship.Type.shipTypeToInt(type) + 1;
     }
+
+    public static void clearCanvas(GraphicsContext context) {
+        context.clearRect(0, 0, Constants.Window.WIDTH, Constants.Window.HEIGHT);
+    }
+
+    public static Color setColorForDrawShip(boolean isDeployable) {
+        if (isDeployable) {
+            return Color.BLACK;
+        } else {
+            return Color.RED;
+        }
+    }
+
 }
 
 

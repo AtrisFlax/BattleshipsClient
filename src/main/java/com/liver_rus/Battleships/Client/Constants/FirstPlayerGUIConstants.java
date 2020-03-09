@@ -1,10 +1,10 @@
 package com.liver_rus.Battleships.Client.Constants;
 
-public class FirstPlayerGUIConstants implements GUIConstant {
+public class FirstPlayerGUIConstants implements GUIConstants {
     private final static int LEFT_X = 65;
-    private final static int RIGHT_X = 301;
-    private final static int TOP_Y = 133;
-    private final static int BOTTOM_Y = 386;
+    private final static int RIGHT_X = 299; //+1
+    private final static int TOP_Y = 130;
+    private final static int BOTTOM_Y = 364; //+1
     private final static double WIDTH_CELL = 23.5;
 
     private static FirstPlayerGUIConstants instance;

@@ -12,7 +12,7 @@ public class Constants {
         public final static String ABOUT_GAME_TEXT = "Info2";
     }
 
-    public static class NetworkMessage {
+    public static class NetworkCommand {
         public final static String DESTROYED = "DESTROYED";
         public final static String SHOT = "SHOT";
         public final static String HIT = "HIT";

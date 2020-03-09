@@ -6,9 +6,12 @@ import java.util.Arrays;
 import java.util.LinkedList;
 
 public class Fleet {
-    static private final int NUM_MAX_SHIPS = Arrays.stream(shipsBuilder()).sum();
-
     private int[] ships;
+    //amount ships by type                 {4, 3, 2, 1, 0}
+    private final static int[] initShips = {2, 2, 1, 1, 1};
+
+    private static final int NUM_MAX_SHIPS = Arrays.stream(initShips).sum();
+
     private int left;
 
     private LinkedList<Ship> shipsList;
@@ -31,10 +34,10 @@ public class Fleet {
         return shipsList;
     }
 
-    public Ship findShip(FieldCoord shipCoord) {
+    public Ship findShip(int x, int y) {
         for (Ship ship : shipsList) {
             for (FieldCoord coord : ship.getShipCoords()) {
-                if (coord.getX() == shipCoord.getX() && coord.getY() == shipCoord.getY()) {
+                if (coord.getX() == x && coord.getY() == y) {
                     return ship;
                 }
             }
@@ -65,7 +68,7 @@ public class Fleet {
     public String toString() {
         StringBuilder result = new StringBuilder();
         for (Ship ship : shipsList) {
-            result.append(ship).append(Constants.NetworkMessage.SPLIT_SYMBOL);
+            result.append(ship).append(Constants.NetworkCommand.SPLIT_SYMBOL);
         }
         return result.toString();
     }
@@ -84,9 +87,13 @@ public class Fleet {
         return shipsList;
     }
 
-    //amount ships by type
+
     private static int[] shipsBuilder() {
-        return new int[]{2, 2, 1, 1, 1};
+        return Arrays.copyOf(initShips, initShips.length);
+    }
+
+    public static int[] initShipsLeftByType() {
+        return initShips;
     }
 
     /**

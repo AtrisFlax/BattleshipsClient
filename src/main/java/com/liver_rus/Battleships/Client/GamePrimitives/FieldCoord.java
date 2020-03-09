@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.Client.GamePrimitives;
 
-import com.liver_rus.Battleships.Client.Constants.GUIConstant;
+import com.liver_rus.Battleships.Client.Constants.GUIConstants;
 import com.liver_rus.Battleships.Client.GUI.SceneCoord;
 import javafx.scene.input.MouseEvent;
 
@@ -8,24 +8,20 @@ public class FieldCoord {
     private final int x, y;
     private boolean tag;
 
-    public FieldCoord() {
-        this.x = 0;
-        this.y = 0;
-        this.tag = false;
-    }
-
     public FieldCoord(int x, int y) {
         if (x < 0 || x >= GameField.FIELD_SIZE)
-            throw new IllegalArgumentException("x should be x>=0 and x< "+ GameField.FIELD_SIZE + " Real x=" + x);
+            throw new IllegalArgumentException("x should be x>=0 and x<"+ GameField.FIELD_SIZE + " Real x=" + x);
         if (y < 0 || y >= GameField.FIELD_SIZE)
-            throw new IllegalArgumentException("y should be y>=0 and y< "+ GameField.FIELD_SIZE + " Real y=" + y);
+            throw new IllegalArgumentException("y should be y>=0 and y<"+ GameField.FIELD_SIZE + " Real y=" + y);
 
         this.x = x;
         this.y = y;
         this.tag = false;
     }
 
-    public FieldCoord(MouseEvent event, GUIConstant constants) {
+
+    //TODO SceneCoord Game field cut relation
+    public FieldCoord(MouseEvent event, GUIConstants constants) {
         this.x = SceneCoord.transformToFieldX(event.getSceneX(), constants);
         this.y = SceneCoord.transformToFieldY(event.getSceneY(), constants);
     }
@@ -49,14 +45,6 @@ public class FieldCoord {
     @Override
     public String toString() {
         return Integer.toString(x) + y;
-    }
-
-    //Char + Num format A1
-    public String toGameFormat() {
-        int tmpX = x + 1;
-        int tmpY = y + 1;
-        String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char) (tmpY + 'A' - 1)) : null;
-        return strY + tmpX;
     }
 
     @Override
