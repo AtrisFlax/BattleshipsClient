@@ -1,19 +1,21 @@
 package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.*;
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.GUIState;
-import com.liver_rus.Battleships.Client.GUI.NetworkEvent.*;
 import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Client.GamePrimitives.TryingAddTooManyShipsOnFieldException;
+import com.liver_rus.Battleships.Client.GamePrimitives.WrongShipInfoSizeException;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
 import com.liver_rus.Battleships.Network.Client.MailBox;
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
+import com.liver_rus.Battleships.Network.Server.GameServerThread;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandles;
 import java.util.LinkedList;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -21,13 +23,12 @@ import java.util.logging.Logger;
 public class ClientGameEngine implements ClientActions {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
+    private GameField gameField;
     private Phase gamePhase;
 
-
-    //TODO перенести в серверную часть состояние
-    GameField gameField;
-
     private MailBox netClient;
+    private GameServerThread netServer;
+
     private FXMLDocumentMainController controller;
 
     public enum Phase {
@@ -44,32 +45,84 @@ public class ClientGameEngine implements ClientActions {
     public void tryDeployShip(GUIState state) {
         if (isNotAllShipsDeployed() && isPossibleLocateShip(state)) {
             addShipOnField(Ship.create(state));
-            controller.draw(new RenderDrawShip(state));
-            controller.unlockDeploying();
+            controller.drawDeployedShipOnMyField(state);
         }
         //Fleet deployed. Send player is ready
         checkAndSetFleetIsDeployed();
     }
 
     @Override
-    public void disconnect() {
-        netClient.disconnect();
-        netClient = null;
+    public void disconnect() throws IOException {
+        if (gameField != null) {
+            netClient.disconnect();
+            netClient = null;
+
+            //TODO в disconnect
+//            if (netClient.isRunning()) {
+//                netClient.stopThread();
+//            }
+        }
+        if (netServer != null) {
+            if (netServer.isRunning()) {
+                netServer.stopThread();
+            }
+        }
+        gameField = new GameField();
         controller.reset("Disconnect from server");
     }
 
     @Override
-    public void startNetwork(String ip, int port, String myName) {
-        netClient = NetworkClient.create(ip, port);
-        netClient.subscribeForInbox((message) -> {
-            log.info("NetworkClient inbox message =" + message);
-            proceedMessage(message);
-        });
-        setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
-        controller.setStartDeployingFleetInfo(myName);
-        //auto deployment ships for debug
-        //TODO <<+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG
-        //debugShipsDeployment();
+    public void startNetwork(String ip, int port, boolean startServer, String myName) {
+        if (ip != null && port != 0) {
+            //create server
+            if (startServer) {
+                //TODO some magic
+                //TODO убрать проверку на null (возможет ли тут null)
+                if (netServer == null) {
+                    try {
+                        //TODO создать фабричный метод
+                        netServer = new GameServerThread(ip, port);
+                        netServer.start();
+                    } catch (IOException e) {
+                        controller.reset("Couldn't create server");
+                        e.printStackTrace();
+                    }
+
+                } else {
+                    netServer.startThread();
+                }
+            }
+            //create client
+            try {
+                //TODO убрать проверку на null (возможет ли тут null)
+                if (netClient == null) {
+                    //TODO точно знает какой экземпляр будет создаваться
+                    //TODO создать фабричный метод
+                    //ClientFabric.create(ip,port)
+                    netClient = new NetworkClient(ip, port);
+                    netClient.subscribeForInbox((message) -> {
+                        log.info("NetworkClient inbox message " + message);
+                        try {
+                            proceedMessage(message);
+                        } catch (WrongShipInfoSizeException e) {
+                            System.out.println("Exception during proceedMessage(message);");
+                            e.printStackTrace();
+                        }
+                    });
+
+                } else {
+                    netClient.startThread();
+                }
+
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "Fail to make connection", e);
+            }
+            setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
+            controller.setStartDeployingFleetInfo(myName);
+            //auto deployment ships for debug
+            //TODO <<+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG
+            debugShipsDeployment();
+        }
     }
 
     @Override
@@ -86,11 +139,17 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void fleetDeploying(GUIState state) {
+    public void changeShipOrientation(GUIState state) {
+        if (gameField.isNotIntersectionShipWithBorder(state)) {
+            controller.redrawShipWithChangeOrientation(state);
+        }
+    }
+
+    @Override
+    public void fleetDeploying(GUIState currentGUIState) {
         if (getGamePhase() == Phase.DEPLOYING_FLEET) {
-            if (gameField.isNotIntersectionShipWithBorder(state)) {
-                boolean isNotIntersection = gameField.isNotIntersetionWithShips(state);
-                controller.redraw(new RenderRedrawShip(state, isNotIntersection));
+            if (gameField.isNotIntersectionShipWithBorder(currentGUIState)) {
+                controller.drawDeployingShip(currentGUIState, gameField.isNotIntersetionWithShips(currentGUIState));
             }
         }
     }
@@ -98,7 +157,7 @@ public class ClientGameEngine implements ClientActions {
     @Override
     public void mouseMovedInsideSecondPlayerField(int x, int y) {
         if (getGamePhase() == Phase.MAKE_SHOT) {
-            controller.redraw(new RenderRedrawHitEnemyEvent(x, y));
+            controller.drawHitMarkOnEnemyField(x, y);
         }
     }
 
@@ -107,9 +166,15 @@ public class ClientGameEngine implements ClientActions {
         if (getGamePhase() == Phase.MAKE_SHOT) {
             netClient.sendMessage(Constants.NetworkCommand.SHOT + x + y);
             setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
-            controller.draw(new RenderMissEnemyEvent(x, y));
+            controller.drawMissOnEnemyField(x, y);
         }
     }
+
+    @Override
+    public GameField getGameField() {
+        return gameField;
+    }
+
 
     //TODO здесь серюлизация стратегия!!!
     @Override
@@ -153,46 +218,52 @@ public class ClientGameEngine implements ClientActions {
         gameField.markFieldCellsByShip(ship);
     }
 
+    private void proceedMessage(String msg) throws WrongShipInfoSizeException {
+        final int UNDEFINED_COORD = -1;
+        int x = UNDEFINED_COORD;
+        int y = UNDEFINED_COORD;
+        if (msg.startsWith(Constants.NetworkCommand.HIT) ||
+                msg.startsWith(Constants.NetworkCommand.MISS) ||
+                msg.startsWith(Constants.NetworkCommand.DESTROYED)
+        ) {
+            String msgCoord = msg.replaceAll("\\D+", "");
+            x = MessageProcessor.getX(msgCoord);
+            y = MessageProcessor.getY(msgCoord);
+        }
 
-    //TODO ???????????? interface cast ok   ????????????
-    private void proceedMessage(String msg) {
-        NetworkEvent networkEvent = CreatorNetworkEvent.deserializeMessage(msg);
-        if (networkEvent instanceof NetworkEventHit) {
+
+        //TODO отдельный класс ser\deserl
+        //пре sederl comand + argX + argY (будет в разных местах! пока не думать)
+        //стратегия???
+        if (msg.startsWith(Constants.NetworkCommand.HIT)) {
             if (getGamePhase() == Phase.WAITING_ANSWER) {
-
-                controller.draw(new RenderHitEnemyEvent((XYGettable) networkEvent));
+                controller.drawHitOnEnemyField(x, y);
+                //конвертор строчки в gui event
+                //if (event != null) {
+                //controller.draw(event)
+                //}
+                controller.drawHitOnEnemyField(/*diseralization event*/);
             }
             if (getGamePhase() == Phase.TAKE_SHOT) {
-                controller.draw(new RenderHitMeEvent((XYGettable) networkEvent));
+                controller.drawHitOnMyField(x, y);
             }
         }
-
-        if (networkEvent instanceof NetworkEventMiss) {
+        if (msg.startsWith(Constants.NetworkCommand.MISS)) {
             if (getGamePhase() == Phase.TAKE_SHOT) {
-                controller.draw(new RenderMissEnemyEvent((XYGettable) networkEvent));
+                controller.drawMissOnMyField(x, y);
             }
         }
-
-        if (networkEvent instanceof NetworkEventDestroyed) {
+        if (msg.startsWith(Constants.NetworkCommand.DESTROYED)) {
             if (getGamePhase() == Phase.WAITING_ANSWER) {
-                controller.draw(new RenderDestroyEnemyShip((NetworkEventDestroyed) networkEvent));
+                GUIState shipInfo = GUIState.create(msg.replace(Constants.NetworkCommand.DESTROYED, ""));
+                controller.drawShipOnEnemyField(shipInfo);
+                controller.drawHitOnMyField(x, y);
             }
-        }
-
-        if (networkEvent instanceof NetworkEventYouTurn) {
-            setGamePhase(Phase.MAKE_SHOT);
-        }
-
-        if (networkEvent instanceof NetworkEventEnemyTurn) {
-            setGamePhase(Phase.TAKE_SHOT);
-        }
-
-        if (networkEvent instanceof NetworkEventYouWin || networkEvent instanceof NetworkEventYouLose) {
-            setGamePhase(Phase.END_GAME);
         }
 
         switch (msg) {
             case Constants.NetworkCommand.YOU_TURN:
+                setGamePhase(Phase.MAKE_SHOT);
                 break;
             case Constants.NetworkCommand.ENEMY_TURN:
                 setGamePhase(Phase.TAKE_SHOT);
@@ -203,9 +274,7 @@ public class ClientGameEngine implements ClientActions {
                 break;
         }
 
-
-        controller.setInfo(generalInfoFromMsg(networkEvent), convertInboxToReadableView(networkEvent));
-
+        controller.setInfo(generalInfoFromMsg(msg), convertInboxToReadableView(msg, x, y));
     }
 
     @Override
@@ -229,21 +298,21 @@ public class ClientGameEngine implements ClientActions {
     }
 
     //debug method
-//    public void debugShipsDeployment() {
-//        addShipOnField(Ship.create(1, 8, Ship.Type.SUBMARINE, true));
-//        addShipOnField(Ship.create(3, 2, Ship.Type.SUBMARINE, true));
-//        addShipOnField(Ship.create(1, 1, Ship.Type.DESTROYER, false));
-//        addShipOnField(Ship.create(3, 4, Ship.Type.DESTROYER, true));
-//        addShipOnField(Ship.create(2, 6, Ship.Type.CRUISER, true));
-//        addShipOnField(Ship.create(7, 4, Ship.Type.BATTLESHIP, false));
-//        addShipOnField(Ship.create(9, 1, Ship.Type.AIRCRAFT_CARRIER, false));
-//        for (Ship ship : getShips()) {
-//            controller.drawMyShip(ship);
-//        }
-//        setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-//        getGameField().printOnConsole();
-//        netClient.sendMessage(getShipsInfoForSend());
-//    }
+    public void debugShipsDeployment() {
+        addShipOnField(Ship.create(1, 8, Ship.Type.SUBMARINE, true));
+        addShipOnField(Ship.create(3, 2, Ship.Type.SUBMARINE, true));
+        addShipOnField(Ship.create(1, 1, Ship.Type.DESTROYER, false));
+        addShipOnField(Ship.create(3, 4, Ship.Type.DESTROYER, true));
+        addShipOnField(Ship.create(2, 6, Ship.Type.CRUISER, true));
+        addShipOnField(Ship.create(7, 4, Ship.Type.BATTLESHIP, false));
+        addShipOnField(Ship.create(9, 1, Ship.Type.AIRCRAFT_CARRIER, false));
+        for (Ship ship : getShips()) {
+            controller.drawMyShip(ship);
+        }
+        setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
+        getGameField().printOnConsole();
+        netClient.sendMessage(getShipsInfoForSend());
+    }
 
     private boolean isPossibleLocateShip(GUIState state) {
         return gameField.isNotIntersetionWithShips(state) && gameField.isNotIntersectionShipWithBorder(state);
@@ -253,34 +322,28 @@ public class ClientGameEngine implements ClientActions {
         if (noMoreShipLeft()) {
             setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
             netClient.sendMessage(getShipsInfoForSend());
-            controller.setLockGUI();
+            controller.setInfoAndLockGUI();
         }
     }
 
-
-    //TODO simplify method
-    private String convertInboxToReadableView(NetworkEvent event) {
-        if (event instanceof NetworkEventHit) {
+    private String convertInboxToReadableView(String message, int x, int y) {
+        if (message.startsWith(Constants.NetworkCommand.HIT)) {
             if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " Enemy Ship has Hit";
+                return MessageProcessor.XYtoGameFormat(x, y) + " Enemy Ship has Hit";
             }
             if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " You Ship has Hit";
+                return MessageProcessor.XYtoGameFormat(x, y) + " You Ship has Hit";
             }
         }
-        if (event instanceof NetworkEventMiss) {
+        if (message.startsWith(Constants.NetworkCommand.MISS)) {
             if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " You Missed";
+                return MessageProcessor.XYtoGameFormat(x, y) + " You Missed";
             }
             if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " Enemy Missed";
+                return MessageProcessor.XYtoGameFormat(x, y) + " Enemy Missed";
             }
         }
-        if (event instanceof NetworkEventDestroyed) {
+        if (message.startsWith(Constants.NetworkCommand.DESTROYED)) {
             if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
                 return "You Destroy Enemy Ship";
             }
@@ -289,33 +352,22 @@ public class ClientGameEngine implements ClientActions {
                 return "Enemy Destroy Your Ship";
             }
         }
-        if (event instanceof NetworkEventDisconnect) {
+        if (message.startsWith(Constants.NetworkCommand.DISCONNECT)) {
             return "Disconnect";
         }
-        return "";
+        return message;
     }
 
-
-    private String generalInfoFromMsg(NetworkEvent event) {
-        if (event instanceof NetworkEventYouTurn) {
-            return "You turn. Make shoot";
+    private String generalInfoFromMsg(String message) {
+        switch (message) {
+            case Constants.NetworkCommand.YOU_TURN:   return "You turn. Make shoot";
+            case Constants.NetworkCommand.ENEMY_TURN: return "Enemy turn. Waiting...";
+            case Constants.NetworkCommand.YOU_WIN:    return "You Win";
+            case Constants.NetworkCommand.YOU_LOSE:   return "You Lose";
+            case Constants.NetworkCommand.DISCONNECT: return "Disconnect";
+            default:                                  return "";
+            //TODO Player name exchange
         }
-        if (event instanceof NetworkEventEnemyTurn) {
-            return "Enemy turn. Waiting...";
-        }
-        if (event instanceof NetworkEventYouWin) {
-            return "You Win";
-        }
-        if (event instanceof NetworkEventYouLose) {
-            return "You Lose";
-        }
-        if (event instanceof NetworkEventDisconnect) {
-            return "Disconnect";
-        }
-        if (event instanceof NetworkEventUnknown) {
-            return "";
-        }
-        return "";
     }
 }
 

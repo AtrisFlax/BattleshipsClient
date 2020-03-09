@@ -64,6 +64,7 @@ public class GUIState {
         this.y = y;
     }
 
+
     public Ship.Type getShipType() {
         return shipType;
     }
@@ -72,7 +73,7 @@ public class GUIState {
         this.shipType = shipType;
     }
 
-    public boolean isHorizontalOrientation() {
+    public final boolean isHorizontalOrientation() {
         return isHorizontalShipOrientation;
     }
 

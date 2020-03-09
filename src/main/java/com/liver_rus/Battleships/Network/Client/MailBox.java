@@ -6,7 +6,7 @@ public interface MailBox {
     void subscribeForInbox(Consumer<String> consumer);
     void sendMessage(String message);
 
-    void disconnect();
+    //TODO add disconnect()
 //    ClientGameEngine knows too much
     ///netClient.startThread(); same
 }

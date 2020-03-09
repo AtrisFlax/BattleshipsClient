@@ -5,7 +5,6 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import java.util.regex.Pattern;
 
 public class MessageProcessor {
-    private MessageProcessor() {}
 
     //TODO должно быть два метода
     public static int getX(String message) {

@@ -13,8 +13,6 @@ import javafx.scene.input.MouseEvent;
 
 //check borders входил ли в рамки
 public class SceneCoord {
-    private SceneCoord() {}
-
     public static boolean isFromFirstPlayerField(MouseEvent event) {
         double x = event.getSceneX();
         double y = event.getSceneY();

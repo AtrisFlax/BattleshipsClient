@@ -1,10 +1,10 @@
-//package com.liver_rus.Battleships.Client.GUI;
+//package com.liver_rus.Battleships.NetworkClient.GUI;
 //
-//import com.liver_rus.Battleships.Client.Constants.Constants;
-//import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
-//import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
-//import com.liver_rus.Battleships.Client.GamePrimitive.FieldCoord;
-//import com.liver_rus.Battleships.Client.GamePrimitive.Ship;
+//import com.liver_rus.Battleships.NetworkClient.Constants.Constants;
+//import com.liver_rus.Battleships.NetworkClient.Constants.SecondPlayerGUIConstants;
+//import com.liver_rus.Battleships.NetworkClient.GameEngine.ClientGameEngine;
+//import com.liver_rus.Battleships.NetworkClient.GamePrimitive.FieldCoord;
+//import com.liver_rus.Battleships.NetworkClient.GamePrimitive.Ship;
 //import javafx.scene.input.MouseButton;
 //import javafx.scene.input.MouseEvent;
 //
@@ -40,7 +40,7 @@
 //                //Флот расставлен. Объявление о готовности игрока.. ################handleToMouseClick###################
 //                if (!gameEngine.isShipSelected() && gameEngine.getGameField().getFleet().getShipsLeft() == 0) {
 //                    gameEngine.setGamePhase(ClientGameEngine.phase.FLEET_IS_DEPLOYED);
-//                    network.sendMessage(Constants.NetworkMessage.SEND_SHIPS + gameEngine.getShipsInfoForSend());
+//                    network.sendMessage(Constants.NetworkCommand.SEND_SHIPS + gameEngine.getShipsInfoForSend());
 //                    resetFleetButton.setDisable(true);
 //                    labelGameStatus.setText("Fleet is deployed. Waiting for second player...");
 //                }
@@ -50,7 +50,7 @@
 //                if (SceneCoord.isFromSecondPlayerField(event.getSceneX(), event.getSceneY())) {
 //                    FieldCoord shootFieldCoord = new FieldCoord(event.getSceneX(), event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
 //                    Draw.MissCellOnEnemyField(mainCanvas, shootFieldCoord);
-//                    network.sendMessage(Constants.NetworkMessage.SHOT + shootFieldCoord);
+//                    network.sendMessage(Constants.NetworkCommand.SHOT + shootFieldCoord);
 //                    gameEngine.setGamePhase(ClientGameEngine.phase.WAITING_ANSWER);
 //                    gameEngine.setShootCoord(shootFieldCoord);
 //                }

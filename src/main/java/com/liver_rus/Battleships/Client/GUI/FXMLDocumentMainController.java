@@ -4,10 +4,8 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.Constants.GUIConstants;
 import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.DrawGUIEvent;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
-import com.liver_rus.Battleships.Network.Server.GameServerThread;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -18,6 +16,7 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -32,6 +31,8 @@ import java.util.logging.Logger;
 //TODO objects and handlers separate to file
 //logic in another file
 public class FXMLDocumentMainController implements Initializable, GUIActions {
+    private static final int UNDEFINED_COORD = -1;
+
     @FXML
     private Button shipType4Button;
 
@@ -77,6 +78,11 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     @FXML
     private ListView<String> statusListView;
 
+    private int lastMyX = UNDEFINED_COORD;
+    private int lastMyY = UNDEFINED_COORD;
+    private int lastEnemyX = UNDEFINED_COORD;
+    private int lastEnemyY = UNDEFINED_COORD;
+
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
     private GraphicsContext overlayCanvas;
@@ -86,7 +92,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     private boolean isShipSelected;
 
     private GUIState currentGUIState;
-    private GameServerThread gameServer;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -96,6 +101,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
         currentGUIState = new GUIState();
         resetFleetButton.setDisable(true);
         disableShipButtons();
+        setUndefLastXY();
         initShipButtonText();
     }
 
@@ -167,20 +173,18 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = new Stage();
             stage.setTitle("Connect to game");
-            FXMLDocumentConnectGame dialog = fxmlLoader.getController();
-            dialog.setIPAndPortFields();
-            dialog.setMyName();
+            FXMLDocumentConnectGame controller = fxmlLoader.getController();
+            controller.setIPAndPortFields();
+            controller.setMyName();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.setScene(scene);
             stage.setOnHiding(close -> {
-                if (dialog.isStartClient()) {
-                    String ip = dialog.getHost();
-                    int port = dialog.getPort();
-                    if (dialog.isStartServer()) {
-                        gameServer.startThread(ip, port); //with stop start interface (server and client)
-                    }
-                    clientGameEngine.startNetwork(ip, port, dialog.getMyName());
+                if (controller.isStartClient()) {
+                    String ip = controller.getHost();
+                    int port = controller.getPort();
+                    //TODO serverThreadClassHolder.startServerThread(ip, port) //with stop start interface (server and client)
+                    clientGameEngine.startNetwork(ip, port, controller.isStartServer(), controller.getMyName());
                 }
             });
             stage.show();
@@ -206,9 +210,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     }
 
     @FXML
-    protected void handlerDisconnectMenuItem() {
+    protected void handlerDisconnectMenuItem() throws IOException {
         clientGameEngine.disconnect();
-        gameServer.disconnect();
     }
 
     @Override
@@ -221,26 +224,77 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
         setShipButtonTypeText(type, value);
         isShipSelected = true;
     }
-
+    //TODO другой интерфейс
     @Override
-    public void unlockDeploying() {
+    public void drawDeployedShipOnMyField(GUIState state) {
+        Draw.ShipOnMyField(mainCanvas, state);
         isShipSelected = false;
         enableShipButtons();
     }
 
     @Override
-    public void setLockGUI() {
+    public void drawDeployingShip(GUIState state, boolean isDeployable) {
+        clearOldShip(state.getX(), state.getY());
+        setColorForDrawShip(isDeployable);
+        Draw.ShipOnMyField(overlayCanvas, state);
+    }
+
+    @Override
+    public void setInfoAndLockGUI() {
         resetFleetButton.setDisable(true);
         disableShipButtons();
         labelGameStatus.setText("Fleet is deployed. Waiting for second player...");
     }
 
-    public void draw(DrawGUIEvent guiEvent) {
-        guiEvent.render(mainCanvas);
+    @Override
+    public void drawHitOnMyField(int x, int y) {
+        Draw.HitCellOnMyField(mainCanvas, x, y);
     }
 
-    public void redraw(DrawGUIEvent guiEvent) {
-        guiEvent.render(overlayCanvas);
+    @Override
+    public void drawMissOnMyField(int x, int y) {
+        Draw.MissCellOnMyField(mainCanvas, x, y);
+    }
+
+    @Override
+    public void drawHitMarkOnEnemyField(int x, int y) {
+        clearOldHitMark(x, y);
+        Draw.MissCellOnEnemyField(overlayCanvas, x, y);
+    }
+
+
+    //TODO strategy pattern
+
+    interface DrawGUIEvent {
+        void render(GraphicsContext gc);
+    }
+
+    class RenderHitEnemyEvent implements DrawGUIEvent {
+        private final int x;
+        private final int y;
+
+        RenderHitEnemyEvent(int x, int y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        @Override
+        public void render(GraphicsContext gc) {
+            //custom render realization hide !!!
+            Draw.HitCellOnEnemyField(mainCanvas, x, y);
+        }
+    }
+
+
+    @Override
+    public void drawHitOnEnemyField(int x, int y) {
+        //TODO убрать
+        Draw.HitCellOnEnemyField(mainCanvas, x, y);
+    }
+
+    @Override
+    public void drawMissOnEnemyField(int x, int y) {
+        Draw.MissCellOnEnemyField(mainCanvas, x, y);
     }
 
     @Override
@@ -253,32 +307,56 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     }
 
     @Override
-    public void setInfo(String labelMessage, String listViewMessage) {
-        if () {
+    public void redrawShipWithChangeOrientation(GUIState state) {
+        clearCanvas(overlayCanvas);
+        Draw.ShipOnMyField(overlayCanvas, state);
+    }
 
-        }
-        Platform.runLater(() -> labelGameStatus.setText(labelMessage));
-        if (!listViewMessage.equals("")) {
+    @Override
+    public void setInfo(String message, String readableView) {
+        if (readableView != null) {
             Platform.runLater(() -> {
-                statusListView.getItems().add(listViewMessage);
+                statusListView.getItems().add(readableView);
                 statusListView.scrollTo(statusListView.getItems().size() - 1);
             });
         }
+
+        Platform.runLater(() -> labelGameStatus.setText(message));
+
+    }
+
+    @Override
+    public void drawShipOnEnemyField(GUIState shipInfo) {
+        Draw.ShipOnEnemyField(mainCanvas, shipInfo);
+    }
+
+    @Override
+    public void drawMyShip(Ship ship) {
+        Draw.ShipOnMyField(mainCanvas, ship);
     }
 
     @Override
     public void reset(String resetReason) {
-        Draw.clearCanvas(mainCanvas);
-        Draw.clearCanvas(overlayCanvas);
+        clearCanvas(mainCanvas);
+        clearCanvas(overlayCanvas);
         isShipSelected = false;
         currentGUIState = new GUIState();
         disableShipButtons();
+        setUndefLastXY();
         initShipButtonText();
         resetFleetButton.setDisable(true);
         menuItemConnect.setDisable(false);
         statusListView.getItems().clear();
         statusListView.getItems().add(resetReason);
         statusListView.scrollTo(statusListView.getItems().size() - 1);
+
+    }
+
+    private void setUndefLastXY() {
+        lastMyX = UNDEFINED_COORD;
+        lastMyY = UNDEFINED_COORD;
+        lastEnemyX = UNDEFINED_COORD;
+        lastEnemyY = UNDEFINED_COORD;
     }
 
     private void initShipButtonText() {
@@ -355,10 +433,52 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
 
     private void handleToMouseClickSecondButton() {
         currentGUIState.changeShipOrientation();
-        clientGameEngine.fleetDeploying(currentGUIState);
+        clientGameEngine.changeShipOrientation(currentGUIState);
     }
 
-    public void setGameServer(GameServerThread gameServer) {
-        this.gameServer = gameServer;
+    private void clearOldShip(int x, int y) {
+        if (lastEnemyX == UNDEFINED_COORD || lastEnemyY == UNDEFINED_COORD) {
+            lastEnemyX = x;
+            lastEnemyY = y;
+        } else {
+            if (myFieldCoordinateHadBeenChanged(x, y)) {
+                clearCanvas(overlayCanvas);
+                lastEnemyX = x;
+                lastEnemyY = y;
+            }
+        }
+    }
+
+    private void setColorForDrawShip(boolean isDeployable) {
+        if (isDeployable) {
+            overlayCanvas.setStroke(Color.BLACK);
+        } else {
+            overlayCanvas.setStroke(Color.RED);
+        }
+    }
+
+    private boolean myFieldCoordinateHadBeenChanged(int x, int y) {
+        return lastMyX != x || lastMyY != y;
+    }
+
+    private boolean enemyFieldCoordinateHadBeenChanged(int x, int y) {
+        return lastEnemyX != x || lastEnemyY != y;
+    }
+
+    private void clearCanvas(GraphicsContext context) {
+        context.clearRect(0, 0, Constants.Window.WIDTH, Constants.Window.HEIGHT);
+    }
+
+    private void clearOldHitMark(int x, int y) {
+        if (lastEnemyX == UNDEFINED_COORD || lastEnemyY == UNDEFINED_COORD) {
+            lastEnemyX = x;
+            lastEnemyY = y;
+        } else {
+            if (enemyFieldCoordinateHadBeenChanged(x, y)) {
+                clearCanvas(overlayCanvas);
+                lastEnemyX = x;
+                lastEnemyY = y;
+            }
+        }
     }
 }

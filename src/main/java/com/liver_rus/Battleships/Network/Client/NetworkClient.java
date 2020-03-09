@@ -1,7 +1,6 @@
 package com.liver_rus.Battleships.Network.Client;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Network.StartStopThread;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -24,7 +23,7 @@ import java.util.regex.Pattern;
 
 import static java.nio.channels.SelectionKey.*;
 
-public class NetworkClient implements MailBox, StartStopThread {
+public class NetworkClient implements MailBox {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
     private static final int QUEUE_SIZE = 16;
 
@@ -40,25 +39,25 @@ public class NetworkClient implements MailBox, StartStopThread {
 
     private volatile boolean isRunning = true;
 
-    public NetworkClient(String ipAddress, int port) {
+    /***
+     *
+     * @param ipAddress IPv4 address
+     * @param port
+     * @throws IOException
+     */
+    public NetworkClient(String ipAddress, int port) throws IOException {
+        this.inetAddress = InetAddress.getByName(ipAddress);
         this.port = port;
         this.inbox = FXCollections.observableArrayList();
-        try {
-            this.inetAddress = InetAddress.getByName(ipAddress);
-            channel = SocketChannel.open();
-            channel.configureBlocking(false);
-            selector = Selector.open();
-            channel.register(selector, OP_CONNECT);
-            channel.connect(new InetSocketAddress(this.inetAddress, port));
-        } catch (IOException e ) {
-            e.printStackTrace();
-        }
+
+        channel = SocketChannel.open();
+        channel.configureBlocking(false);
+        selector = Selector.open();
+        channel.register(selector, OP_CONNECT);
+        channel.connect(new InetSocketAddress(this.inetAddress, port));
+
         clientReceiver = new ReceiveThread(channel, inbox);
         clientReceiver.start();
-    }
-
-    public static NetworkClient create(String ip, int port) {
-        return new NetworkClient(ip, port);
     }
 
     public InetAddress getInetAddress() {
@@ -88,11 +87,6 @@ public class NetworkClient implements MailBox, StartStopThread {
         } catch (InterruptedException ignored) {
             log.log(Level.SEVERE, "Send message failed");
         }
-    }
-
-    @Override
-    public void disconnect() {
-        stopThread();
     }
 
     public void finalize() {
