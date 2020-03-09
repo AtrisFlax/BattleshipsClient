@@ -7,10 +7,13 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
 public class Draw {
+
     private final static int CELL_LINE_WIDTH = 2;
     private final static int SHIP_LINE_WIDTH = 2;
     private final static Color MISS_CELL_COLOR = Color.BLACK;
     private final static Color HIT_CELL_COLOR = Color.BLACK;
+
+    private Draw() {}
 
     public static void MissCellOnField(GraphicsContext graphicContext, GUIConstants constants, int x, int y) {
         double width = constants.getWidthCell();

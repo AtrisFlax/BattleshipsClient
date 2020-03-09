@@ -2,7 +2,6 @@ package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.GUIState;
-import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 
 import java.io.IOException;
@@ -13,7 +12,7 @@ public interface ClientActions {
 
     void disconnect() throws IOException;
 
-    void startNetwork(String ip, int port, boolean startServer, String myName);
+    void startNetwork(String ip, int port, String myName);
 
     //TODO delete
 
@@ -22,15 +21,11 @@ public interface ClientActions {
 
     void popShip(Ship.Type type);
 
-    void changeShipOrientation(GUIState state);
-
     void fleetDeploying(GUIState currentGUIState);
 
     void mouseMovedInsideSecondPlayerField(int x, int y);
 
     void hitEnemyCell(int x, int y);
-
-    GameField getGameField();
 
     String getShipsInfoForSend();
 

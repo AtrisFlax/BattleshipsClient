@@ -13,6 +13,7 @@ public class RenderRedrawShip extends Redraw implements DrawGUIEvent {
     private boolean isDeployable;
 
     public RenderRedrawShip(GUIState shipInfo, boolean isDeployable) {
+        super(shipInfo.getX(), shipInfo.getY());
         this.shipInfo = shipInfo;
         this.isDeployable = isDeployable;
     }

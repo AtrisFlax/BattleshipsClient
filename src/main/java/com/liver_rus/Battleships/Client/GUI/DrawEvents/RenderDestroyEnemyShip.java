@@ -3,6 +3,7 @@ package com.liver_rus.Battleships.Client.GUI.DrawEvents;
 import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.Draw;
 import com.liver_rus.Battleships.Client.GUI.GUIState;
+import com.liver_rus.Battleships.Client.GUI.NetworkEvent.NetworkEventDestroyed;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -18,6 +19,12 @@ public class RenderDestroyEnemyShip implements DrawGUIEvent {
         this.x = x;
         this.y = y;
         this.shipInfo = shipInfo;
+    }
+
+    public RenderDestroyEnemyShip(NetworkEventDestroyed event) {
+        this.x = event.getX();
+        this.y = event.getY();
+        this.shipInfo = event.getShipInfo();
     }
 
     @Override

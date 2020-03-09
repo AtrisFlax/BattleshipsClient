@@ -7,6 +7,7 @@ import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.DrawGUIEvent;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+import com.liver_rus.Battleships.Network.Server.GameServerThread;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -85,6 +86,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     private boolean isShipSelected;
 
     private GUIState currentGUIState;
+    private GameServerThread gameServer;
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -165,18 +167,20 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
             Scene scene = new Scene(fxmlLoader.load());
             Stage stage = new Stage();
             stage.setTitle("Connect to game");
-            FXMLDocumentConnectGame controller = fxmlLoader.getController();
-            controller.setIPAndPortFields();
-            controller.setMyName();
+            FXMLDocumentConnectGame dialog = fxmlLoader.getController();
+            dialog.setIPAndPortFields();
+            dialog.setMyName();
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.setResizable(false);
             stage.setScene(scene);
             stage.setOnHiding(close -> {
-                if (controller.isStartClient()) {
-                    String ip = controller.getHost();
-                    int port = controller.getPort();
-                    //TODO serverThreadClassHolder.startServerThread(ip, port) //with stop start interface (server and client)
-                    clientGameEngine.startNetwork(ip, port, controller.isStartServer(), controller.getMyName());
+                if (dialog.isStartClient()) {
+                    String ip = dialog.getHost();
+                    int port = dialog.getPort();
+                    if (dialog.isStartServer()) {
+                        gameServer.startThread(ip, port); //with stop start interface (server and client)
+                    }
+                    clientGameEngine.startNetwork(ip, port, dialog.getMyName());
                 }
             });
             stage.show();
@@ -202,8 +206,9 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     }
 
     @FXML
-    protected void handlerDisconnectMenuItem() throws IOException {
+    protected void handlerDisconnectMenuItem() {
         clientGameEngine.disconnect();
+        gameServer.disconnect();
     }
 
     @Override
@@ -248,16 +253,17 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     }
 
     @Override
-    public void setInfo(String message, String readableView) {
-        if (readableView != null) {
+    public void setInfo(String labelMessage, String listViewMessage) {
+        if () {
+
+        }
+        Platform.runLater(() -> labelGameStatus.setText(labelMessage));
+        if (!listViewMessage.equals("")) {
             Platform.runLater(() -> {
-                statusListView.getItems().add(readableView);
+                statusListView.getItems().add(listViewMessage);
                 statusListView.scrollTo(statusListView.getItems().size() - 1);
             });
         }
-
-        Platform.runLater(() -> labelGameStatus.setText(message));
-
     }
 
     @Override
@@ -350,5 +356,9 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     private void handleToMouseClickSecondButton() {
         currentGUIState.changeShipOrientation();
         clientGameEngine.fleetDeploying(currentGUIState);
+    }
+
+    public void setGameServer(GameServerThread gameServer) {
+        this.gameServer = gameServer;
     }
 }

@@ -5,6 +5,7 @@ import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Client.GamePrimitives.WrongShipInfoSizeException;
 import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
+import com.liver_rus.Battleships.Network.StartStopThread;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -22,14 +23,13 @@ import java.util.logging.Logger;
 import static java.nio.ByteBuffer.allocate;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
-public class GameServerThread extends Thread {
+public class GameServerThread extends Thread implements StartStopThread {
 
     public enum TurnOrder {
         FIRST_CONNECTED,
         SECOND_CONNECTED,
         RANDOM_TURN
     }
-
 
     private static final int WRITE_BUFFER_SIZE = 8192;
     private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
@@ -202,8 +202,12 @@ public class GameServerThread extends Thread {
         isRunning = true;
     }
 
-    public void stopThread() throws IOException {
-        close();
+    public void stopThread() {
+        try {
+            close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         isRunning = false;
     }
 

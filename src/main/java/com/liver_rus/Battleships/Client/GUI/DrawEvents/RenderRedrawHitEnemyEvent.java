@@ -6,20 +6,16 @@ import javafx.scene.canvas.GraphicsContext;
 
 public class RenderRedrawHitEnemyEvent extends Redraw implements DrawGUIEvent {
 
-    private final int x;
-    private final int y;
-
     public RenderRedrawHitEnemyEvent(int x, int y) {
-        this.x = x;
-        this.y = y;
+        super(x, y);
     }
 
     @Override
     public void render(GraphicsContext gc) {
-        if (isOldCoord(x, y)) {
+        if (isOldCoord(getX(), getY())) {
             Draw.clearCanvas(gc);
         }
-        Draw.HitCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), x, y);
+        Draw.HitCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), getX(), getY());
     }
 }
 
