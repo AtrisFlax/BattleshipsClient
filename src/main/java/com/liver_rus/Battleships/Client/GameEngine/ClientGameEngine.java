@@ -1,6 +1,7 @@
 package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.DrawEvents.*;
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.GUIState;
 import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
@@ -23,8 +24,11 @@ import java.util.logging.Logger;
 public class ClientGameEngine implements ClientActions {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
 
-    private GameField gameField;
     private Phase gamePhase;
+
+
+    //TODO перенести в серверную часть состояние
+    GameField gameField;
 
     private MailBox netClient;
     private GameServerThread netServer;
@@ -45,7 +49,8 @@ public class ClientGameEngine implements ClientActions {
     public void tryDeployShip(GUIState state) {
         if (isNotAllShipsDeployed() && isPossibleLocateShip(state)) {
             addShipOnField(Ship.create(state));
-            controller.drawDeployedShipOnMyField(state);
+            controller.draw(new RenderDrawShip(state));
+            controller.unlockDeploying();
         }
         //Fleet deployed. Send player is ready
         checkAndSetFleetIsDeployed();
@@ -121,7 +126,7 @@ public class ClientGameEngine implements ClientActions {
             controller.setStartDeployingFleetInfo(myName);
             //auto deployment ships for debug
             //TODO <<+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG
-            debugShipsDeployment();
+            //debugShipsDeployment();
         }
     }
 
@@ -139,17 +144,11 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void changeShipOrientation(GUIState state) {
-        if (gameField.isNotIntersectionShipWithBorder(state)) {
-            controller.redrawShipWithChangeOrientation(state);
-        }
-    }
-
-    @Override
-    public void fleetDeploying(GUIState currentGUIState) {
+    public void fleetDeploying(GUIState state) {
         if (getGamePhase() == Phase.DEPLOYING_FLEET) {
-            if (gameField.isNotIntersectionShipWithBorder(currentGUIState)) {
-                controller.drawDeployingShip(currentGUIState, gameField.isNotIntersetionWithShips(currentGUIState));
+            if (gameField.isNotIntersectionShipWithBorder(state)) {
+                boolean isNotIntersection = gameField.isNotIntersetionWithShips(state);
+                controller.redraw(new RenderRedrawShip(state, isNotIntersection));
             }
         }
     }
@@ -157,7 +156,7 @@ public class ClientGameEngine implements ClientActions {
     @Override
     public void mouseMovedInsideSecondPlayerField(int x, int y) {
         if (getGamePhase() == Phase.MAKE_SHOT) {
-            controller.drawHitMarkOnEnemyField(x, y);
+            controller.redraw(new RenderRedrawHitEnemyEvent(x,y));
         }
     }
 
@@ -166,15 +165,9 @@ public class ClientGameEngine implements ClientActions {
         if (getGamePhase() == Phase.MAKE_SHOT) {
             netClient.sendMessage(Constants.NetworkCommand.SHOT + x + y);
             setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
-            controller.drawMissOnEnemyField(x, y);
+            controller.draw(new RenderMissEnemyEvent(x, y));
         }
     }
-
-    @Override
-    public GameField getGameField() {
-        return gameField;
-    }
-
 
     //TODO здесь серюлизация стратегия!!!
     @Override
@@ -237,27 +230,28 @@ public class ClientGameEngine implements ClientActions {
         //стратегия???
         if (msg.startsWith(Constants.NetworkCommand.HIT)) {
             if (getGamePhase() == Phase.WAITING_ANSWER) {
-                controller.drawHitOnEnemyField(x, y);
+                controller.draw(new RenderHitEnemyEvent(x, y));
                 //конвертор строчки в gui event
                 //if (event != null) {
                 //controller.draw(event)
                 //}
-                controller.drawHitOnEnemyField(/*diseralization event*/);
+                //controller.drawHitOnEnemyField(/*diseralization event*/);
             }
             if (getGamePhase() == Phase.TAKE_SHOT) {
-                controller.drawHitOnMyField(x, y);
+                controller.draw(new RenderHitMeEvent(x, y));
             }
         }
         if (msg.startsWith(Constants.NetworkCommand.MISS)) {
             if (getGamePhase() == Phase.TAKE_SHOT) {
-                controller.drawMissOnMyField(x, y);
+                controller.draw(new RenderMissEnemyEvent(x, y));
             }
         }
         if (msg.startsWith(Constants.NetworkCommand.DESTROYED)) {
             if (getGamePhase() == Phase.WAITING_ANSWER) {
                 GUIState shipInfo = GUIState.create(msg.replace(Constants.NetworkCommand.DESTROYED, ""));
-                controller.drawShipOnEnemyField(shipInfo);
-                controller.drawHitOnMyField(x, y);
+                controller.draw(new RenderDestroyEnemyShip(x, y, shipInfo));
+
+
             }
         }
 
@@ -298,21 +292,21 @@ public class ClientGameEngine implements ClientActions {
     }
 
     //debug method
-    public void debugShipsDeployment() {
-        addShipOnField(Ship.create(1, 8, Ship.Type.SUBMARINE, true));
-        addShipOnField(Ship.create(3, 2, Ship.Type.SUBMARINE, true));
-        addShipOnField(Ship.create(1, 1, Ship.Type.DESTROYER, false));
-        addShipOnField(Ship.create(3, 4, Ship.Type.DESTROYER, true));
-        addShipOnField(Ship.create(2, 6, Ship.Type.CRUISER, true));
-        addShipOnField(Ship.create(7, 4, Ship.Type.BATTLESHIP, false));
-        addShipOnField(Ship.create(9, 1, Ship.Type.AIRCRAFT_CARRIER, false));
-        for (Ship ship : getShips()) {
-            controller.drawMyShip(ship);
-        }
-        setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-        getGameField().printOnConsole();
-        netClient.sendMessage(getShipsInfoForSend());
-    }
+//    public void debugShipsDeployment() {
+//        addShipOnField(Ship.create(1, 8, Ship.Type.SUBMARINE, true));
+//        addShipOnField(Ship.create(3, 2, Ship.Type.SUBMARINE, true));
+//        addShipOnField(Ship.create(1, 1, Ship.Type.DESTROYER, false));
+//        addShipOnField(Ship.create(3, 4, Ship.Type.DESTROYER, true));
+//        addShipOnField(Ship.create(2, 6, Ship.Type.CRUISER, true));
+//        addShipOnField(Ship.create(7, 4, Ship.Type.BATTLESHIP, false));
+//        addShipOnField(Ship.create(9, 1, Ship.Type.AIRCRAFT_CARRIER, false));
+//        for (Ship ship : getShips()) {
+//            controller.drawMyShip(ship);
+//        }
+//        setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
+//        getGameField().printOnConsole();
+//        netClient.sendMessage(getShipsInfoForSend());
+//    }
 
     private boolean isPossibleLocateShip(GUIState state) {
         return gameField.isNotIntersetionWithShips(state) && gameField.isNotIntersectionShipWithBorder(state);
@@ -322,7 +316,7 @@ public class ClientGameEngine implements ClientActions {
         if (noMoreShipLeft()) {
             setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
             netClient.sendMessage(getShipsInfoForSend());
-            controller.setInfoAndLockGUI();
+            controller.setLockGUI();
         }
     }
 
