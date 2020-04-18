@@ -2,7 +2,6 @@ package com.liver_rus.Battleships.Client.GUI;
 
 import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.Constants.GUIConstants;
-import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
@@ -13,7 +12,8 @@ public class Draw {
     private final static Color MISS_CELL_COLOR = Color.BLACK;
     private final static Color HIT_CELL_COLOR = Color.BLACK;
 
-    private Draw() {}
+    private Draw() {
+    }
 
     public static void MissCellOnField(GraphicsContext graphicContext, GUIConstants constants, int x, int y) {
         double width = constants.getWidthCell();
@@ -65,22 +65,13 @@ public class Draw {
         }
     }
 
-    public static int convertTypeToShipLength(Ship.Type type) {
-        return Ship.Type.shipTypeToInt(type) + 1;
+    public static int convertTypeToShipLength(int type) {
+        return type + 1;
     }
 
     public static void clearCanvas(GraphicsContext context) {
         context.clearRect(0, 0, Constants.Window.WIDTH, Constants.Window.HEIGHT);
     }
-
-    public static Color setColorForDrawShip(boolean isDeployable) {
-        if (isDeployable) {
-            return Color.BLACK;
-        } else {
-            return Color.RED;
-        }
-    }
-
 }
 
 

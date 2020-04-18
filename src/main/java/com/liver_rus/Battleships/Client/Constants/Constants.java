@@ -12,23 +12,6 @@ public class Constants {
         public final static String ABOUT_GAME_TEXT = "Info2";
     }
 
-    public static class NetworkCommand {
-        public final static String DESTROYED = "DESTROYED";
-        public final static String SHOT = "SHOT";
-        public final static String HIT = "HIT";
-        public final static String MISS = "MISS";
-        public final static String YOU_WIN = "YOU_WIN";
-        public final static String YOU_TURN = "YOU_TURN";
-        public final static String ENEMY_TURN = "ENEMY_TURN";
-        public final static String YOU_LOSE = "YOU_LOSE";
-        public final static String DISCONNECT = "DISCONNECT";
-        public final static String SEND_SHIPS = "SEND_SHIPS";
-        public final static String EMPTY_STRING = "";
-        public final static String SPLIT_SYMBOL = "|";
-        //TODO player names exchange
-        //public final static String ENEMY_NAME = "ENEMY_NAME";
-    }
-
     public final static int ShipInfoLength = 4;
 
 }

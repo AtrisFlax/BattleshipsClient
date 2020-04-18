@@ -1,28 +1,31 @@
 package com.liver_rus.Battleships.Client.GUI;
 
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.DrawGUIEvent;
+import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderHit;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
-import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
 
 public interface GUIActions {
-    void setClientEngine(ClientGameEngine clientGameEngine);
+    void setEnemyName(String name);
 
-    void shipWasPopped(Ship.Type type, int value);
+    void setClientEngine(ClientGameEngine clientGameEngine);
 
     void draw(DrawGUIEvent event);
 
-    void setInfo(String message, String readableView);
+    void redraw(DrawGUIEvent event);
 
-    void unlockDeploying();
+    void reset();
 
-    void setLockGUI();
+    void startRematch();
 
-    void reset(String resetReason);
+    void waitSecondPlayer(String reason);
 
+    void deploy(int[] shipLeftByTypeInit);
 
+    void disconnect();
 
-    //???????????????
+    void notStartRematch();
 
-    void setStartDeployingFleetInfo(String myName);
+    void canShot();
 
+    void hit(RenderHit renderHit);
 }

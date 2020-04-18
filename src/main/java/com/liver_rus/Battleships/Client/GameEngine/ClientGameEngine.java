@@ -1,61 +1,29 @@
 package com.liver_rus.Battleships.Client.GameEngine;
 
-import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.*;
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
-import com.liver_rus.Battleships.Client.GUI.GUIState;
-import com.liver_rus.Battleships.Client.GUI.NetworkEvent.*;
-import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
-import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
-import com.liver_rus.Battleships.Client.GamePrimitives.TryingAddTooManyShipsOnFieldException;
-import com.liver_rus.Battleships.Client.Tools.MessageProcessor;
+import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 import com.liver_rus.Battleships.Network.Client.MailBox;
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
+import com.liver_rus.Battleships.NetworkEvent.CreatorClientNetworkEvent;
+import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
+import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
+import com.liver_rus.Battleships.NetworkEvent.incoming.*;
+import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventDoDisconnect;
 
 import java.lang.invoke.MethodHandles;
-import java.util.LinkedList;
 import java.util.logging.Logger;
 
-
-//TODO на уровне applicaton
 public class ClientGameEngine implements ClientActions {
     private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
-
-    private Phase gamePhase;
-
-
-    //TODO перенести в серверную часть состояние
-    GameField gameField;
 
     private MailBox netClient;
     private FXMLDocumentMainController controller;
 
-    public enum Phase {
-        INIT, DEPLOYING_FLEET, FLEET_IS_DEPLOYED, WAITING_ANSWER, TAKE_SHOT, MAKE_SHOT, END_GAME;
-    }
-
-    public ClientGameEngine() {
-        super();
-        gameField = new GameField();
-        setGamePhase(Phase.INIT);
-    }
-
     @Override
-    public void tryDeployShip(GUIState state) {
-        if (isNotAllShipsDeployed() && isPossibleLocateShip(state)) {
-            addShipOnField(Ship.create(state));
-            controller.draw(new RenderDrawShip(state));
-            controller.unlockDeploying();
-        }
-        //Fleet deployed. Send player is ready
-        checkAndSetFleetIsDeployed();
-    }
-
-    @Override
-    public void disconnect() {
+    public void close() {
         netClient.disconnect();
         netClient = null;
-        controller.reset("Disconnect from server");
+        controller.reset();
     }
 
     @Override
@@ -65,11 +33,7 @@ public class ClientGameEngine implements ClientActions {
             log.info("NetworkClient inbox message =" + message);
             proceedMessage(message);
         });
-        setGamePhase(ClientGameEngine.Phase.DEPLOYING_FLEET);
-        controller.setStartDeployingFleetInfo(myName);
-        //auto deployment ships for debug
-        //TODO <<+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ DEBUG
-        //debugShipsDeployment();
+        sendEvent(new NetworkEventMyName(myName));
     }
 
     @Override
@@ -78,155 +42,112 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void popShip(Ship.Type type) {
-        if (getGamePhase() == ClientGameEngine.Phase.DEPLOYING_FLEET) {
-            int leftShipAmountByType = selectShip(type);
-            controller.shipWasPopped(type, leftShipAmountByType);
-        }
+    public void tryDeployShip(ShipInfo state) {
+        sendEvent(new NetworkEventTryDeployShip(state.getX(), state.getY(), state.getType(), state.isHorizontal()));
     }
 
     @Override
-    public void fleetDeploying(GUIState state) {
-        if (getGamePhase() == Phase.DEPLOYING_FLEET) {
-            if (gameField.isNotIntersectionShipWithBorder(state)) {
-                boolean isNotIntersection = gameField.isNotIntersetionWithShips(state);
-                controller.redraw(new RenderRedrawShip(state, isNotIntersection));
-            }
-        }
+    public void isPossibleDeployShip(ShipInfo state) {
+        sendEvent(new NetworkEventIsPossibleDeployShip(state.getX(), state.getY(), state.getType(), state.isHorizontal()));
     }
 
     @Override
-    public void mouseMovedInsideSecondPlayerField(int x, int y) {
-        if (getGamePhase() == Phase.MAKE_SHOT) {
-            controller.redraw(new RenderRedrawHitEnemyEvent(x, y));
-        }
+    public void resetFleet() {
+        sendEvent(new NetworkEventResetFleetWhileDeploy());
     }
 
     @Override
-    public void hitEnemyCell(int x, int y) {
-        if (getGamePhase() == Phase.MAKE_SHOT) {
-            netClient.sendMessage(Constants.NetworkCommand.SHOT + x + y);
-            setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
-            controller.draw(new RenderMissEnemyEvent(x, y));
-        }
+    public void shot(int x, int y) {
+        sendEvent(new NetworkEventShot(x, y));
     }
 
-    //TODO здесь серюлизация стратегия!!!
-    @Override
-    public String getShipsInfoForSend() {
-        return Constants.NetworkCommand.SEND_SHIPS + gameField.getFleet().toString();
+    private void sendEvent(NetworkEventServer event) {
+        netClient.sendMessage(event.convertToString());
     }
 
-    @Override
-    public void setGamePhase(Phase phase) {
-        System.out.println("setGamePhase=" + phase);
-        this.gamePhase = phase;
-    }
 
-    @Override
-    public final Phase getGamePhase() {
-        return gamePhase;
-    }
+//    @Override
+//    public void popShip(int shipType) {
+//        /*
+//        if (getGamePhase() == ClientGameEngine.Phase.DEPLOYING_FLEET) {
+//            int leftShipAmountByType = selectShip(type);
+//            controller.shipWasPopped(type, leftShipAmountByType);
+//        }
+//         */
+//    }
 
-    @Override
-    public int selectShip(Ship.Type type) {
-        if (gameField.getFleet().getShipsLeft() > 0) {
-            int popShipResult = gameField.getFleet().popShip(type);
-            final int NO_MORE_SHIP_FOR_EXTRACTION = -1;
-            if (popShipResult != NO_MORE_SHIP_FOR_EXTRACTION) {
-                return popShipResult;
-            } else {
-                return 0;
-            }
-        } else {
-            return 0;
-        }
-    }
+//    @Override
+//    public void fleetDeploying(ShipInfo state) {
+//        /*
+//        if (getGamePhase() == Phase.DEPLOYING_FLEET) {
+//            netClient.sendMessage("");
+//            // TODO SEND AND WAIT ANSWER
+//            // TODO PHASE TO SERVER
+//            if (gameField.isNotIntersectionShipWithBorder(state)) {
+//                boolean isNotIntersection = gameField.isNotIntersetionWithShips(state);
+//                controller.redraw(new RenderRedrawShip(state, isNotIntersection));
+//            }
+//        }
+//         */
+//    }
 
-    @Override
-    public void addShipOnField(Ship ship) {
-        try {
-            gameField.getFleet().add(ship);
-        } catch (TryingAddTooManyShipsOnFieldException e) {
-            e.printStackTrace();
-        }
-        gameField.markFieldCellsByShip(ship);
-    }
+//    @Override
+//    public void mouseMovedInsideSecondPlayerField(int x, int y) {
+//        /*
+//        if (getGamePhase() == Phase.MAKE_SHOT) {
+//            controller.redraw(new RenderRedrawHitEnemyEvent(x, y));
+//        }
+//
+//         */
+//    }
 
+//    @Override
+//    public void hitEnemyCell(int x, int y) {
+//        /*
+//        if (getGamePhase() == Phase.MAKE_SHOT) {
+//            netClient.sendMessage(NetworkCommandConstant.SHOT + x + y);
+//            setGamePhase(ClientGameEngine.Phase.WAITING_ANSWER);
+//            controller.draw(new RenderMissEnemyEvent(x, y));
+//        }
+//         */
+//    }
+
+//    //TODO здесь серюлизация стратегия!!!
+//    @Override
+//    public String getShipsInfoForSend() {
+//        return NetworkCommandConstant.SEND_SHIPS + gameField.getFleet().toString();
+//    }
+
+//    @Override
+//    public int selectShip(int shipType) {
+//        /*
+//        if (gameField.getFleet().getShipsLeft() > 0) {
+//            int popShipResult = gameField.getFleet().popShip(type);
+//            final int NO_MORE_SHIP_FOR_EXTRACTION = -1;
+//            if (popShipResult != NO_MORE_SHIP_FOR_EXTRACTION) {
+//                return popShipResult;
+//            } else {
+//                return 0;
+//            }
+//        } else {
+//            return 0;
+//        }
+//         */ return 0; //TODO delete fake return
+//    }
 
     //TODO ???????????? interface cast ok   ????????????
     private void proceedMessage(String msg) {
-        NetworkEvent networkEvent = CreatorNetworkEvent.deserializeMessage(msg);
-        if (networkEvent instanceof NetworkEventHit) {
-            if (getGamePhase() == Phase.WAITING_ANSWER) {
-
-                controller.draw(new RenderHitEnemyEvent((XYGettable) networkEvent));
-            }
-            if (getGamePhase() == Phase.TAKE_SHOT) {
-                controller.draw(new RenderHitMeEvent((XYGettable) networkEvent));
-            }
+        CreatorClientNetworkEvent eventCreator = new CreatorClientNetworkEvent();
+        NetworkEventClient event = eventCreator.deserializeMessage(msg);
+        String answer = event.proceed(controller);
+        if (answer != null) {
+            netClient.sendMessage(answer);
         }
-
-        if (networkEvent instanceof NetworkEventMiss) {
-            if (getGamePhase() == Phase.TAKE_SHOT) {
-                controller.draw(new RenderMissEnemyEvent((XYGettable) networkEvent));
-            }
+        if (event instanceof NetworkEventDoDisconnect || event instanceof NetworkEventNoRematch) {
+            netClient.disconnect();
         }
-
-        if (networkEvent instanceof NetworkEventDestroyed) {
-            if (getGamePhase() == Phase.WAITING_ANSWER) {
-                controller.draw(new RenderDestroyEnemyShip((NetworkEventDestroyed) networkEvent));
-            }
-        }
-
-        if (networkEvent instanceof NetworkEventYouTurn) {
-            setGamePhase(Phase.MAKE_SHOT);
-        }
-
-        if (networkEvent instanceof NetworkEventEnemyTurn) {
-            setGamePhase(Phase.TAKE_SHOT);
-        }
-
-        if (networkEvent instanceof NetworkEventYouWin || networkEvent instanceof NetworkEventYouLose) {
-            setGamePhase(Phase.END_GAME);
-        }
-
-        switch (msg) {
-            case Constants.NetworkCommand.YOU_TURN:
-                break;
-            case Constants.NetworkCommand.ENEMY_TURN:
-                setGamePhase(Phase.TAKE_SHOT);
-                break;
-            case Constants.NetworkCommand.YOU_WIN:
-            case Constants.NetworkCommand.YOU_LOSE:
-                setGamePhase(Phase.END_GAME);
-                break;
-        }
-
-
-        controller.setInfo(generalInfoFromMsg(networkEvent), convertInboxToReadableView(networkEvent));
-
     }
 
-    @Override
-    public boolean isNotAllShipsDeployed() {
-        return getGameField().getFleet().getShipsLeft() >= 0;
-    }
-
-    @Override
-    public boolean noMoreShipLeft() {
-        return getGameField().getFleet().getShipsLeft() == 0;
-    }
-
-    @Override
-    public LinkedList<Ship> getShips() {
-        return gameField.getFleet().getShips();
-    }
-
-    @Override
-    public int[] getShipsLeftByTypeInit() {
-        return GameField.getShipLeftByTypeInit();
-    }
 
     //debug method
 //    public void debugShipsDeployment() {
@@ -245,78 +166,67 @@ public class ClientGameEngine implements ClientActions {
 //        netClient.sendMessage(getShipsInfoForSend());
 //    }
 
-    private boolean isPossibleLocateShip(GUIState state) {
-        return gameField.isNotIntersetionWithShips(state) && gameField.isNotIntersectionShipWithBorder(state);
-    }
 
-    private void checkAndSetFleetIsDeployed() {
-        if (noMoreShipLeft()) {
-            setGamePhase(ClientGameEngine.Phase.FLEET_IS_DEPLOYED);
-            netClient.sendMessage(getShipsInfoForSend());
-            controller.setLockGUI();
-        }
-    }
-
-
-    //TODO simplify method
-    private String convertInboxToReadableView(NetworkEvent event) {
-        if (event instanceof NetworkEventHit) {
-            if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " Enemy Ship has Hit";
-            }
-            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " You Ship has Hit";
-            }
-        }
-        if (event instanceof NetworkEventMiss) {
-            if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " You Missed";
-            }
-            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                XYGettable coord = (XYGettable) event;
-                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " Enemy Missed";
-            }
-        }
-        if (event instanceof NetworkEventDestroyed) {
-            if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
-                return "You Destroy Enemy Ship";
-            }
-
-            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
-                return "Enemy Destroy Your Ship";
-            }
-        }
-        if (event instanceof NetworkEventDisconnect) {
-            return "Disconnect";
-        }
-        return "";
-    }
+//    private String convertInboxToReadableView(NetworkEventServer event) {
+//        /*
+//        if (event instanceof NetworkEventEnemyHit) {
+//            if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+//                XYGettable coord = (XYGettable) event;
+//                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " Enemy Ship has Hit";
+//            }
+//            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+//                XYGettable coord = (XYGettable) event;
+//                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " You Ship has Hit";
+//            }
+//        }
+//        if (event instanceof NetworkEventMiss) {
+//            if (getGamePhase() == ClientGameEngine.Phase.WAITING_ANSWER) {
+//                XYGettable coord = (XYGettable) event;
+//                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " You Missed";
+//            }
+//            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+//                XYGettable coord = (XYGettable) event;
+//                return MessageProcessor.XYtoGameFormat(coord.getX(), coord.getY()) + " Enemy Missed";
+//            }
+//        }
+//        if (event instanceof NetworkEventDestroyed) {
+//            if (getGamePhase() == ClientGameEngine.Phase.MAKE_SHOT) {
+//                return "You Destroy Enemy Ship";
+//            }
+//
+//            if (getGamePhase() == ClientGameEngine.Phase.TAKE_SHOT) {
+//                return "Enemy Destroy Your Ship";
+//            }
+//        }
+//        if (event instanceof NetworkEventDisconnect) {
+//            return "Disconnect";
+//        }
+//         */
+//        return "";
+//    }
 
 
-    private String generalInfoFromMsg(NetworkEvent event) {
-        if (event instanceof NetworkEventYouTurn) {
-            return "You turn. Make shoot";
-        }
-        if (event instanceof NetworkEventEnemyTurn) {
-            return "Enemy turn. Waiting...";
-        }
-        if (event instanceof NetworkEventYouWin) {
-            return "You Win";
-        }
-        if (event instanceof NetworkEventYouLose) {
-            return "You Lose";
-        }
-        if (event instanceof NetworkEventDisconnect) {
-            return "Disconnect";
-        }
-        if (event instanceof NetworkEventUnknown) {
-            return "";
-        }
-        return "";
-    }
+//    private String generalInfoFromMsg(NetworkEventServer event) {
+//        /*
+//        if (event instanceof NetworkEventYouTurn) {
+//            return "You turn. Make shoot";
+//        }
+//        if (event instanceof NetworkEventEnemyTurn) {
+//            return "Enemy turn. Waiting...";
+//        }
+//        if (event instanceof NetworkEventYouWin) {
+//            return "You Win";
+//        }
+//        if (event instanceof NetworkEventYouLose) {
+//            return "You Lose";
+//        }
+//        if (event instanceof NetworkEventDisconnect) {
+//            return "Disconnect";
+//        }
+//        if (event instanceof NetworkEventUnknown) {
+//            return "";
+//        }
+//         */
+//        return "";
+//    }
 }
-
-//TODO numTurn tracking, incrementing and resetting

@@ -2,17 +2,17 @@ package com.liver_rus.Battleships.Client.GUI;
 
 //Class describes virtual ship for draw
 
-import com.liver_rus.Battleships.Client.GamePrimitives.FieldCoord;
-import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+import com.liver_rus.Battleships.Network.Server.GamePrimitives.FieldCoord;
 
 public class CurrentGUIState {
+    private static final int UNKNOWN_TYPE = -1;
     private FieldCoord fieldCoord;
-    private Ship.Type shipType;
+    private int shipType;
     private boolean isHorizontalShipOrientation;
 
     public CurrentGUIState(){
-        setFieldCoord(new FieldCoord());
-        setShipType(Ship.Type.UNKNOWN);;
+        fieldCoord = new FieldCoord(0, 0);
+        shipType = UNKNOWN_TYPE;
         isHorizontalShipOrientation = true;
     }
 
@@ -24,11 +24,11 @@ public class CurrentGUIState {
         this.fieldCoord = fieldCoord;
     }
 
-    public Ship.Type getShipType() {
+    public int  getShipType() {
         return shipType;
     }
 
-    public void setShipType(Ship.Type shipType) {
+    public void setShipType(int  shipType) {
         this.shipType = shipType;
     }
 

@@ -22,7 +22,7 @@
                 <Menu fx:id="fileMenu" mnemonicParsing="false" text="File">
                     <items>
                   <MenuItem fx:id="menuItemConnect" mnemonicParsing="false" onAction="#handleMenuItemConnectGame" text="Connect" />
-                  <MenuItem fx:id="menuItemDisconnect" disable="true" mnemonicParsing="false" onAction="#handlerDisconnectMenuItem" text="Dissconnect" />
+                  <MenuItem fx:id="menuItemDisconnect" disable="true" mnemonicParsing="false" onAction="#handleDisconnectMenuItem" text="Dissconnect" />
                         <MenuItem fx:id="menuItemExit" mnemonicParsing="false" onAction="#handleMenuItemExit" text="Exit" />
                     </items>
                 </Menu>
@@ -43,15 +43,7 @@
                 <Insets right="28.0" top="170.0" />
             </StackPane.margin>
         </ListView>
-        <Label fx:id="numRoundLabel" contentDisplay="CENTER" prefHeight="21.0" prefWidth="32.0" StackPane.alignment="TOP_RIGHT">
-            <font>
-                <Font name="Arial" size="18.0" />
-            </font>
-            <StackPane.margin>
-                <Insets right="42.0" top="47.0" />
-            </StackPane.margin>
-        </Label>
-        <Label fx:id="playerMyLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
+        <Label fx:id="playerMeLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
             <StackPane.margin>
                 <Insets right="170.0" top="47.0" />
             </StackPane.margin>
@@ -84,7 +76,7 @@
         </Button>
         <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER">
             <children>
-                <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType4" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType4" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <VBox.margin>
                         <Insets />
                     </VBox.margin>
@@ -92,22 +84,22 @@
                         <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType3Button" focusTraversable="false" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType3" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType3Button" focusTraversable="false" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType3" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
                         <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType2Button" focusTraversable="false" layoutX="10.0" layoutY="23.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType2" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType2Button" focusTraversable="false" layoutX="10.0" layoutY="23.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType2" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
                         <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType1Button" focusTraversable="false" layoutX="10.0" layoutY="36.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType1" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType1Button" focusTraversable="false" layoutX="10.0" layoutY="36.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType1" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
                         <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType0Button" focusTraversable="false" layoutX="10.0" layoutY="49.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType0" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType0Button" focusTraversable="false" layoutX="10.0" layoutY="49.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType0" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
                         <Insets right="85.0" />
                     </padding>

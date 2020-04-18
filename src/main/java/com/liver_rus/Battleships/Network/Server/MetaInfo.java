@@ -1,106 +1,212 @@
 package com.liver_rus.Battleships.Network.Server;
 
-import com.liver_rus.Battleships.Client.GamePrimitives.GameField;
+import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 
 import java.nio.channels.SocketChannel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
+//TODO extract interface
 
 //class binding connection info (SocketChannel) and game primitives (GameField, ready flag)
-class MetaInfo {
+//after accepting ships message fields should be swapped
+public class MetaInfo {
 
-    private static final int FIRST_CONNECTED_PLAYER_ID  = 0;
-    private static final int SECOND_CONNECTED_PLAYER_ID = 1;
-
-    private final static int MAX_CONNECTIONS = ServerGameEngine.maxPlayers();
-
-    //after accepting SEND_SHIPS message fields should be swapped
-    private GameField[] gameFields;
-    private SocketChannel[] channels;
-    private boolean[] ready;
     private int numAcceptedConnections;
+    private static final int FIRST_CONNECTED_PLAYER_ID = 0;
+    private static final int SECOND_CONNECTED_PLAYER_ID = 1;
+    private final static int MAX_CONNECTIONS = 2;
+
+    List<Player> players;
+
+    private TurnOrder initTurnOrder;
+
+    private boolean isGameStarted;
+    private Player activePlayer; //msg from this one
+    private Player turnHolderPlayer; //wait action from this one
+
+    GameField[] injectedGameFields;
 
     /**
-     *
      * @param gameFields injected game fields. Max size 2
      */
-    public MetaInfo(GameField[] gameFields) {
+    private MetaInfo(GameField[] gameFields) {
         if (gameFields.length != 2) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
-        this.gameFields = gameFields;
-        channels = new SocketChannel[MAX_CONNECTIONS];
-        ready = new boolean[MAX_CONNECTIONS];
-        for (int i = 0; i < MAX_CONNECTIONS; i++) {
-            ready[i] = false;
-        }
+        injectedGameFields = gameFields;
         numAcceptedConnections = 0;
+        initTurnOrder = TurnOrder.RANDOM_TURN;
+        players = new ArrayList<>(MAX_CONNECTIONS);
+        activePlayer = null;
     }
 
-    public SocketChannel[] getChannels() {
-        return channels;
-    }
-
-    public GameField getField(SocketChannel key) {
-        GameField result = null;
-        for (int i = 0; i < MAX_CONNECTIONS; i++) {
-            if (key == channels[i]) {
-                result = gameFields[i];
-                break;
-            }
+    public static MetaInfo create() {
+        GameField[] fields = new GameField[MAX_CONNECTIONS];
+        for (int i = 0; i < fields.length; i++) {
+            fields[i] = new GameField();
         }
-        return result;
+        return new MetaInfo(fields);
     }
 
-    public SocketChannel getChannel(int i) {
-        return channels[i];
+    public static MetaInfo create(GameField[] gameFields) {
+        return new MetaInfo(gameFields);
     }
 
-    //insert only unique key
-
-    //TODO numAcceptedConnections not thread save inc
-    public void put(SocketChannel key) {
-        channels[numAcceptedConnections++] = key;
+    private Player getFirstConnectedPlayerChannel() {
+        return players.get(FIRST_CONNECTED_PLAYER_ID);
     }
 
-    //swap game fields before shooting
-    //player0 now shoot to player1 field
-    //player1 now shoot to player0 field
-    public void swapFields() {
-        GameField temp = gameFields[0];
-        gameFields[0] = gameFields[1];
-        gameFields[1] = temp;
+    private Player getSecondConnectedPlayerChannel() {
+        return players.get(SECOND_CONNECTED_PLAYER_ID);
     }
 
-    boolean isReady(int i) {
-        return ready[i];
+    private Player randomConnection() {
+        int randID = new Random(System.currentTimeMillis()).nextInt(MAX_CONNECTIONS);
+        return players.get(randID);
     }
 
-    void setReady(SocketChannel key) {
-        for (int i = 0; i < MAX_CONNECTIONS; i++) {
-            if (key == channels[i]) {
-                ready[i] = true;
+    public static int getMaxConnections() {
+        return MAX_CONNECTIONS;
+    }
+
+    public void setTurnHolder() {
+        switch (initTurnOrder) {
+            case FIRST_CONNECTED:
+                turnHolderPlayer = getFirstConnectedPlayerChannel();
                 break;
-            }
+            case SECOND_CONNECTED:
+                turnHolderPlayer = getSecondConnectedPlayerChannel();
+                break;
+            case RANDOM_TURN:
+                turnHolderPlayer = randomConnection();
+                break;
         }
     }
 
-    SocketChannel getFirstConnectedPlayerChannel() {
-        return channels[FIRST_CONNECTED_PLAYER_ID];
+    public void addPlayer(SocketChannel channel) {
+        if (numAcceptedConnections < MAX_CONNECTIONS) {
+            Player newPlayer = new Player(channel, injectedGameFields[numAcceptedConnections]);
+            players.add(newPlayer);
+            numAcceptedConnections++;
+        }
     }
 
-    SocketChannel getSecondConnectedPlayerChannel() {
-        return channels[SECOND_CONNECTED_PLAYER_ID];
+    public void setInitTurnOrder(TurnOrder initTurnOrder) {
+        this.initTurnOrder = initTurnOrder;
     }
 
-    public SocketChannel getOtherClientChannel(SocketChannel receiverChannel) {
-        SocketChannel otherChannel = null;
-        if (channels[0] == receiverChannel) otherChannel = channels[1];
-        if (channels[1] == receiverChannel) otherChannel = channels[0];
-        return otherChannel;
+    public boolean isGameStarted() {
+        return isGameStarted;
     }
 
-    public GameField[] getGameFields() {
-        return gameFields;
+    public void setGameStarted(boolean gameStarted) {
+        isGameStarted = gameStarted;
+    }
+
+    public void setActivePlayer(SocketChannel channel) {
+        for (Player player : players) {
+            if (player.getChannel() == channel) {
+                this.activePlayer = player;
+            }
+        }
+    }
+
+
+    //active is whose message was received
+    public Player getActivePlayer() {
+        return activePlayer;
+    }
+
+    //passive is whose message was not received (an another player)
+    public Player getPassivePlayer() {
+        return getOtherPlayer(activePlayer);
+    }
+
+    public void setTurnHolderPlayer(Player turnHolderPlayer) {
+        this.turnHolderPlayer = turnHolderPlayer;
+    }
+
+    //turnholder from whom the server is waiting for actions
+    public Player getTurnHolderPlayer() {
+        return turnHolderPlayer;
+    }
+
+    //notTurnholder from whom the server is NOT waiting for actions
+    public Player getNotTurnHolderPlayer() {
+        return getOtherPlayer(turnHolderPlayer);
+    }
+
+    private Player getOtherPlayer(Player turnHolderPlayer) {
+        if (turnHolderPlayer.equals(players.get(FIRST_CONNECTED_PLAYER_ID))) {
+            return players.get(SECOND_CONNECTED_PLAYER_ID);
+        } else {
+            return players.get(FIRST_CONNECTED_PLAYER_ID);
+        }
     }
 
     public int getNumAcceptedConnections() {
         return numAcceptedConnections;
+    }
+
+
+    public GameField[] getGameFields() {
+        return injectedGameFields;
+    }
+
+    public void setGameFields(GameField[] injectedGameFields) {
+        this.injectedGameFields = injectedGameFields;
+    }
+
+    public boolean isPlayersReadyForDeployment() {
+        if (players.size() != MAX_CONNECTIONS) {
+            return false;
+        }
+        for (Player player : players) {
+            if (!player.isReadyForDeployment()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isPlayersReadyForGame() {
+        for (Player player : players) {
+            if (!player.isReadyForGame()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setGameEnded() {
+        for (Player player : players) {
+            player.setReadyForGame(false);
+        }
+
+    }
+
+    public boolean isGameEnded() {
+        for (Player player : players) {
+            if (player.isReadyForGame()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public boolean isPlayersWantReamatch() {
+        for (Player player : players) {
+            if (!player.isWantRematch()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void resetForRematch() {
+        for (GameField field : injectedGameFields) {
+            field.reset();
+        }
+        initTurnOrder = TurnOrder.RANDOM_TURN;
     }
 }

@@ -1,51 +1,36 @@
 package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
-import com.liver_rus.Battleships.Client.GUI.GUIState;
-import com.liver_rus.Battleships.Client.GamePrimitives.Ship;
+import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 
 import java.io.IOException;
-import java.util.LinkedList;
 //TODO что убрать
 public interface ClientActions {
-    void tryDeployShip(GUIState state);
-
-    void disconnect() throws IOException;
+    void close() throws IOException;
 
     void startNetwork(String ip, int port, String myName);
 
-    //TODO delete
-
-
     void setController(FXMLDocumentMainController controller);
 
-    void popShip(Ship.Type type);
+    void tryDeployShip(ShipInfo currentGUIState);
 
-    void fleetDeploying(GUIState currentGUIState);
+    void isPossibleDeployShip(ShipInfo shipInfo);
 
-    void mouseMovedInsideSecondPlayerField(int x, int y);
+    void resetFleet();
 
-    void hitEnemyCell(int x, int y);
+    void shot(int x, int y);
 
-    String getShipsInfoForSend();
-
-    void setGamePhase(ClientGameEngine.Phase phase);
-
-    ClientGameEngine.Phase getGamePhase();
-
-    int selectShip(Ship.Type type);
-
-    void addShipOnField(Ship ship);
-
-    boolean isNotAllShipsDeployed();
-
-    boolean noMoreShipLeft();
-
-    //TODO посмотреть можно ли удалить этот метод
-
-    LinkedList<Ship> getShips();
-
-    int[] getShipsLeftByTypeInit();
+//    void popShip(int shipType);
+//
+//    void fleetDeploying(ShipInfo currentGUIState);
+//
+//    void mouseMovedInsideSecondPlayerField(int x, int y);
+//
+//    void hitEnemyCell(int x, int y);
+//
+//    int selectShip(int shipType);
+//
+//    void addShipOnField(Ship ship);
 
     //проверить какие-то могут быть приватными
 

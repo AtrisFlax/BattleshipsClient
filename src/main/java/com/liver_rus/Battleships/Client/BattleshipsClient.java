@@ -2,7 +2,7 @@ package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
-import com.liver_rus.Battleships.Network.Server.GameServerThread;
+import com.liver_rus.Battleships.Network.Server.GameServer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,7 +14,7 @@ public class BattleshipsClient extends Application {
 
     private ClientGameEngine gameEngine;
     private FXMLDocumentMainController controller;
-    private GameServerThread gameServer;
+    private GameServer gameServer;
 
     /*
       //create server
@@ -24,7 +24,7 @@ public class BattleshipsClient extends Application {
                 if (netServer == null) {
                     try {
                         //TODO создать фабричный метод
-                        netServer = new GameServerThread(ip, port);
+                        netServer = new GameServer(ip, port);
                         netServer.start();
                     } catch (IOException e) {
                         controller.reset("Couldn't create server");

@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Network.Client;
 
-import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Network.StartStopThread;
+import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -30,13 +30,12 @@ public class NetworkClient implements MailBox, StartStopThread {
 
     private SocketChannel channel;
     private Selector selector;
-    private ReceiveThread clientReceiver;
-    private BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
+    private final BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
-    private ObservableList<String> inbox;
+    private final ObservableList<String> inbox;
 
-    private InetAddress inetAddress;
-    private int port;
+    private InetAddress ipAddress;
+    private final int port;
 
     private volatile boolean isRunning = true;
 
@@ -44,16 +43,16 @@ public class NetworkClient implements MailBox, StartStopThread {
         this.port = port;
         this.inbox = FXCollections.observableArrayList();
         try {
-            this.inetAddress = InetAddress.getByName(ipAddress);
+            this.ipAddress = InetAddress.getByName(ipAddress);
             channel = SocketChannel.open();
             channel.configureBlocking(false);
             selector = Selector.open();
             channel.register(selector, OP_CONNECT);
-            channel.connect(new InetSocketAddress(this.inetAddress, port));
+            channel.connect(new InetSocketAddress(this.ipAddress, this.port));
         } catch (IOException e ) {
             e.printStackTrace();
         }
-        clientReceiver = new ReceiveThread(channel, inbox);
+        ReceiveThread clientReceiver = new ReceiveThread(channel, inbox);
         clientReceiver.start();
     }
 
@@ -61,8 +60,8 @@ public class NetworkClient implements MailBox, StartStopThread {
         return new NetworkClient(ip, port);
     }
 
-    public InetAddress getInetAddress() {
-        return inetAddress;
+    public InetAddress getIpAddress() {
+        return ipAddress;
     }
 
     public int getPort() {
@@ -95,10 +94,6 @@ public class NetworkClient implements MailBox, StartStopThread {
         stopThread();
     }
 
-    public void finalize() {
-        close();
-    }
-
     public void close() {
         isRunning = false;
         try {
@@ -122,7 +117,7 @@ public class NetworkClient implements MailBox, StartStopThread {
     }
 
     private class ReceiveThread extends Thread {
-        private SocketChannel channel;
+        private final SocketChannel channel;
         ObservableList<String> inbox;
 
         ReceiveThread(SocketChannel client, ObservableList<String> inbox) {
@@ -167,16 +162,16 @@ public class NetworkClient implements MailBox, StartStopThread {
 
         private void receiveMessage() throws IOException {
             ByteBuffer buf = ByteBuffer.allocate(2048);
-            int nBytes = 0;
+            int nBytes;
             nBytes = channel.read(buf);
 
             if (nBytes == 2048 || nBytes == 0)
                 return;
             String message = new String(buf.array());
 
-            //TODO почему два сообщение за раз
-            //TODO убрать SPLIT_SYBOL практику
-            for (String inboxStr : message.trim().split(Pattern.quote(Constants.NetworkCommand.SPLIT_SYMBOL))) {
+            //TODO почему два сообщение за раз?
+            //TODO постараться убрать SPLIT_SYMBOL
+            for (String inboxStr : message.trim().split(Pattern.quote(NetworkCommandConstant.SPLIT_SYMBOL))) {
                 if (inboxStr.length() != 0) {
                     inbox.add(inboxStr);
                 }
