@@ -41,7 +41,7 @@ public class NetworkEventTryDeployShip implements NetworkEventServer {
                 e.printStackTrace();
             }
             if (shipCreated) {
-                answer.add(activePlayer, new NetworkEventDrawShip(x, y, type, isHorizontal, PlayerType.ME));
+                answer.add(activePlayer, new NetworkEventDrawShip(x, y, type, isHorizontal, PlayerType.YOU));
             } else {
                 answer.add(activePlayer, new NetworkEventCannotDeploy(x, y, type, isHorizontal));
             }

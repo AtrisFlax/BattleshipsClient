@@ -31,16 +31,7 @@ public class CreatorServerNetworkEvent {
     }
 
     public NetworkEventServer deserializeMessage(String msg) {
-        Matcher matcher = isPossibleDeployShipPattern.matcher(msg);
-        if (matcher.find()) {
-            int x = Integer.parseInt(matcher.group(1));
-            int y = Integer.parseInt(matcher.group(2));
-            int type = Integer.parseInt(matcher.group(3));
-            boolean isHorizontal = matcher.group(4).equals("H");
-            return new NetworkEventIsPossibleDeployShip(x, y, type, isHorizontal);
-        }
-
-        matcher = myNamePattern.matcher(msg);
+        Matcher matcher = myNamePattern.matcher(msg);
         if (matcher.find()) {
             return new NetworkEventMyName(matcher.group(1));
         }

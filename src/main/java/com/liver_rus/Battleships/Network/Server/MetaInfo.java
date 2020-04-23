@@ -40,16 +40,19 @@ public class MetaInfo {
         activePlayer = null;
     }
 
-    public static MetaInfo create() {
-        GameField[] fields = new GameField[MAX_CONNECTIONS];
-        for (int i = 0; i < fields.length; i++) {
-            fields[i] = new GameField();
+    public static MetaInfo create(GameField[] injectedGameFields) {
+        if (injectedGameFields == null) {
+            GameField[] fields = new GameField[MAX_CONNECTIONS];
+            for (int i = 0; i < fields.length; i++) {
+                fields[i] = new GameField();
+            }
+            return new MetaInfo(fields);
+        } else {
+            if (injectedGameFields.length != MAX_CONNECTIONS) {
+                throw new IllegalArgumentException("Illegal length injected game fields. Legal length equal 2");
+            }
+            return new MetaInfo(injectedGameFields);
         }
-        return new MetaInfo(fields);
-    }
-
-    public static MetaInfo create(GameField[] gameFields) {
-        return new MetaInfo(gameFields);
     }
 
     private Player getFirstConnectedPlayerChannel() {

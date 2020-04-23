@@ -7,6 +7,7 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
+<?import java.util.ArrayList?>
 <StackPane fx:id="topLevelStackPane" maxHeight="965.0" maxWidth="700.0" minHeight="965.0" minWidth="700.0" prefHeight="965.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController">
     <children>
         <ImageView fx:id="imgView" fitHeight="950.0" fitWidth="700.0" pickOnBounds="true" preserveRatio="true" smooth="false" StackPane.alignment="TOP_CENTER">
@@ -74,7 +75,7 @@
                 <Insets right="30.0" top="100.0" />
             </StackPane.margin>
         </Button>
-        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER">
+        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER" >
             <children>
                 <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType4" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <VBox.margin>
@@ -104,6 +105,18 @@
                         <Insets right="85.0" />
                     </padding>
                 </Button>
+
+
+                <fx:define>
+                    <ArrayList fx:id="shipTypeList" >
+                        <fx:reference source="shipType0Button"/>
+                        <fx:reference source="shipType1Button"/>
+                        <fx:reference source="shipType2Button"/>
+                        <fx:reference source="shipType3Button"/>
+                        <fx:reference source="shipType4Button"/>
+                    </ArrayList>
+                </fx:define>
+
             </children>
             <StackPane.margin>
                 <Insets left="192.0" top="850.0" />

@@ -25,11 +25,7 @@ public class CreatorClientNetworkEvent {
     static Pattern eventSetEnemyNamePattern;
     static Pattern eventStartRematchPattern;
     static Pattern eventWaitingForSecondPlayerPattern;
-    static Pattern eventWaitingForSecondPlayerDeploymentPattern;
-    static Pattern eventWaitingForSecondPlayerShotPattern;
-    static Pattern eventWaitingSecondPlayerForRematchPattern;
     static Pattern eventEndMatchPattern;
-    static Pattern eventYouWinPattern;
 
     public CreatorClientNetworkEvent() {
         String xyto = "(\\d)(\\d)(\\d)([VH])"; //x y type orientation
@@ -40,7 +36,7 @@ public class CreatorClientNetworkEvent {
         eventCanDeployPattern = Pattern.compile("^" + DEPLOY + xyto + "$");
         eventCannotDeployPattern = Pattern.compile("^" + CANNOT_DEPLOY + xyto + "$");
         eventCanShootPattern = Pattern.compile("^" + CAN_SHOOT + "$");
-        eventCommandNotAcceptedPattern = Pattern.compile("^" + COMMAND_NOT_ACCEPTED + "(.+)");
+        eventCommandNotAcceptedPattern = Pattern.compile("^" + COMMAND_NOT_ACCEPTED + "(.*)");
         eventDeployPattern = Pattern.compile("^" + DEPLOY + shipsLeftByType + "$");
         eventDoDisconnectPattern = Pattern.compile("^" + DO_DISCONNECT + "$");
         eventNotStartRematchPattern = Pattern.compile("^" + NOT_START_REMATCH + "$");
@@ -49,8 +45,8 @@ public class CreatorClientNetworkEvent {
         eventDrawShipPattern = Pattern.compile("^" + DRAW_SHIP + xyto + player + "$");
         eventSetEnemyNamePattern = Pattern.compile("^" + SET_ENEMY_NAME + "(.+)");
         eventStartRematchPattern = Pattern.compile("^" + START_REMATCH + "$");
-        eventWaitingForSecondPlayerPattern = Pattern.compile("^" + WAITING_FOR_SECOND_PLAYER + "(.+)");
-        eventEndMatchPattern = Pattern.compile("^" + END_MATCH + "$");
+        eventWaitingForSecondPlayerPattern = Pattern.compile("^" + WAITING_FOR_SECOND_PLAYER + "(.*)");
+        eventEndMatchPattern = Pattern.compile("^" + END_MATCH + player + "$");
     }
 
     public NetworkEventClient deserializeMessage(String msg) {
@@ -90,14 +86,14 @@ public class CreatorClientNetworkEvent {
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
-            PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.ME : PlayerType.ENEMY;
+            PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
             return new NetworkEventDrawHit(x, y, playerType);
         }
         matcher = eventDrawMissPattern.matcher(msg);
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
-            PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.ME : PlayerType.ENEMY;
+            PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
             return new NetworkEventDrawMiss(x, y, playerType);
         }
         matcher = eventDrawShipPattern.matcher(msg);
@@ -106,7 +102,7 @@ public class CreatorClientNetworkEvent {
             int y = Integer.parseInt(matcher.group(2));
             int type = Integer.parseInt(matcher.group(3));
             boolean isHorizontal = matcher.group(4).equals("H");
-            PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.ME : PlayerType.ENEMY;
+            PlayerType playerType = matcher.group(5).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
             return new NetworkEventDrawShip(x, y, type, isHorizontal, playerType);
         }
         matcher = eventSetEnemyNamePattern.matcher(msg);
@@ -123,7 +119,7 @@ public class CreatorClientNetworkEvent {
         }
         matcher = eventEndMatchPattern.matcher(msg);
         if (matcher.find()) {
-            PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.ME : PlayerType.ENEMY;
+            PlayerType playerType = matcher.group(1).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
             return new NetworkEventEndMatch(playerType);
         }
         return new NetworkEventUnknownCommandClient(msg);

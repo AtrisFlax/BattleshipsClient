@@ -31,10 +31,10 @@ public class RenderHit implements DrawGUIEvent {
 
     @Override
     public void render(GraphicsContext gc) {
-        if (playerType == PlayerType.ME) {
-            Draw.HitCellOnField(gc, FirstPlayerGUIConstants.getGUIConstant(),  x, y);
+        if (playerType == PlayerType.YOU) {
+            Draw.Hit(gc, FirstPlayerGUIConstants.getGUIConstant(),  x, y);
         } else {
-            Draw.HitCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(),  x, y);
+            Draw.Hit(gc, SecondPlayerGUIConstants.getGUIConstant(),  x, y);
         }
     }
 }

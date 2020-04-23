@@ -6,9 +6,8 @@ import java.util.Arrays;
 import java.util.List;
 
 /**
- * Класс игрового поле с фикированным размером размером 10x10
+ * Игрового поле размером размером FIELD_SIZE x FIELD_SIZE
  */
-
 
 public class GameField {
     public static final int FIELD_SIZE = 10;
@@ -28,7 +27,7 @@ public class GameField {
 
     //return true if ship had been created; false if not
     public boolean addShip(int x, int y, int type, boolean isHorizontal) throws TryingAddTooManyShipsOnFieldException {
-        Ship ship = null;
+        Ship ship;
         if (fleet.getShipsLeftForDeploy() > 0) {
             ship = Ship.create(x, y, type, isHorizontal, this);
         } else {
@@ -82,7 +81,6 @@ public class GameField {
         }
     }
 
-
     //Возвращает true, если все корабли уничтожены(игра закончена)
     public boolean isAllShipsDestroyed() {
         return fleet.getLeftAlive() == 0;
@@ -117,7 +115,6 @@ public class GameField {
             return ship;
         }
     }
-
 
     public boolean isFieldCellDamaged(int x, int y) {
         return field[x][y].getType() == FieldCell.DAMAGED_SHIP;

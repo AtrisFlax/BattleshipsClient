@@ -19,10 +19,10 @@ public class RenderMiss implements DrawGUIEvent {
 
     @Override
     public void render(GraphicsContext gc) {
-        if (playerType == PlayerType.ME) {
-            Draw.MissCellOnField(gc, FirstPlayerGUIConstants.getGUIConstant(),  x, y);
+        if (playerType == PlayerType.YOU) {
+            Draw.Miss(gc, FirstPlayerGUIConstants.getGUIConstant(),  x, y);
         } else {
-            Draw.MissCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), x, y);
+            Draw.Miss(gc, SecondPlayerGUIConstants.getGUIConstant(), x, y);
         }
     }
 }

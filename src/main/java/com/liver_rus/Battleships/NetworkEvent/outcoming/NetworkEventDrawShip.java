@@ -27,7 +27,7 @@ public class NetworkEventDrawShip implements NetworkEventClient {
     public NetworkEventDrawShip(int x, int y, int shipType, boolean isHorizontal, PlayerType playerType) {
         assert (x >= 0 && x <= 9);
         assert (y >= 0 && y <= 9);
-        assert (shipType >= 0 && shipType  < NUM_TYPE);
+        assert (shipType >= 0 && shipType < NUM_TYPE);
         this.x = x;
         this.y = y;
         this.shipType = shipType;
@@ -43,10 +43,12 @@ public class NetworkEventDrawShip implements NetworkEventClient {
 
     @Override
     public String convertToString() {
+
         return NetworkCommandConstant.DRAW_SHIP +
                 x +
                 y +
                 shipType +
-                ((isHorizontal) ? "H" : "V" +  playerType);
+                ((isHorizontal) ? "H" : "V" ) +
+                playerType.getString();
     }
 }

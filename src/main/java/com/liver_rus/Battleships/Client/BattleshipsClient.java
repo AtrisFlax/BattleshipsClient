@@ -10,6 +10,7 @@ import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
+
 public class BattleshipsClient extends Application {
 
     private ClientGameEngine gameEngine;
@@ -23,7 +24,6 @@ public class BattleshipsClient extends Application {
                 //TODO убрать проверку на null (возможет ли тут null)
                 if (netServer == null) {
                     try {
-                        //TODO создать фабричный метод
                         netServer = new GameServer(ip, port);
                         netServer.start();
                     } catch (IOException e) {
@@ -41,7 +41,6 @@ public class BattleshipsClient extends Application {
     public void start(Stage stage) throws Exception {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FXMLDocumentMain.fxml"));
         Parent root = loader.load();
-
         gameEngine = new ClientGameEngine();
         //TODO gameServerThread перенести на этот уровень
         controller = loader.getController();
@@ -53,11 +52,11 @@ public class BattleshipsClient extends Application {
         stage.getIcons().add(new Image("/img/480px-icon.png"));
         stage.setResizable(false);
         stage.setScene(scene);
-
         stage.setTitle(this.getClass().getSimpleName());
         stage.show();
         stage.setOnCloseRequest(we -> System.exit(0));
     }
+
 
     public static void main(String[] args) {
         launch(args);

@@ -28,6 +28,6 @@ public class NetworkEventDrawHit implements NetworkEventClient {
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.HIT + x + y + playerType;
+        return NetworkCommandConstant.HIT + x + y +  playerType.getString();
     }
 }

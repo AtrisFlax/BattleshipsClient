@@ -38,19 +38,6 @@ public class Fleet {
         return shipsList;
     }
 
-    //TODO delete??????
-    /*
-    public List<Ship> getAliveShipsOnField() {
-        List<Ship> aliveShipsList = new ArrayList<>();
-        for (Ship ship : shipsList) {
-            if (ship.isAlive()) {
-                aliveShipsList.add(ship);
-            }
-        }
-        return aliveShipsList;
-    }
-    */
-
     public Ship findShip(int x, int y) {
         for (Ship ship : shipsList) {
             for (FieldCoord coord : ship.getShipCoords()) {

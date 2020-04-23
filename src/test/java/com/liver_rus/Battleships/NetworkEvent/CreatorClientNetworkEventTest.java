@@ -1,6 +1,5 @@
 package com.liver_rus.Battleships.NetworkEvent;
 
-import com.liver_rus.Battleships.NetworkEvent.incoming.NetworkEventUnknownCommandServer;
 import com.liver_rus.Battleships.NetworkEvent.outcoming.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -19,9 +18,6 @@ class CreatorClientNetworkEventTest {
 
     @Test
     void creationValidEvents() {
-        event = eventCreator.deserializeMessage(DEPLOY + "123H");
-        assertTrue(event instanceof NetworkEventCanDeploy);
-
         event = eventCreator.deserializeMessage(CANNOT_DEPLOY + "321H");
         assertTrue(event instanceof NetworkEventCannotDeploy);
 
@@ -58,49 +54,55 @@ class CreatorClientNetworkEventTest {
         event = eventCreator.deserializeMessage(WAITING_FOR_SECOND_PLAYER);
         assertTrue(event instanceof NetworkEventWaitingSecondPlayer);
 
-        event = eventCreator.deserializeMessage(END_MATCH);
+        event = eventCreator.deserializeMessage(WAITING_FOR_SECOND_PLAYER + "ww");
+        assertTrue(event instanceof NetworkEventWaitingSecondPlayer);
+
+        event = eventCreator.deserializeMessage(END_MATCH + ENEMY);
         assertTrue(event instanceof NetworkEventEndMatch);
+
+        event = eventCreator.deserializeMessage(DRAW_SHIP + "113V" + YOU);
+        assertTrue(event instanceof NetworkEventDrawShip);
     }
 
     @Test
     void creationInvalidEvents() {
         event = eventCreator.deserializeMessage(DEPLOY + "1123H");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(CANNOT_DEPLOY + "3213H");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(CAN_SHOOT + " ");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage("FFF" + COMMAND_NOT_ACCEPTED + "REASON FROM SERVER");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(DEPLOY + "211111");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage("DO" + DO_DISCONNECT + "1");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(" " + NOT_START_REMATCH);
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(HIT + "YOUR" + "25");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(HIT + YOU + "233");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(MISS + "ME" + "46");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(MISS + ENEMY + "4");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage(DRAW_SHIP + ENEMY + "3603H");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
 
         event = eventCreator.deserializeMessage("T" + SET_ENEMY_NAME + "ANY NAME");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        assertTrue(event instanceof NetworkEventUnknownCommandClient);
     }
 }

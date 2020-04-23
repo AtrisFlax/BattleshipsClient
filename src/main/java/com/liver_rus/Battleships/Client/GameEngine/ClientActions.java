@@ -14,8 +14,6 @@ public interface ClientActions {
 
     void tryDeployShip(ShipInfo currentGUIState);
 
-    void isPossibleDeployShip(ShipInfo shipInfo);
-
     void resetFleet();
 
     void shot(int x, int y);

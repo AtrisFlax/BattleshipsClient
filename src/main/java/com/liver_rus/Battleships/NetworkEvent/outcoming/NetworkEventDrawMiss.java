@@ -28,6 +28,6 @@ public class NetworkEventDrawMiss implements NetworkEventClient {
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.MISS + x + y + playerType;
+        return NetworkCommandConstant.MISS + x + y +  playerType.getString();
     }
 }

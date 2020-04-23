@@ -13,13 +13,6 @@ public class NetworkEventUnknownCommandClient implements NetworkEventClient {
 
     @Override
     public String proceed(GUIActions action) {
-        /*
-        Answers answers = new Answers();
-        answers.add(metaInfo.getActivePlayer(), new NetworkEventCommandNotAccepted(
-                "Unknown command from client"  + unknownMsg));
-        return answers;
-
-         */
         return null;
     }
 

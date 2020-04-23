@@ -12,8 +12,8 @@ import java.util.Arrays;
 
 public class Ship {
     private final FieldCoord[] shipCoords;
-    private boolean isHorizontal;
-    private int type;
+    private final boolean isHorizontal;
+    private final int type;
     private boolean alive;
 
 
@@ -27,14 +27,11 @@ public class Ship {
         UNKNOWN(-1);
      */
     static Ship create(int x, int y, int type, boolean isHorizontal, GameField field) {
-        if (!checkBounce(x, y, type, isHorizontal, field)) {
+        if (checkField(x, y, type, isHorizontal, field)) {
+            return new Ship(x, y, type, isHorizontal, field);
+        } else {
             return null;
         }
-        return new Ship(x, y, type, isHorizontal, field);
-    }
-
-    public static boolean isPossibleLocateShip(int x, int y, int type, boolean isHorizontal, GameField field) {
-        return checkBounce(x, y, type, isHorizontal, field);
     }
 
     //shipInfo format - XYZO
@@ -125,7 +122,7 @@ public class Ship {
         this.alive = true;
     }
 
-    private static boolean checkBounce(int x, int y, int shipType, boolean isHorizontal, GameField field) {
+    private static boolean checkField(int x, int y, int shipType, boolean isHorizontal, GameField field) {
         return field.isNotIntersectionShipWithBorder(x, y, shipType, isHorizontal) &&
                 field.isNotIntersectionWithShips(x, y, shipType, isHorizontal);
     }

@@ -19,22 +19,22 @@ public class NetworkEventMyName implements NetworkEventServer {
 
     @Override
     public Answer proceed(MetaInfo metaInfo) {
-        Answer string = new Answer();
+        Answer answer = new Answer();
         Player activePlayer = metaInfo.getActivePlayer();
         activePlayer.setName(name);
         activePlayer.setReadyForDeployment(true);
         if (!metaInfo.isPlayersReadyForDeployment()) {
-            string.add(activePlayer, new NetworkEventWaitingSecondPlayer("Waiting start deployment"));
+            answer.add(activePlayer, new NetworkEventWaitingSecondPlayer("Waiting start deployment"));
         } else {
             Player passivePlayer = metaInfo.getPassivePlayer();
-            string.add(activePlayer, new NetworkEventSetEnemyName(passivePlayer.getName()));
-            string.add(passivePlayer, new NetworkEventSetEnemyName(activePlayer.getName()));
+            answer.add(activePlayer, new NetworkEventSetEnemyName(passivePlayer.getName()));
+            answer.add(passivePlayer, new NetworkEventSetEnemyName(activePlayer.getName()));
             GameField activePlayerField = activePlayer.getGameField();
             GameField passivePlayerField = passivePlayer.getGameField();
-            string.add(activePlayer, new NetworkEventDeploy(activePlayerField.getShipsLeftByTypeForDeploy()));
-            string.add(passivePlayer, new NetworkEventDeploy(passivePlayerField.getShipsLeftByTypeForDeploy()));
+            answer.add(activePlayer, new NetworkEventDeploy(activePlayerField.getShipsLeftByTypeForDeploy()));
+            answer.add(passivePlayer, new NetworkEventDeploy(passivePlayerField.getShipsLeftByTypeForDeploy()));
         }
-        return string;
+        return answer;
     }
 
     public String convertToString() {

@@ -4,7 +4,6 @@ import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
-//client do nothing
 public class NetworkEventStartRematch implements NetworkEventClient {
 
     @Override

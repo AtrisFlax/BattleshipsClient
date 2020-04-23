@@ -4,5 +4,4 @@ import javafx.scene.canvas.GraphicsContext;
 
 public interface DrawGUIEvent {
     void render(GraphicsContext gc);
-
 }

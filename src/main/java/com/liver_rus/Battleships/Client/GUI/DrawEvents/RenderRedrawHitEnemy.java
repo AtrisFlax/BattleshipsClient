@@ -4,6 +4,7 @@ import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.Draw;
 import javafx.scene.canvas.GraphicsContext;
 
+//while shooting draw[/] on enemy field
 public class RenderRedrawHitEnemy extends Redraw implements DrawGUIEvent {
 
     public RenderRedrawHitEnemy(int x, int y) {
@@ -15,7 +16,7 @@ public class RenderRedrawHitEnemy extends Redraw implements DrawGUIEvent {
         if (isOldCoord(getX(), getY())) {
             Draw.clearCanvas(gc);
         }
-        Draw.HitCellOnField(gc, SecondPlayerGUIConstants.getGUIConstant(), getX(), getY());
+        Draw.Miss(gc, SecondPlayerGUIConstants.getGUIConstant(), getX(), getY());
     }
 }
 

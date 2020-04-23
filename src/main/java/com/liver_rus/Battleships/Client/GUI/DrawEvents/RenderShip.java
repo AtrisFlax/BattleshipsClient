@@ -5,7 +5,6 @@ import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.Draw;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 public class RenderShip implements DrawGUIEvent {
     private final int x;
@@ -24,46 +23,18 @@ public class RenderShip implements DrawGUIEvent {
 
     @Override
     public void render(GraphicsContext gc) {
-        if (playerType == PlayerType.ME) {
-            Draw.ShipOnField(gc, Color.BLACK, FirstPlayerGUIConstants.getGUIConstant(),
+        System.out.println("WHAT");
+        System.out.println(playerType == PlayerType.YOU);
+        if (playerType == PlayerType.YOU) {
+            Draw.Ship(gc, FirstPlayerGUIConstants.getGUIConstant(),
                     x, y,
-                    Draw.convertTypeToShipLength(shipType),
+                    shipType,
                     isHorizontal);
         } else {
-            Draw.ShipOnField(gc, Color.BLACK, SecondPlayerGUIConstants.getGUIConstant(),
+            Draw.Ship(gc, SecondPlayerGUIConstants.getGUIConstant(),
                     x, y,
-                    Draw.convertTypeToShipLength(shipType),
+                    shipType,
                     isHorizontal);
         }
-
     }
 }
-
-
-/*
-
-public class RenderRedrawShip extends Redraw implements DrawGUIEvent {
-    private final ShipInfo shipInfo;
-
-    private boolean isDeployable;
-
-    public RenderRedrawShip(ShipInfo shipInfo, boolean isDeployable) {
-        super(shipInfo.getX(), shipInfo.getY());
-        this.shipInfo = shipInfo;
-        this.isDeployable = isDeployable;
-    }
-
-    @Override
-    public void render(GraphicsContext gc) {
-        if (isOldCoord(shipInfo.getX(), shipInfo.getY())) {
-            Draw.clearCanvas(gc);
-        }
-        Color color = Draw.setColorForDrawShip(isDeployable);
-        Draw.ShipOnField(gc, color, FirstPlayerGUIConstants.getGUIConstant(),
-                shipInfo.getX(), shipInfo.getY(),
-                Draw.convertTypeToShipLength(shipInfo.getShipType()),
-                shipInfo.isHorizontalOrientation());
-    }
-
-}
- */

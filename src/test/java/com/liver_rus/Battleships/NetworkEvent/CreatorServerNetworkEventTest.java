@@ -23,12 +23,6 @@ class CreatorServerNetworkEventTest {
         event = eventCreator.deserializeMessage(NetworkCommandConstant.NO_REMATCH);
         assertTrue(event instanceof NetworkEventNoRematch);
 
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "223H");
-        assertTrue(event instanceof NetworkEventIsPossibleDeployShip);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "360V");
-        assertTrue(event instanceof NetworkEventIsPossibleDeployShip);
-
         event = eventCreator.deserializeMessage(NetworkCommandConstant.MY_NAME + "Player1");
         assertTrue(event instanceof NetworkEventMyName);
 

@@ -4,7 +4,6 @@ import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderImpossibleDeployShi
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
-import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 
 public class NetworkEventCannotDeploy implements NetworkEventClient {
     private final int x;
@@ -21,7 +20,7 @@ public class NetworkEventCannotDeploy implements NetworkEventClient {
 
     @Override
     public String proceed(GUIActions action) {
-        action.draw(new RenderImpossibleDeployShip(x, y, shipType, isHorizontal, PlayerType.ME));
+        action.redraw(new RenderImpossibleDeployShip(x, y, shipType, isHorizontal));
         return null;
     }
 

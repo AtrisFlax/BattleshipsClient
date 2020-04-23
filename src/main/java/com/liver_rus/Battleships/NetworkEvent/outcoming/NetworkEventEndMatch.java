@@ -20,6 +20,6 @@ public class NetworkEventEndMatch implements NetworkEventClient {
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.END_MATCH + playerType;
+        return NetworkCommandConstant.END_MATCH +  playerType.getString();
     }
 }

@@ -32,17 +32,17 @@ public class NetworkEventShot implements NetworkEventServer {
                 Ship destroyedShip = passivePlayerField.shoot(x, y);
                 if (passivePlayerField.isFieldCellDamaged(x, y)) {
                     answer.add(activePlayer, new NetworkEventDrawHit(x, y, PlayerType.ENEMY));
-                    answer.add(passivePlayer, new NetworkEventDrawHit(x, y, PlayerType.ME));
+                    answer.add(passivePlayer, new NetworkEventDrawHit(x, y, PlayerType.YOU));
                     if (destroyedShip != null) {
                         answer.add(activePlayer, new NetworkEventDrawShip(destroyedShip, PlayerType.ENEMY));
-                        answer.add(passivePlayer, new NetworkEventDrawShip(destroyedShip, PlayerType.ME));
+                        answer.add(passivePlayer, new NetworkEventDrawShip(destroyedShip, PlayerType.YOU));
                         metaInfo.setTurnHolderPlayer(activePlayer);
                         if (passivePlayerField.isAllShipsDestroyed()){
                             GameField field = activePlayer.getGameField();
                             for (Ship leavesShip: field.getShips()) {
                                 answer.add(passivePlayer, new NetworkEventDrawShip(leavesShip, PlayerType.ENEMY));
                             }
-                            answer.add(activePlayer, new NetworkEventEndMatch(PlayerType.ME));
+                            answer.add(activePlayer, new NetworkEventEndMatch(PlayerType.YOU));
                             answer.add(passivePlayer, new NetworkEventEndMatch(PlayerType.ENEMY));
                             metaInfo.setGameEnded();
                             return answer;
@@ -51,7 +51,7 @@ public class NetworkEventShot implements NetworkEventServer {
                     metaInfo.setTurnHolderPlayer(activePlayer);
                 } else {
                     answer.add(activePlayer, new NetworkEventDrawMiss(x, y, PlayerType.ENEMY));
-                    answer.add(passivePlayer, new NetworkEventDrawMiss(x, y, PlayerType.ME));
+                    answer.add(passivePlayer, new NetworkEventDrawMiss(x, y, PlayerType.YOU));
                     metaInfo.setTurnHolderPlayer(passivePlayer);
                 }
                 answer.add(metaInfo.getTurnHolderPlayer(), new NetworkEventCanShoot());
