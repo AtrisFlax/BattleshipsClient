@@ -13,5 +13,4 @@ public class Constants {
     }
 
     public final static int ShipInfoLength = 4;
-
 }

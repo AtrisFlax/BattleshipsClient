@@ -7,10 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-//TODO extract interface
-
-//class binding connection info (SocketChannel) and game primitives (GameField, ready flag)
-//after accepting ships message fields should be swapped
 public class MetaInfo {
 
     private int numAcceptedConnections;
@@ -55,19 +51,6 @@ public class MetaInfo {
         }
     }
 
-    private Player getFirstConnectedPlayerChannel() {
-        return players.get(FIRST_CONNECTED_PLAYER_ID);
-    }
-
-    private Player getSecondConnectedPlayerChannel() {
-        return players.get(SECOND_CONNECTED_PLAYER_ID);
-    }
-
-    private Player randomConnection() {
-        int randID = new Random(System.currentTimeMillis()).nextInt(MAX_CONNECTIONS);
-        return players.get(randID);
-    }
-
     public static int getMaxConnections() {
         return MAX_CONNECTIONS;
     }
@@ -98,14 +81,6 @@ public class MetaInfo {
         this.initTurnOrder = initTurnOrder;
     }
 
-    public boolean isGameStarted() {
-        return isGameStarted;
-    }
-
-    public void setGameStarted(boolean gameStarted) {
-        isGameStarted = gameStarted;
-    }
-
     public void setActivePlayer(SocketChannel channel) {
         for (Player player : players) {
             if (player.getChannel() == channel) {
@@ -113,7 +88,6 @@ public class MetaInfo {
             }
         }
     }
-
 
     //active is whose message was received
     public Player getActivePlayer() {
@@ -139,13 +113,6 @@ public class MetaInfo {
         return getOtherPlayer(turnHolderPlayer);
     }
 
-    private Player getOtherPlayer(Player turnHolderPlayer) {
-        if (turnHolderPlayer.equals(players.get(FIRST_CONNECTED_PLAYER_ID))) {
-            return players.get(SECOND_CONNECTED_PLAYER_ID);
-        } else {
-            return players.get(FIRST_CONNECTED_PLAYER_ID);
-        }
-    }
 
     public int getNumAcceptedConnections() {
         return numAcceptedConnections;
@@ -212,4 +179,26 @@ public class MetaInfo {
         }
         initTurnOrder = TurnOrder.RANDOM_TURN;
     }
+
+    private Player getFirstConnectedPlayerChannel() {
+        return players.get(FIRST_CONNECTED_PLAYER_ID);
+    }
+
+    private Player getSecondConnectedPlayerChannel() {
+        return players.get(SECOND_CONNECTED_PLAYER_ID);
+    }
+
+    private Player randomConnection() {
+        int randID = new Random(System.currentTimeMillis()).nextInt(MAX_CONNECTIONS);
+        return players.get(randID);
+    }
+
+    private Player getOtherPlayer(Player turnHolderPlayer) {
+        if (turnHolderPlayer.equals(players.get(FIRST_CONNECTED_PLAYER_ID))) {
+            return players.get(SECOND_CONNECTED_PLAYER_ID);
+        } else {
+            return players.get(FIRST_CONNECTED_PLAYER_ID);
+        }
+    }
+
 }

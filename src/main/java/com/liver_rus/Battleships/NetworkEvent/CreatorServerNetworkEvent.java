@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.NetworkEvent;
 
-import com.liver_rus.Battleships.NetworkEvent.incoming.*;
+import com.liver_rus.Battleships.NetworkEvent.Server.*;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -17,7 +17,6 @@ public class CreatorServerNetworkEvent {
     static Pattern noTryRematchPattern;
     static Pattern tryRematchPattern;
     static Pattern resetFleetWhileDeployPattern;
-
 
     public CreatorServerNetworkEvent() {
         isPossibleDeployShipPattern = Pattern.compile("^" + IS_POSSIBLE_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");

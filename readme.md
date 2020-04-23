@@ -4,7 +4,7 @@ Quick Build
 -------
 To build your project use:
 
-mvn clean package 
+mvn package 
 
 ---
 jar location:

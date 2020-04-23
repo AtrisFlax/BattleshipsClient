@@ -3,6 +3,7 @@ package com.liver_rus.Battleships.Network.Server.GamePrimitives;
 public class TryingAddTooManyShipsOnFieldException extends Throwable {
 
     public TryingAddTooManyShipsOnFieldException() {
+        super();
     }
 
     public String toString() {

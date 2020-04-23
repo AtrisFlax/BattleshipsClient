@@ -43,7 +43,7 @@ public class ShipInfo {
         this.isHorizontal = isHorizontal;
     }
 
-    //shipInfo format - XYZO
+    //shipInfo format - X Y Z O
     //XY - x,y coordinate from 0 to 9
     //Z - type from 0 to 4
     //O - letter 'H' or 'V'

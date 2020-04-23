@@ -1,21 +1,20 @@
-package com.liver_rus.Battleships.NetworkEvent.outcoming;
+package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
-//client do nothing
-public class NetworkEventNotStartRematch implements NetworkEventClient {
+public class NetworkEventStartRematch implements NetworkEventClient {
 
     @Override
     public String proceed(GUIActions action) {
-        action.notStartRematch();
+        action.startRematch();
         return null;
     }
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.NOT_START_REMATCH;
+        return NetworkCommandConstant.START_REMATCH;
     }
 
 }

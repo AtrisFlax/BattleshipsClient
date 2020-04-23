@@ -1,11 +1,11 @@
-package com.liver_rus.Battleships.NetworkEvent.incoming;
+package com.liver_rus.Battleships.NetworkEvent.Server;
 
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventNotStartRematch;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventNotStartRematch;
 
 public class NetworkEventNoRematch implements NetworkEventServer {
 

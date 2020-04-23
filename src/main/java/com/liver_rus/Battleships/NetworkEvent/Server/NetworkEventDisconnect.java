@@ -1,10 +1,10 @@
-package com.liver_rus.Battleships.NetworkEvent.incoming;
+package com.liver_rus.Battleships.NetworkEvent.Server;
 
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventDoDisconnect;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventDoDisconnect;
 
 public class NetworkEventDisconnect implements NetworkEventServer {
 

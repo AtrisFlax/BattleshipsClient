@@ -12,9 +12,7 @@ public class NetworkCommandConstant {
     public final static String NO_REMATCH = "DONT_TRY_REMATCH";
     public final static String RESET_FLEET_WHILE_DEPLOY = "RESET_FLEET_WHILE_DEPLOY";
 
-
     //server commands to client
-    public final static String OK = "OK";
     public final static String START_REMATCH = "START_REMATCH";
     public final static String NOT_START_REMATCH = "DONT_START_REMATCH";
     public final static String WAITING_FOR_SECOND_PLAYER = "WAITING_FOR_SECOND_PLAYER";

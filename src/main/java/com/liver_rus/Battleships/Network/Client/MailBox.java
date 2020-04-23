@@ -7,6 +7,3 @@ public interface MailBox {
     void sendMessage(String message);
     void disconnect();
 }
-
-//TODO СМ readme
-//mvn clean нужен ли ????

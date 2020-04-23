@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.NetworkEvent;
 
-import com.liver_rus.Battleships.NetworkEvent.incoming.*;
+import com.liver_rus.Battleships.NetworkEvent.Server.*;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 

@@ -1,14 +1,14 @@
-package com.liver_rus.Battleships.NetworkEvent.incoming;
+package com.liver_rus.Battleships.NetworkEvent.Server;
 
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventDeploy;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventSetEnemyName;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventWaitingSecondPlayer;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventDeploy;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventSetEnemyName;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventWaitingSecondPlayer;
 
 public class NetworkEventMyName implements NetworkEventServer {
     private final String name;

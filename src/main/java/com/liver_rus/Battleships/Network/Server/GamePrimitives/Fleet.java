@@ -75,7 +75,6 @@ public class Fleet {
                 "leftAlive=" + leftAlive;
     }
 
-    //TODO package private?
     public int[] getShipsLeftByType() {
         return ships;
     }
@@ -83,7 +82,6 @@ public class Fleet {
     public List<Ship> getShips() {
         return shipsList;
     }
-
 
     private static int[] shipsBuilder() {
         return Arrays.copyOf(initShipsByType, initShipsByType.length);

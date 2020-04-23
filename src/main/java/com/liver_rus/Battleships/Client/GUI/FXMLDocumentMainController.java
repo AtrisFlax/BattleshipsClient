@@ -9,7 +9,6 @@ import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderHit;
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderRedrawHitEnemy;
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderRedrawShip;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
-import com.liver_rus.Battleships.Network.Server.GameServer;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
@@ -36,8 +35,6 @@ import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField.FIELD_SIZE;
 
 
-//TODO objects and handles separate to file
-//logic in another file
 public class FXMLDocumentMainController implements Initializable, GUIActions {
     @FXML
     private Button shipType4Button;
@@ -93,8 +90,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
 
 
     private ShipInfo shipInfo;
-    private GameServer gameServer;
-
 
     private boolean isShipSelected;
     boolean isDeploying;
@@ -119,7 +114,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
 
     @Override
     public void setEnemyName(String name) {
-        Platform.runLater(() -> { playerEnemyLabel.setText(name); });
+        Platform.runLater(() -> playerEnemyLabel.setText(name));
     }
 
     @FXML
@@ -206,8 +201,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
                     setMyName(myName);
                     if (dialog.isStartServer()) {
                         try {
-                            gameServer = GameServer.create(ip, port);
-                            gameServer.start();
+                            clientGameEngine.startServer(ip, port);
                         } catch (IOException e) {
                             e.printStackTrace();
                             Alert alert = new Alert(Alert.AlertType.WARNING);
@@ -221,8 +215,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
                 }
             });
             stage.show();
-            //TODO round traction
-            //numRoundLabel.setText(Integer.toString(1));
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to create new Window.", e);
         }
@@ -245,7 +237,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
     @FXML
     protected void handleDisconnectMenuItem() {
         clientGameEngine.close();
-        gameServer.close();
     }
 
     @Override
@@ -424,10 +415,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
                 }
             }
         }
-    }
-
-    public void setGameServer(GameServer gameServer) {
-        this.gameServer = gameServer;
     }
 
     public boolean isNotIntersectionShipWithBorder(ShipInfo info) {

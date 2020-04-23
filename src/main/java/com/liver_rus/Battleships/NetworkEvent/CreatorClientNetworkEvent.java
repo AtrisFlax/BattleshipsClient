@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.NetworkEvent;
 
-import com.liver_rus.Battleships.NetworkEvent.outcoming.*;
+import com.liver_rus.Battleships.NetworkEvent.Client.*;
 
 import java.util.ArrayList;
 import java.util.List;

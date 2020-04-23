@@ -1,20 +1,20 @@
-package com.liver_rus.Battleships.NetworkEvent.outcoming;
+package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
-public class NetworkEventDoDisconnect implements NetworkEventClient {
+public class NetworkEventCanShoot implements NetworkEventClient {
 
     @Override
     public String proceed(GUIActions action) {
-        action.disconnect();
+        action.canShot();
         return null;
     }
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.DO_DISCONNECT;
+        return NetworkCommandConstant.CAN_SHOOT;
     }
 
 }

@@ -39,6 +39,4 @@ public abstract class Redraw {
     private boolean enemyFieldCoordinateHadBeenChanged(int x, int y) {
         return lastX != x || lastY != y;
     }
-
-    //TODO set lastX lastY UNDEFINED_COORD while global reset
 }

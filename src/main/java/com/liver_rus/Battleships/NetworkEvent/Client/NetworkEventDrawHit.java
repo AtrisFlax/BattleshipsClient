@@ -1,4 +1,4 @@
-package com.liver_rus.Battleships.NetworkEvent.outcoming;
+package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderHit;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;

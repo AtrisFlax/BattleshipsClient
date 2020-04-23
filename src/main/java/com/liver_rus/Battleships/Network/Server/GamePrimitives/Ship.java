@@ -146,21 +146,7 @@ public class Ship {
             return 'V';
         }
     }
-
-    void printOnConsole() {
-        System.out.print("x=" + getShipStartCoord().getX() + " y=" + getShipStartCoord().getY() + " ");
-        System.out.print(type + " ");
-        for (FieldCoord cell : shipCoords) {
-            if (!cell.getTag()) {
-                System.out.print("|#|");
-            } else {
-                System.out.print("|X|");
-            }
-            System.out.print(" ");
-        }
-        System.out.println();
-    }
-
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

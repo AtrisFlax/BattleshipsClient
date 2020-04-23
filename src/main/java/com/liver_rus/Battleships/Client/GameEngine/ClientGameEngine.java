@@ -4,34 +4,32 @@ import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 import com.liver_rus.Battleships.Network.Client.MailBox;
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
+import com.liver_rus.Battleships.Network.Server.GameServer;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventDoDisconnect;
 import com.liver_rus.Battleships.NetworkEvent.CreatorClientNetworkEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
-import com.liver_rus.Battleships.NetworkEvent.incoming.*;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventDoDisconnect;
+import com.liver_rus.Battleships.NetworkEvent.Server.*;
 
-import java.lang.invoke.MethodHandles;
-import java.util.logging.Logger;
+import java.io.IOException;
 
 public class ClientGameEngine implements ClientActions {
-    private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
-
     private MailBox netClient;
     private FXMLDocumentMainController controller;
     CreatorClientNetworkEvent eventCreator;
+    GameServer gameServer;
 
     @Override
     public void close() {
         netClient.disconnect();
         netClient = null;
         controller.reset();
+        gameServer.close();
     }
 
     public ClientGameEngine() {
          eventCreator = new CreatorClientNetworkEvent();
     }
-
-
 
     @Override
     public void startNetwork(String ip, int port, String myName) {
@@ -58,6 +56,12 @@ public class ClientGameEngine implements ClientActions {
     @Override
     public void shot(int x, int y) {
         sendEvent(new NetworkEventShot(x, y));
+    }
+
+    @Override
+    public void startServer(String ip, int port) throws IOException {
+        gameServer = GameServer.create(ip, port);
+        gameServer.start();
     }
 
     private void sendEvent(NetworkEventServer event) {

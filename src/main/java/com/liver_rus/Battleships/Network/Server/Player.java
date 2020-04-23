@@ -6,10 +6,9 @@ import java.nio.channels.SocketChannel;
 
 public class Player {
     private SocketChannel channel;
-    private GameField gameField;
+    private final GameField gameField;
     private boolean readyForDeployment;
     private boolean readyForGame;
-    private boolean connected;
     private boolean wantRematch;
     private String name;
 
@@ -17,7 +16,6 @@ public class Player {
         this.channel = channel;
         this.gameField = gameField;
         this.name = "Player";
-        this.connected = false;
         readyForDeployment = false;
         readyForGame = false;
     }
@@ -32,10 +30,6 @@ public class Player {
 
     public GameField getGameField() {
         return gameField;
-    }
-
-    public void setGameField(GameField gameField) {
-        this.gameField = gameField;
     }
 
     public boolean isReadyForDeployment() {
@@ -55,16 +49,6 @@ public class Player {
             readyForDeployment = false;
         }
         this.readyForGame = readyForGame;
-
-
-    }
-
-    public boolean isConnected() {
-        return connected;
-    }
-
-    public void setConnected(boolean connected) {
-        this.connected = connected;
     }
 
     public String getName() {
@@ -91,7 +75,6 @@ public class Player {
         Player player = (Player) o;
 
         if (readyForGame != player.readyForGame) return false;
-        if (connected != player.connected) return false;
         if (!channel.equals(player.channel)) return false;
         if (!gameField.equals(player.gameField)) return false;
         return name.equals(player.name);
@@ -102,9 +85,7 @@ public class Player {
         int result = channel.hashCode();
         result = 31 * result + gameField.hashCode();
         result = 31 * result + (readyForGame ? 1 : 0);
-        result = 31 * result + (connected ? 1 : 0);
         result = 31 * result + name.hashCode();
         return result;
     }
-
 }

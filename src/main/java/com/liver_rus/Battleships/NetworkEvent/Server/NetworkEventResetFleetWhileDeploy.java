@@ -1,13 +1,13 @@
-package com.liver_rus.Battleships.NetworkEvent.incoming;
+package com.liver_rus.Battleships.NetworkEvent.Server;
 
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventCommandNotAccepted;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventDeploy;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventCommandNotAccepted;
-import com.liver_rus.Battleships.NetworkEvent.outcoming.NetworkEventDeploy;
 
 public class NetworkEventResetFleetWhileDeploy implements NetworkEventServer {
 

@@ -9,9 +9,6 @@ import javafx.scene.input.MouseEvent;
  * Класс для преобразования координат экрана в коориданты поля игры.
  */
 
-//TODO добавить тест на класс
-
-//check borders входил ли в рамки
 public class SceneCoord {
     private SceneCoord() {}
 

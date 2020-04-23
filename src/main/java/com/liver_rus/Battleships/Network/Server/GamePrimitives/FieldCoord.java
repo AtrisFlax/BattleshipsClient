@@ -14,14 +14,11 @@ public class FieldCoord {
             throw new IllegalArgumentException("x should be x>=0 and x<"+ GameField.FIELD_SIZE + " Real x=" + x);
         if (y < 0 || y >= GameField.FIELD_SIZE)
             throw new IllegalArgumentException("y should be y>=0 and y<"+ GameField.FIELD_SIZE + " Real y=" + y);
-
         this.x = x;
         this.y = y;
         type = FieldCell.CLEAR;
     }
 
-
-    //TODO SceneCoord Game field cut relation
     public FieldCoord(MouseEvent event, GUIConstants constants) {
         this.x = SceneCoord.transformToFieldX(event.getSceneX(), constants);
         this.y = SceneCoord.transformToFieldY(event.getSceneY(), constants);

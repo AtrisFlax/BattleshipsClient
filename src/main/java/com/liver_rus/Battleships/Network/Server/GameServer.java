@@ -3,7 +3,7 @@ package com.liver_rus.Battleships.Network.Server;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.StartStopThread;
 import com.liver_rus.Battleships.NetworkEvent.*;
-import com.liver_rus.Battleships.NetworkEvent.incoming.NetworkEventDisconnect;
+import com.liver_rus.Battleships.NetworkEvent.Server.NetworkEventDisconnect;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -36,11 +36,10 @@ public class GameServer extends Thread implements StartStopThread {
     }
 
     private static final int WRITE_BUFFER_SIZE = 8192;
-    private ByteBuffer writeBuffer = allocate(WRITE_BUFFER_SIZE);
-    private ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);
+    private final ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);
 
     private ServerSocketChannel serverChannel;
-    private List<SocketChannel> openedClientChannels;
+    private final List<SocketChannel> openedClientChannels;
     private Selector selector;
 
     private final static int MAX_CONNECTIONS = MetaInfo.getMaxConnections();
@@ -56,7 +55,6 @@ public class GameServer extends Thread implements StartStopThread {
      *
      * @param port             server port
      * @param injectGameFields injected game primitives
-     * @throws IOException
      */
 
     public GameServer(String ipAddress, int port, GameField[] injectGameFields) throws IOException {
@@ -197,17 +195,11 @@ public class GameServer extends Thread implements StartStopThread {
         }
     }
 
-    /**
-     * Read message from client
-     *
-     * @param key
-     * @throws IOException
-     */
     private void readMessage(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
         StringBuilder messageBuilder = new StringBuilder();
         readBuffer.clear();
-        int read = 0;
+        int read;
         while ((read = socketChannel.read(readBuffer)) > 0) {
             readBuffer.flip();
             byte[] bytes = new byte[readBuffer.limit()];
