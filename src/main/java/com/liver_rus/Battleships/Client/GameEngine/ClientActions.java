@@ -4,6 +4,7 @@ import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 
 import java.io.IOException;
+
 public interface ClientActions {
     void close() throws IOException;
 

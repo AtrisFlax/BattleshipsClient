@@ -9,17 +9,15 @@ import static com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant.*;
 
 //Common deserialize class
 public class CreatorServerNetworkEvent {
-    static Pattern isPossibleDeployShipPattern;
-    static Pattern myNamePattern;
-    static Pattern tryDeployShipPattern;
-    static Pattern shotPattern;
-    static Pattern disconnectPattern;
-    static Pattern noTryRematchPattern;
-    static Pattern tryRematchPattern;
-    static Pattern resetFleetWhileDeployPattern;
+    private final Pattern myNamePattern;
+    private final Pattern tryDeployShipPattern;
+    private final Pattern shotPattern;
+    private final Pattern disconnectPattern;
+    private final Pattern noTryRematchPattern;
+    private final Pattern tryRematchPattern;
+    private final Pattern resetFleetWhileDeployPattern;
 
     public CreatorServerNetworkEvent() {
-        isPossibleDeployShipPattern = Pattern.compile("^" + IS_POSSIBLE_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");
         myNamePattern = Pattern.compile("^" + MY_NAME + "(.+)");
         tryDeployShipPattern = Pattern.compile("^" + TRY_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");
         shotPattern = Pattern.compile("^" + SHOT + "(\\d)(\\d)" + "$");
@@ -29,10 +27,10 @@ public class CreatorServerNetworkEvent {
         resetFleetWhileDeployPattern = Pattern.compile("^" + RESET_FLEET_WHILE_DEPLOY + "$");
     }
 
-    public NetworkEventServer deserializeMessage(String msg) {
+    public NetworkServerEvent deserializeMessage(String msg) {
         Matcher matcher = myNamePattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventMyName(matcher.group(1));
+            return new NetworkMyNameEvent(matcher.group(1));
         }
 
         matcher = tryDeployShipPattern.matcher(msg);
@@ -41,37 +39,35 @@ public class CreatorServerNetworkEvent {
             int y = Integer.parseInt(matcher.group(2));
             int type = Integer.parseInt(matcher.group(3));
             boolean isHorizontal = matcher.group(4).equals("H");
-            return new NetworkEventTryDeployShip(x, y, type, isHorizontal);
+            return new NetworkTryDeployShipEvent(x, y, type, isHorizontal);
         }
 
         matcher = shotPattern.matcher(msg);
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
-            return new NetworkEventShot(x, y);
+            return new NetworkShotEvent(x, y);
         }
 
         matcher = disconnectPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventDisconnect();
+            return new NetworkDisconnectEvent();
         }
 
         matcher = noTryRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventNoRematch();
+            return new NetworkNoRematchEvent();
         }
 
         matcher = tryRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventTryRematch();
+            return new NetworkTryRematchEvent();
         }
 
         matcher = resetFleetWhileDeployPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventResetFleetWhileDeploy();
+            return new NetworkResetFleetWhileDeployEvent();
         }
-
-
-        return new NetworkEventUnknownCommandServer(msg);
+        return new NetworkUnknownCommandServerEvent(msg);
     }
 }

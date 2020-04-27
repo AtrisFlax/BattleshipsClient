@@ -1,10 +1,10 @@
 package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
-public class NetworkEventStartRematch implements NetworkEventClient {
+public class NetworkStartRematchEvent implements NetworkClientEvent {
 
     @Override
     public String proceed(GUIActions action) {

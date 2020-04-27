@@ -11,7 +11,7 @@ public class RenderShip implements DrawGUIEvent {
     private final int y;
     private final int shipType;
     private final boolean isHorizontal;
-    PlayerType playerType;
+    private final PlayerType playerType;
 
     public RenderShip(int x, int y, int shipType, boolean isHorizontal, PlayerType playerType) {
         this.x = x;

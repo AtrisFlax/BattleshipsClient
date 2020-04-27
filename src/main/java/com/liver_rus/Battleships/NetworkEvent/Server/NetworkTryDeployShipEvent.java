@@ -7,19 +7,18 @@ import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
 import com.liver_rus.Battleships.NetworkEvent.Client.*;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
+import com.liver_rus.Battleships.NetworkEvent.NetworkServerEvent;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_TYPE;
 
-public class NetworkEventTryDeployShip implements NetworkEventServer {
-
+public class NetworkTryDeployShipEvent implements NetworkServerEvent {
     private final int x;
     private final int y;
     private final int type;
     private final boolean isHorizontal;
 
-    public NetworkEventTryDeployShip(int x, int y, int type, boolean isHorizontal) {
+    public NetworkTryDeployShipEvent(int x, int y, int type, boolean isHorizontal) {
         assert (x >= 0 && x <= 9);
         assert (y >= 0 && y <= 9);
         assert (type >= 0 && type  < NUM_TYPE);
@@ -41,29 +40,29 @@ public class NetworkEventTryDeployShip implements NetworkEventServer {
                 e.printStackTrace();
             }
             if (shipCreated) {
-                answer.add(activePlayer, new NetworkEventDrawShip(x, y, type, isHorizontal, PlayerType.YOU));
+                answer.add(activePlayer, new NetworkDrawShipEvent(x, y, type, isHorizontal, PlayerType.YOU));
             } else {
-                answer.add(activePlayer, new NetworkEventCannotDeploy(x, y, type, isHorizontal));
+                answer.add(activePlayer, new NetworkCannotDeployEvent(x, y, type, isHorizontal));
             }
             if (activePlayerField.isAllShipsDeployed()) {
                 activePlayer.setReadyForGame(true);
                 activePlayer.setReadyForDeployment(false);
                 if (metaInfo.isPlayersReadyForGame()) {
                     metaInfo.setTurnHolder();
-                    answer.add(metaInfo.getTurnHolderPlayer(), new NetworkEventCanShoot());
+                    answer.add(metaInfo.getTurnHolderPlayer(), new NetworkCanShootEvent());
                     answer.add(metaInfo.getNotTurnHolderPlayer(),
-                            new NetworkEventWaitingSecondPlayer("Waiting shot of second player"));
+                            new NetworkWaitingSecondPlayerEvent("Waiting shot of second player"));
                 } else {
                     answer.add(activePlayer,
-                            new NetworkEventWaitingSecondPlayer("Waiting deployment of second player"));
+                            new NetworkWaitingSecondPlayerEvent("Waiting deployment of second player"));
                 }
             } else {
-                answer.add(activePlayer, new NetworkEventDeploy(activePlayerField.getShipsLeftByTypeForDeploy()));
+                answer.add(activePlayer, new NetworkDeployEvent(activePlayerField.getShipsLeftByTypeForDeploy()));
             }
 
         } else {
             answer.add(activePlayer,
-                    new NetworkEventCommandNotAccepted("Deploying is already has ended or hasn't started"));
+                    new NetworkCommandNotAcceptedEvent("Deploying is already has ended or hasn't started"));
         }
         return answer;
     }

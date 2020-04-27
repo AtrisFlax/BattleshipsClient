@@ -12,20 +12,19 @@ import static com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant.*;
 
 //Common deserialize class
 public class CreatorClientNetworkEvent {
-    static Pattern eventCanDeployPattern;
-    static Pattern eventCannotDeployPattern;
-    static Pattern eventCanShootPattern;
-    static Pattern eventCommandNotAcceptedPattern;
-    static Pattern eventDeployPattern;
-    static Pattern eventDoDisconnectPattern;
-    static Pattern eventNotStartRematchPattern;
-    static Pattern eventDrawHitPattern;
-    static Pattern eventDrawMissPattern;
-    static Pattern eventDrawShipPattern;
-    static Pattern eventSetEnemyNamePattern;
-    static Pattern eventStartRematchPattern;
-    static Pattern eventWaitingForSecondPlayerPattern;
-    static Pattern eventEndMatchPattern;
+    private final Pattern eventCannotDeployPattern;
+    private final Pattern eventCanShootPattern;
+    private final Pattern eventCommandNotAcceptedPattern;
+    private final Pattern eventDeployPattern;
+    private final Pattern eventDoDisconnectPattern;
+    private final Pattern eventNotStartRematchPattern;
+    private final Pattern eventDrawHitPattern;
+    private final Pattern eventDrawMissPattern;
+    private final Pattern eventDrawShipPattern;
+    private final Pattern eventSetEnemyNamePattern;
+    private final Pattern eventStartRematchPattern;
+    private final Pattern eventWaitingForSecondPlayerPattern;
+    private final Pattern eventEndMatchPattern;
 
     public CreatorClientNetworkEvent() {
         String xyto = "(\\d)(\\d)(\\d)([VH])"; //x y type orientation
@@ -33,7 +32,6 @@ public class CreatorClientNetworkEvent {
         String player = "(" + YOU + "|" + ENEMY + ")";
         String shipsLeftByType = "(\\d)(\\d)(\\d)(\\d)(\\d)"; //x y type orientation
 
-        eventCanDeployPattern = Pattern.compile("^" + DEPLOY + xyto + "$");
         eventCannotDeployPattern = Pattern.compile("^" + CANNOT_DEPLOY + xyto + "$");
         eventCanShootPattern = Pattern.compile("^" + CAN_SHOOT + "$");
         eventCommandNotAcceptedPattern = Pattern.compile("^" + COMMAND_NOT_ACCEPTED + "(.*)");
@@ -49,22 +47,22 @@ public class CreatorClientNetworkEvent {
         eventEndMatchPattern = Pattern.compile("^" + END_MATCH + player + "$");
     }
 
-    public NetworkEventClient deserializeMessage(String msg) {
+    public NetworkClientEvent deserializeMessage(String msg) {
         Matcher matcher = eventCannotDeployPattern.matcher(msg);
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
             int type = Integer.parseInt(matcher.group(3));
             boolean isHorizontal = matcher.group(4).equals("H");
-            return new NetworkEventCannotDeploy(x, y, type, isHorizontal);
+            return new NetworkCannotDeployEvent(x, y, type, isHorizontal);
         }
         matcher = eventCanShootPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventCanShoot();
+            return new NetworkCanShootEvent();
         }
         matcher = eventCommandNotAcceptedPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventCommandNotAccepted(matcher.group(1));
+            return new NetworkCommandNotAcceptedEvent(matcher.group(1));
         }
         matcher = eventDeployPattern.matcher(msg);
         if (matcher.find()) {
@@ -72,29 +70,29 @@ public class CreatorClientNetworkEvent {
             for (int i = 1; i < NUM_TYPE + 1; i++) {
                 list.add(Integer.parseInt(matcher.group(i)));
             }
-            return new NetworkEventDeploy(list.stream().mapToInt(Integer::intValue).toArray());
+            return new NetworkDeployEvent(list.stream().mapToInt(Integer::intValue).toArray());
         }
         matcher = eventDoDisconnectPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventDoDisconnect();
+            return new NetworkDoDisconnectEvent();
         }
         matcher = eventNotStartRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventNotStartRematch();
+            return new NetworkNotStartRematchEvent();
         }
         matcher = eventDrawHitPattern.matcher(msg);
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
             PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
-            return new NetworkEventDrawHit(x, y, playerType);
+            return new NetworkDrawHitEvent(x, y, playerType);
         }
         matcher = eventDrawMissPattern.matcher(msg);
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
             PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
-            return new NetworkEventDrawMiss(x, y, playerType);
+            return new NetworkDrawMissEvent(x, y, playerType);
         }
         matcher = eventDrawShipPattern.matcher(msg);
         if (matcher.find()) {
@@ -103,25 +101,25 @@ public class CreatorClientNetworkEvent {
             int type = Integer.parseInt(matcher.group(3));
             boolean isHorizontal = matcher.group(4).equals("H");
             PlayerType playerType = matcher.group(5).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
-            return new NetworkEventDrawShip(x, y, type, isHorizontal, playerType);
+            return new NetworkDrawShipEvent(x, y, type, isHorizontal, playerType);
         }
         matcher = eventSetEnemyNamePattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventSetEnemyName(matcher.group(1));
+            return new NetworkSetEnemyNameEvent(matcher.group(1));
         }
         matcher = eventStartRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventStartRematch();
+            return new NetworkStartRematchEvent();
         }
         matcher = eventWaitingForSecondPlayerPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkEventWaitingSecondPlayer(matcher.group(1));
+            return new NetworkWaitingSecondPlayerEvent(matcher.group(1));
         }
         matcher = eventEndMatchPattern.matcher(msg);
         if (matcher.find()) {
             PlayerType playerType = matcher.group(1).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
-            return new NetworkEventEndMatch(playerType);
+            return new NetworkEndMatchEvent(playerType);
         }
-        return new NetworkEventUnknownCommandClient(msg);
+        return new NetworkUnknownCommandClientEvent(msg);
     }
 }

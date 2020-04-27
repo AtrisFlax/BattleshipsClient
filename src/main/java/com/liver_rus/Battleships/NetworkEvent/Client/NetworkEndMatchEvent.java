@@ -1,15 +1,15 @@
 package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 
-public class NetworkEventEndMatch implements NetworkEventClient {
+public class NetworkEndMatchEvent implements NetworkClientEvent {
     //player show who win
     private final PlayerType playerType;
 
-    public NetworkEventEndMatch(PlayerType playerType) {
+    public NetworkEndMatchEvent(PlayerType playerType) {
         this.playerType = playerType;
     }
 

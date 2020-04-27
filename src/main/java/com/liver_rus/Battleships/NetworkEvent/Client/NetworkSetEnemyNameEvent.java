@@ -1,15 +1,15 @@
 package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
 //client do nothing
-public class NetworkEventSetEnemyName implements NetworkEventClient {
+public class NetworkSetEnemyNameEvent implements NetworkClientEvent {
 
     String enemy_name;
 
-    public NetworkEventSetEnemyName(String enemy_name) {
+    public NetworkSetEnemyNameEvent(String enemy_name) {
         this.enemy_name = enemy_name;
     }
 

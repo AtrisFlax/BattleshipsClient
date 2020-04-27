@@ -1,14 +1,14 @@
 package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
-public class NetworkEventWaitingSecondPlayer implements NetworkEventClient {
+public class NetworkWaitingSecondPlayerEvent implements NetworkClientEvent {
 
     final String reason;
 
-    public NetworkEventWaitingSecondPlayer(String reason) {
+    public NetworkWaitingSecondPlayerEvent(String reason) {
         this.reason = reason;
     }
 

@@ -4,12 +4,12 @@ import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
-import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventCommandNotAccepted;
-import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventDeploy;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkCommandNotAcceptedEvent;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkDeployEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
+import com.liver_rus.Battleships.NetworkEvent.NetworkServerEvent;
 
-public class NetworkEventResetFleetWhileDeploy implements NetworkEventServer {
+public class NetworkResetFleetWhileDeployEvent implements NetworkServerEvent {
 
     public Answer proceed(MetaInfo metaInfo)  {
         Answer answer = new Answer();
@@ -17,10 +17,10 @@ public class NetworkEventResetFleetWhileDeploy implements NetworkEventServer {
         if (activePlayer.isReadyForDeployment()) {
             GameField activePlayerField = activePlayer.getGameField();
             activePlayerField.reset();
-            answer.add(activePlayer, new NetworkEventDeploy(activePlayerField.getShipsLeftByTypeForDeploy()));
+            answer.add(activePlayer, new NetworkDeployEvent(activePlayerField.getShipsLeftByTypeForDeploy()));
         } else {
             answer.add(activePlayer,
-                    new NetworkEventCommandNotAccepted("Deploying is already has ended or hasn't started"));
+                    new NetworkCommandNotAcceptedEvent("Deploying is already has ended or hasn't started"));
         }
         return answer;
     }

@@ -7,14 +7,14 @@ import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.NetworkEvent.Answer;
 import com.liver_rus.Battleships.NetworkEvent.Client.*;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
+import com.liver_rus.Battleships.NetworkEvent.NetworkServerEvent;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 
-public class NetworkEventShot implements NetworkEventServer {
+public class NetworkShotEvent implements NetworkServerEvent {
     private final int x;
     private final int y;
 
-    public NetworkEventShot(int x, int y) {
+    public NetworkShotEvent(int x, int y) {
         assert (x >= 0 && x <= 9);
         assert (y >= 0 && y <= 9);
         this.x = x;
@@ -31,35 +31,35 @@ public class NetworkEventShot implements NetworkEventServer {
             if (activePlayer == metaInfo.getTurnHolderPlayer()) {
                 Ship destroyedShip = passivePlayerField.shoot(x, y);
                 if (passivePlayerField.isFieldCellDamaged(x, y)) {
-                    answer.add(activePlayer, new NetworkEventDrawHit(x, y, PlayerType.ENEMY));
-                    answer.add(passivePlayer, new NetworkEventDrawHit(x, y, PlayerType.YOU));
+                    answer.add(activePlayer, new NetworkDrawHitEvent(x, y, PlayerType.ENEMY));
+                    answer.add(passivePlayer, new NetworkDrawHitEvent(x, y, PlayerType.YOU));
                     if (destroyedShip != null) {
-                        answer.add(activePlayer, new NetworkEventDrawShip(destroyedShip, PlayerType.ENEMY));
-                        answer.add(passivePlayer, new NetworkEventDrawShip(destroyedShip, PlayerType.YOU));
+                        answer.add(activePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.ENEMY));
+                        answer.add(passivePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.YOU));
                         metaInfo.setTurnHolderPlayer(activePlayer);
                         if (passivePlayerField.isAllShipsDestroyed()){
                             GameField field = activePlayer.getGameField();
                             for (Ship leavesShip: field.getShips()) {
-                                answer.add(passivePlayer, new NetworkEventDrawShip(leavesShip, PlayerType.ENEMY));
+                                answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
                             }
-                            answer.add(activePlayer, new NetworkEventEndMatch(PlayerType.YOU));
-                            answer.add(passivePlayer, new NetworkEventEndMatch(PlayerType.ENEMY));
+                            answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
+                            answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
                             metaInfo.setGameEnded();
                             return answer;
                         }
                     }
                     metaInfo.setTurnHolderPlayer(activePlayer);
                 } else {
-                    answer.add(activePlayer, new NetworkEventDrawMiss(x, y, PlayerType.ENEMY));
-                    answer.add(passivePlayer, new NetworkEventDrawMiss(x, y, PlayerType.YOU));
+                    answer.add(activePlayer, new NetworkDrawMissEvent(x, y, PlayerType.ENEMY));
+                    answer.add(passivePlayer, new NetworkDrawMissEvent(x, y, PlayerType.YOU));
                     metaInfo.setTurnHolderPlayer(passivePlayer);
                 }
-                answer.add(metaInfo.getTurnHolderPlayer(), new NetworkEventCanShoot());
+                answer.add(metaInfo.getTurnHolderPlayer(), new NetworkCanShootEvent());
             } else {
-                answer.add(activePlayer, new NetworkEventCommandNotAccepted("Not You Turn"));
+                answer.add(activePlayer, new NetworkCommandNotAcceptedEvent("Not You Turn"));
             }
         } else {
-            answer.add(activePlayer, new NetworkEventCommandNotAccepted("Game has not been started"));
+            answer.add(activePlayer, new NetworkCommandNotAcceptedEvent("Game has not been started"));
         }
         return answer;
     }

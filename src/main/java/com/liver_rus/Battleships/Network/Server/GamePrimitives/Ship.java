@@ -16,17 +16,7 @@ public class Ship {
     private final int type;
     private boolean alive;
 
-
-    //TODO delete comment
-    /* type <-> int type
-      AIRCRAFT_CARRIER(4),
-        BATTLESHIP(3),
-        CRUISER(2),
-        DESTROYER(1),
-        SUBMARINE(0),
-        UNKNOWN(-1);
-     */
-    static Ship create(int x, int y, int type, boolean isHorizontal, GameField field) {
+    public static Ship create(int x, int y, int type, boolean isHorizontal, GameField field) {
         if (checkField(x, y, type, isHorizontal, field)) {
             return new Ship(x, y, type, isHorizontal, field);
         } else {
@@ -50,10 +40,6 @@ public class Ship {
         }
     }
 
-//    public static Ship create(GUIState state) {
-//        return create(state.getX(), state.getY(), state.getShipType(), state.isHorizontalOrientation());
-//    }
-
     public static Ship[] createShips(String[] shipsInfo, GameField field) throws IOException, WrongShipInfoSizeException {
         if (shipsInfo.length != Fleet.getNumMaxShip()) {
             throw new IllegalArgumentException("Not enough symbols in ship. Can't create fleet");
@@ -66,7 +52,7 @@ public class Ship {
         }
     }
 
-    FieldCoord[] getShipCoords() {
+    public FieldCoord[] getShipCoords() {
         return shipCoords;
     }
 
@@ -90,6 +76,14 @@ public class Ship {
         this.alive = alive;
     }
 
+    public boolean isHorizontal() {
+        return isHorizontal;
+    }
+
+    public int getType() {
+        return type;
+    }
+
     @Override
     public String toString() {
         return Integer.toString((shipCoords[0].getX())) +
@@ -98,12 +92,38 @@ public class Ship {
                 orientationToChar(isHorizontal);
     }
 
-    public boolean isHorizontal() {
-        return isHorizontal;
+    public static boolean charToIsHorizontal(char c) throws IOException {
+        if (c == 'H') {
+            return true;
+        } else {
+            if (c == 'V') {
+                return false;
+            } else {
+                throw new IOException("Wrong Char in orientation ship string definition!");
+            }
+        }
     }
 
-    public int getType() {
-        return type;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Ship ship = (Ship) o;
+
+        if (!Arrays.deepEquals(shipCoords, ship.shipCoords)) return false;
+        if (isHorizontal != ship.isHorizontal) return false;
+        if (type != ship.type) return false;
+        return alive == ship.alive;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = Arrays.hashCode(shipCoords);
+        result = 31 * result + (isHorizontal ? 1 : 0);
+        result = 31 * result + type;
+        result = 31 * result + (alive ? 1 : 0);
+        return result;
     }
 
     private Ship(int x, int y, int type, boolean isHorizontal, GameField field) {
@@ -127,46 +147,12 @@ public class Ship {
                 field.isNotIntersectionWithShips(x, y, shipType, isHorizontal);
     }
 
-    public static boolean charToIsHorizontal(char c) throws IOException {
-        if (c == 'H') {
-            return true;
-        } else {
-            if (c == 'V') {
-                return false;
-            } else {
-                throw new IOException("Wrong Char in orientation ship string definition!");
-            }
-        }
-    }
-
     private static char orientationToChar(boolean isHorizontal) {
         if (isHorizontal) {
             return 'H';
         } else {
             return 'V';
         }
-    }
-    
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Ship ship = (Ship) o;
-
-        if (!Arrays.deepEquals(shipCoords, ship.shipCoords)) return false;
-        if (isHorizontal != ship.isHorizontal) return false;
-        if (type != ship.type) return false;
-        return alive == ship.alive;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = Arrays.hashCode(shipCoords);
-        result = 31 * result + (isHorizontal ? 1 : 0);
-        result = 31 * result + type;
-        result = 31 * result + (alive ? 1 : 0);
-        return result;
     }
 }
 

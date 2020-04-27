@@ -2,17 +2,17 @@ package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderMiss;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 
 //client do nothing
-public class NetworkEventDrawMiss implements NetworkEventClient {
+public class NetworkDrawMissEvent implements NetworkClientEvent {
     private final int x;
     private final int y;
     private final PlayerType playerType;
 
-    public NetworkEventDrawMiss(int x, int y, PlayerType playerType) {
+    public NetworkDrawMissEvent(int x, int y, PlayerType playerType) {
         assert (x >= 0 && x <= 9);
         assert (y >= 0 && y <= 9);
         this.x = x;

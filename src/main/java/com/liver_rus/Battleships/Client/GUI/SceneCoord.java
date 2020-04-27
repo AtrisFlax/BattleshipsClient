@@ -6,7 +6,7 @@ import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
 import javafx.scene.input.MouseEvent;
 
 /**
- * Класс для преобразования координат экрана в коориданты поля игры.
+ * Class for converting screen coordinates to the coordinates of the game field
  */
 
 public class SceneCoord {

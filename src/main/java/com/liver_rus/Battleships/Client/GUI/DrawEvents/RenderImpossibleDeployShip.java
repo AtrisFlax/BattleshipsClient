@@ -4,7 +4,7 @@ import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.Draw;
 import javafx.scene.canvas.GraphicsContext;
 
-public class RenderImpossibleDeployShip implements DrawGUIEvent {
+public final class RenderImpossibleDeployShip implements DrawGUIEvent {
     private final int x;
     private final int y;
     private final int shipType;

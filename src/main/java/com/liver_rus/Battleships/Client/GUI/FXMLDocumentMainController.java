@@ -4,10 +4,7 @@ import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.Constants.GUIConstants;
 import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.DrawGUIEvent;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderHit;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderRedrawHitEnemy;
-import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderRedrawShip;
+import com.liver_rus.Battleships.Client.GUI.DrawEvents.*;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
 import com.liver_rus.Battleships.NetworkEvent.PlayerType;
 import javafx.application.Platform;
@@ -35,7 +32,7 @@ import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField.FIELD_SIZE;
 
 
-public class FXMLDocumentMainController implements Initializable, GUIActions {
+public class FXMLDocumentMainController implements Initializable, GUIActions, ClientEngineHolder {
     @FXML
     private Button shipType4Button;
 
@@ -108,148 +105,15 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
         isShooting = false;
     }
 
-    private void setMyName(String name) {
-        playerMeLabel.setText(name);
-    }
-
     @Override
     public void setEnemyName(String name) {
         Platform.runLater(() -> playerEnemyLabel.setText(name));
     }
 
-    @FXML
-    protected void handleButtonShipType4() {
-        handleButtonShip(4);
-    }
-
-    @FXML
-    protected void handleButtonShipType3() {
-        handleButtonShip(3);
-    }
-
-    @FXML
-    protected void handleButtonShipType2() {
-        handleButtonShip(2);
-    }
-
-    @FXML
-    protected void handleButtonShipType1() {
-        handleButtonShip(1);
-    }
-
-    @FXML
-    protected void handleButtonShipType0() {
-        handleButtonShip(0);
-    }
-
-    @FXML
-    public void handleResetFleetButton() {
-        reset();
-    }
-
-    @FXML
-    protected void handleToCanvasMouseClick(MouseEvent event) {
-        if (event.getButton().equals(MouseButton.PRIMARY)) {
-            handleToMouseClickPrimaryButton(event);
-        }
-        if (event.getButton().equals(MouseButton.SECONDARY)) {
-            handleToMouseClickSecondButton(event);
-        }
-    }
-
-    @FXML
-    protected void handleOverlayCanvasMouseMoved(MouseEvent event) {
-        if (isDeploying) {
-            if (SceneCoord.isFromFirstPlayerField(event)) {
-                if (isShipSelected) {
-                    setXY(event, FirstPlayerGUIConstants.getGUIConstant());
-                    if (isNotIntersectionShipWithBorder(shipInfo)) {
-                        redraw(new RenderRedrawShip(shipInfo));
-                    }
-                }
-                return;
-            }
-        }
-        if (isShooting) {
-            if (SceneCoord.isFromSecondPlayerField(event)) {
-                int x = SceneCoord.transformToFieldX(event.getSceneX(), SecondPlayerGUIConstants.getGUIConstant());
-                int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
-                redraw(new RenderRedrawHitEnemy(x, y));
-            }
-        }
-    }
-
-    @FXML
-    protected void handleMenuItemConnectGame() {
-        try {
-            FXMLLoader fxmlLoader = new FXMLLoader();
-            fxmlLoader.setLocation(getClass().getResource("/fxml/FXMLDocumentConnectGame.fxml"));
-            Scene scene = new Scene(fxmlLoader.load());
-            Stage stage = new Stage();
-            stage.setTitle("Connect to game");
-            FXMLDocumentConnectGame dialog = fxmlLoader.getController();
-            dialog.setIPAndPortFields();
-            dialog.setMyName();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-            stage.setScene(scene);
-            stage.setOnHiding(close -> {
-                if (dialog.isStartClient()) {
-                    String ip = dialog.getHost();
-                    int port = dialog.getPort();
-                    String myName = dialog.getMyName();
-                    setMyName(myName);
-                    if (dialog.isStartServer()) {
-                        try {
-                            clientGameEngine.startServer(ip, port);
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                            Alert alert = new Alert(Alert.AlertType.WARNING);
-                            alert.setTitle("Server doesn't created");
-                            alert.setHeaderText("Try another port");
-                            alert.setContentText("");
-                            alert.showAndWait();
-                        }
-                    }
-                    clientGameEngine.startNetwork(ip, port, dialog.getMyName());
-                }
-            });
-            stage.show();
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "Failed to create new Window.", e);
-        }
-    }
-
-    @FXML
-    protected void handleMenuItemExit() {
-        Platform.exit();
-    }
-
-    @FXML
-    protected void handleMenuItemAbout() {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(Constants.AboutInfo.ABOUT_GAME_TITLE);
-        alert.setHeaderText(Constants.AboutInfo.ABOUT_GAME_HEADER);
-        alert.setContentText(Constants.AboutInfo.ABOUT_GAME_TEXT);
-        alert.showAndWait();
-    }
-
-    @FXML
-    protected void handleDisconnectMenuItem() {
-        clientGameEngine.close();
-    }
 
     @Override
     public void setClientEngine(ClientGameEngine clientGameEngine) {
         this.clientGameEngine = clientGameEngine;
-    }
-
-    public void draw(DrawGUIEvent guiEvent) {
-        guiEvent.render(mainCanvas);
-    }
-
-    public void redraw(DrawGUIEvent guiEvent) {
-        guiEvent.render(overlayCanvas);
     }
 
     @Override
@@ -317,11 +181,147 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
         }
     }
 
-    private void setInfo(String listViewMessage) {
-            Platform.runLater(() -> {
-                statusListView.getItems().add(listViewMessage);
-                statusListView.scrollTo(statusListView.getItems().size() - 1);
+    @FXML
+    protected void handleButtonShipType4() {
+        handleButtonShip(4);
+    }
+
+    @FXML
+    protected void handleButtonShipType3() {
+        handleButtonShip(3);
+    }
+
+    @FXML
+    protected void handleButtonShipType2() {
+        handleButtonShip(2);
+    }
+
+    @FXML
+    protected void handleButtonShipType1() {
+        handleButtonShip(1);
+    }
+
+    @FXML
+    protected void handleButtonShipType0() {
+        handleButtonShip(0);
+    }
+
+    @FXML
+    protected void handleResetFleetButton() {
+        reset();
+    }
+
+    @FXML
+    protected void handleToCanvasMouseClick(MouseEvent event) {
+        if (event.getButton().equals(MouseButton.PRIMARY)) {
+            handleToMouseClickPrimaryButton(event);
+        }
+        if (event.getButton().equals(MouseButton.SECONDARY)) {
+            handleToMouseClickSecondButton(event);
+        }
+    }
+
+    @FXML
+    protected void handleOverlayCanvasMouseMoved(MouseEvent event) {
+        if (isDeploying) {
+            if (SceneCoord.isFromFirstPlayerField(event)) {
+                if (isShipSelected) {
+                    setXY(event, FirstPlayerGUIConstants.getGUIConstant());
+                    if (isNotIntersectionShipWithBorder(shipInfo)) {
+                        drawOverlay(new RenderRedrawShip(shipInfo));
+                    }
+                }
+                return;
+            }
+        }
+        if (isShooting) {
+            if (SceneCoord.isFromSecondPlayerField(event)) {
+                int x = SceneCoord.transformToFieldX(event.getSceneX(), SecondPlayerGUIConstants.getGUIConstant());
+                int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
+                drawOverlay(new RenderRedrawHitEnemy(x, y));
+            }
+        }
+    }
+
+    @FXML
+    protected void handleMenuItemConnectGame() {
+        try {
+            FXMLLoader fxmlLoader = new FXMLLoader();
+            fxmlLoader.setLocation(getClass().getResource("/fxml/FXMLDocumentConnectGame.fxml"));
+            Scene scene = new Scene(fxmlLoader.load());
+            Stage stage = new Stage();
+            stage.setTitle("Connect to game");
+            FXMLDocumentConnectGame dialog = fxmlLoader.getController();
+            dialog.setIPAndPortFields();
+            dialog.setMyName();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.setResizable(false);
+            stage.setScene(scene);
+            stage.setOnHiding(close -> {
+                if (dialog.isStartClient()) {
+                    String ip = dialog.getHost();
+                    int port = dialog.getPort();
+                    String myName = dialog.getMyName();
+                    setMyName(myName);
+                    if (dialog.isStartServer()) {
+                        try {
+                            clientGameEngine.startServer(ip, port);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                            Alert alert = new Alert(Alert.AlertType.WARNING);
+                            alert.setTitle("Server doesn't created");
+                            alert.setHeaderText("Try another port");
+                            alert.setContentText("");
+                            alert.showAndWait();
+                        }
+                    }
+                    clientGameEngine.startNetwork(ip, port, dialog.getMyName());
+                }
             });
+            stage.show();
+        } catch (IOException e) {
+            log.log(Level.SEVERE, "Failed to create new Window.", e);
+        }
+    }
+
+    @FXML
+    protected void handleMenuItemExit() {
+        Platform.exit();
+    }
+
+    @FXML
+    protected void handleMenuItemAbout() {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(Constants.AboutInfo.ABOUT_GAME_TITLE);
+        alert.setHeaderText(Constants.AboutInfo.ABOUT_GAME_HEADER);
+        alert.setContentText(Constants.AboutInfo.ABOUT_GAME_TEXT);
+        alert.showAndWait();
+    }
+
+    @FXML
+    protected void handleDisconnectMenuItem() {
+        clientGameEngine.close();
+    }
+
+    public void draw(DrawGUIEvent guiEvent) {
+        if (guiEvent instanceof RenderImpossibleDeployShip) {
+            drawOverlay(guiEvent);
+        }
+        guiEvent.render(mainCanvas);
+    }
+
+    public void drawOverlay(DrawGUIEvent guiEvent) {
+        guiEvent.render(overlayCanvas);
+    }
+
+    public boolean isNotIntersectionShipWithBorder(ShipInfo info) {
+        if (info.getX() < 0 || info.getX() >= FIELD_SIZE) return false;
+        if (info.getY() < 0 || info.getY() >= FIELD_SIZE) return false;
+        if (info.isHorizontal()) {
+            return info.getX() + info.getType() < FIELD_SIZE;
+        } else {
+            return info.getY() + info.getType() < FIELD_SIZE;
+        }
     }
 
     public void reset() {
@@ -410,20 +410,21 @@ public class FXMLDocumentMainController implements Initializable, GUIActions {
                     setXY(event, FirstPlayerGUIConstants.getGUIConstant());
                     Draw.clearCanvas(overlayCanvas);
                     if (isNotIntersectionShipWithBorder(shipInfo)) {
-                        redraw(new RenderRedrawShip(shipInfo));
+                        drawOverlay(new RenderRedrawShip(shipInfo));
                     }
                 }
             }
         }
     }
 
-    public boolean isNotIntersectionShipWithBorder(ShipInfo info) {
-        if (info.getX() < 0 || info.getX() >= FIELD_SIZE) return false;
-        if (info.getY() < 0 || info.getY() >= FIELD_SIZE) return false;
-        if (info.isHorizontal()) {
-            return info.getX() + info.getType() < FIELD_SIZE;
-        } else {
-            return info.getY() + info.getType() < FIELD_SIZE;
-        }
+    private void setInfo(String listViewMessage) {
+        Platform.runLater(() -> {
+            statusListView.getItems().add(listViewMessage);
+            statusListView.scrollTo(statusListView.getItems().size() - 1);
+        });
+    }
+
+    private void setMyName(String name) {
+        playerMeLabel.setText(name);
     }
 }

@@ -1,101 +1,56 @@
 package com.liver_rus.Battleships.NetworkEvent;
 
 import com.liver_rus.Battleships.NetworkEvent.Server.*;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CreatorServerNetworkEventTest {
-    NetworkEventServer event;
-    static CreatorServerNetworkEvent eventCreator;
+    CreatorServerNetworkEvent eventCreator;
 
-    @BeforeAll
-    static void beforeAll() {
+    @BeforeEach
+    void beforeEach() {
         eventCreator = new CreatorServerNetworkEvent();
     }
 
     @Test
     void creationValidEvents() {
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.DISCONNECT);
-        assertTrue(event instanceof NetworkEventDisconnect);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.NO_REMATCH);
-        assertTrue(event instanceof NetworkEventNoRematch);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.MY_NAME + "Player1");
-        assertTrue(event instanceof NetworkEventMyName);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.MY_NAME);
-        assertTrue(event instanceof NetworkEventMyName);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.SHOT + "56");
-        assertTrue(event instanceof NetworkEventShot);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.TRY_DEPLOY_SHIP + "553H");
-        assertTrue(event instanceof NetworkEventTryDeployShip);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.TRY_REMATCH);
-        assertTrue(event instanceof NetworkEventTryRematch);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.NO_REMATCH);
-        assertTrue(event instanceof NetworkEventNoRematch);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.RESET_FLEET_WHILE_DEPLOY);
-        assertTrue(event instanceof NetworkEventResetFleetWhileDeploy);
+        checkDeserialize(NetworkCommandConstant.DISCONNECT, NetworkDisconnectEvent.class);
+        checkDeserialize(NetworkCommandConstant.NO_REMATCH, NetworkNoRematchEvent.class);
+        checkDeserialize(NetworkCommandConstant.MY_NAME + "Player1", NetworkMyNameEvent.class);
+        checkDeserialize(NetworkCommandConstant.MY_NAME, NetworkMyNameEvent.class);
+        checkDeserialize(NetworkCommandConstant.SHOT + "56", NetworkShotEvent.class);
+        checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "553H", NetworkTryDeployShipEvent.class);
+        checkDeserialize(NetworkCommandConstant.TRY_REMATCH, NetworkTryRematchEvent.class);
+        checkDeserialize(NetworkCommandConstant.NO_REMATCH, NetworkNoRematchEvent.class);
+        checkDeserialize(NetworkCommandConstant.RESET_FLEET_WHILE_DEPLOY, NetworkResetFleetWhileDeployEvent.class);
     }
 
     @Test
     void creationInvalidEvents() {
-        event = eventCreator.deserializeMessage("DISSSSONET");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+        checkDeserialize("DISSSSONET", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize("DIS", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "2223H", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP, NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "23H", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "232", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.SHOT + "854", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.SHOT, NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.SHOT + "1", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.SHOT + "1", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "2\23H", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "23", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP, NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.TRY_REMATCH + "|", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize(NetworkCommandConstant.NO_REMATCH + "||", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize("  ", NetworkUnknownCommandServerEvent.class);
+        checkDeserialize("| | | |", NetworkUnknownCommandServerEvent.class);
+    }
 
-        event = eventCreator.deserializeMessage("DIS");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "2223H");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP);
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "23H");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.IS_POSSIBLE_DEPLOY_SHIP + "232");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.SHOT + "854");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.SHOT);
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.SHOT + "1");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.SHOT + "1");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.TRY_DEPLOY_SHIP + "2\23H");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.TRY_DEPLOY_SHIP + "23");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.TRY_DEPLOY_SHIP);
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.TRY_REMATCH + "|");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage(NetworkCommandConstant.NO_REMATCH + "||");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage("  ");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
-
-        event = eventCreator.deserializeMessage("| | | |");
-        assertTrue(event instanceof NetworkEventUnknownCommandServer);
+    @SuppressWarnings("rawtypes")
+    private void checkDeserialize(String msg, Class expectedClass) {
+        NetworkServerEvent event = eventCreator.deserializeMessage(msg);
+        assertEquals(expectedClass, event.getClass());
     }
 }

@@ -5,10 +5,10 @@ import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 import com.liver_rus.Battleships.Network.Client.MailBox;
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
 import com.liver_rus.Battleships.Network.Server.GameServer;
-import com.liver_rus.Battleships.NetworkEvent.Client.NetworkEventDoDisconnect;
+import com.liver_rus.Battleships.NetworkEvent.Client.NetworkDoDisconnectEvent;
 import com.liver_rus.Battleships.NetworkEvent.CreatorClientNetworkEvent;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventServer;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
+import com.liver_rus.Battleships.NetworkEvent.NetworkServerEvent;
 import com.liver_rus.Battleships.NetworkEvent.Server.*;
 
 import java.io.IOException;
@@ -16,8 +16,8 @@ import java.io.IOException;
 public class ClientGameEngine implements ClientActions {
     private MailBox netClient;
     private FXMLDocumentMainController controller;
-    CreatorClientNetworkEvent eventCreator;
-    GameServer gameServer;
+    private final CreatorClientNetworkEvent eventCreator;
+    private GameServer gameServer;
 
     @Override
     public void close() {
@@ -35,7 +35,7 @@ public class ClientGameEngine implements ClientActions {
     public void startNetwork(String ip, int port, String myName) {
         netClient = NetworkClient.create(ip, port);
         netClient.subscribeForInbox(this::proceedMessage);
-        sendEvent(new NetworkEventMyName(myName));
+        sendEvent(new NetworkMyNameEvent(myName));
     }
 
     @Override
@@ -45,17 +45,17 @@ public class ClientGameEngine implements ClientActions {
 
     @Override
     public void tryDeployShip(ShipInfo state) {
-        sendEvent(new NetworkEventTryDeployShip(state.getX(), state.getY(), state.getType(), state.isHorizontal()));
+        sendEvent(new NetworkTryDeployShipEvent(state.getX(), state.getY(), state.getType(), state.isHorizontal()));
     }
 
     @Override
     public void resetFleet() {
-        sendEvent(new NetworkEventResetFleetWhileDeploy());
+        sendEvent(new NetworkResetFleetWhileDeployEvent());
     }
 
     @Override
     public void shot(int x, int y) {
-        sendEvent(new NetworkEventShot(x, y));
+        sendEvent(new NetworkShotEvent(x, y));
     }
 
     @Override
@@ -64,12 +64,12 @@ public class ClientGameEngine implements ClientActions {
         gameServer.start();
     }
 
-    private void sendEvent(NetworkEventServer event) {
+    private void sendEvent(NetworkServerEvent event) {
         netClient.sendMessage(event.convertToString());
     }
 
     private void proceedMessage(String msg) {
-        NetworkEventClient event = eventCreator.deserializeMessage(msg);
+        NetworkClientEvent event = eventCreator.deserializeMessage(msg);
 
         System.out.println("Client: msg=" + msg);
         System.out.println(event.getClass().getSimpleName());
@@ -78,7 +78,7 @@ public class ClientGameEngine implements ClientActions {
         if (answer != null) {
             netClient.sendMessage(answer);
         }
-        if (event instanceof NetworkEventDoDisconnect || event instanceof NetworkEventNoRematch) {
+        if (event instanceof NetworkDoDisconnectEvent || event instanceof NetworkNoRematchEvent) {
             netClient.disconnect();
         }
     }

@@ -8,14 +8,12 @@ public class Fleet {
     private int[] ships;
     //amount ships by type <------------>  {4, 3, 2, 1, 0} type 4 has possible locate 2 ship, etc.
     private final static int[] initShipsByType = {2, 2, 1, 1, 1};
-
-    public final static int NUM_TYPE = initShipsByType.length;
     private static final int NUM_MAX_SHIPS = Arrays.stream(initShipsByType).sum();
-
     private int leftForDeployment;
     private int leftAlive;
-
     private final List<Ship> shipsList;
+
+    public final static int NUM_TYPE = initShipsByType.length;
 
     public Fleet() {
         this.shipsList = new ArrayList<>();
@@ -64,17 +62,6 @@ public class Fleet {
         this.leftAlive = 0;
     }
 
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        for (Ship ship : shipsList) {
-            result.append(ship).append("|");
-        }
-        return result.toString() + "\n" +
-                "leftForDeployment=" + leftForDeployment + "\n" +
-                "leftAlive=" + leftAlive;
-    }
-
     public int[] getShipsLeftByType() {
         return ships;
     }
@@ -93,6 +80,30 @@ public class Fleet {
 
     public static int getNumMaxShip() {
         return NUM_MAX_SHIPS;
+    }
+
+    public void updateAlive(Ship ship) {
+        boolean isAlive = false;
+        for (FieldCoord shipCell : ship.getShipCoords()) {
+            if (!shipCell.getTag()) {
+                isAlive = true;
+            }
+        }
+        if (!isAlive) {
+            leftAlive--;
+        }
+        ship.setAlive(isAlive);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        for (Ship ship : shipsList) {
+            result.append(ship).append("|");
+        }
+        return result.toString() + "\n" +
+                "leftForDeployment=" + leftForDeployment + "\n" +
+                "leftAlive=" + leftAlive;
     }
 
     @Override
@@ -115,16 +126,4 @@ public class Fleet {
         return result;
     }
 
-    public void updateAlive(Ship ship) {
-        boolean isAlive = false;
-        for (FieldCoord shipCell : ship.getShipCoords()) {
-            if (!shipCell.getTag()) {
-                isAlive = true;
-            }
-        }
-        if (!isAlive) {
-            leftAlive--;
-        }
-        ship.setAlive(isAlive);
-    }
 }

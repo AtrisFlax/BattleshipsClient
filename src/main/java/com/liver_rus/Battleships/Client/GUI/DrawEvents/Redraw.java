@@ -2,11 +2,9 @@ package com.liver_rus.Battleships.Client.GUI.DrawEvents;
 
 public abstract class Redraw {
     private static final int UNDEFINED_COORD = -1;
-
     private static int lastX = UNDEFINED_COORD;
     private static int lastY = UNDEFINED_COORD;
     private final int x;
-    
     private final int y;
 
     Redraw(int x, int y) {

@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Random;
 
 public class MetaInfo {
-
     private int numAcceptedConnections;
     private static final int FIRST_CONNECTED_PLAYER_ID = 0;
     private static final int SECOND_CONNECTED_PLAYER_ID = 1;
@@ -22,19 +21,7 @@ public class MetaInfo {
     private Player activePlayer; //msg from this one
     private Player turnHolderPlayer; //wait action from this one
 
-    GameField[] injectedGameFields;
-
-    /**
-     * @param gameFields injected game fields. Max size 2
-     */
-    private MetaInfo(GameField[] gameFields) {
-        if (gameFields.length != 2) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
-        injectedGameFields = gameFields;
-        numAcceptedConnections = 0;
-        initTurnOrder = TurnOrder.RANDOM_TURN;
-        players = new ArrayList<>(MAX_CONNECTIONS);
-        activePlayer = null;
-    }
+    private GameField[] injectedGameFields;
 
     public static MetaInfo create(GameField[] injectedGameFields) {
         if (injectedGameFields == null) {
@@ -113,11 +100,9 @@ public class MetaInfo {
         return getOtherPlayer(turnHolderPlayer);
     }
 
-
     public int getNumAcceptedConnections() {
         return numAcceptedConnections;
     }
-
 
     public GameField[] getGameFields() {
         return injectedGameFields;
@@ -178,6 +163,18 @@ public class MetaInfo {
             field.reset();
         }
         initTurnOrder = TurnOrder.RANDOM_TURN;
+    }
+
+    /**
+     * @param gameFields injected game fields. Max size 2
+     */
+    private MetaInfo(GameField[] gameFields) {
+        if (gameFields.length != 2) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
+        injectedGameFields = gameFields;
+        numAcceptedConnections = 0;
+        initTurnOrder = TurnOrder.RANDOM_TURN;
+        players = new ArrayList<>(MAX_CONNECTIONS);
+        activePlayer = null;
     }
 
     private Player getFirstConnectedPlayerChannel() {

@@ -1,16 +1,12 @@
 package com.liver_rus.Battleships.Client.GUI;
 
-//Class describes virtual ship for draw
-
 import com.liver_rus.Battleships.Client.Constants.Constants;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.WrongShipInfoSizeException;
 
 import java.io.IOException;
 
-
-//TODO убарть опциаонально возможно заменится эвентами
-
+//Class describes virtual ship for draw
 
 public class ShipInfo {
     private int x;

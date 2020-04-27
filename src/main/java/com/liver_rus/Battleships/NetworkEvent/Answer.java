@@ -8,19 +8,19 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Answer implements Iterable<Pair<Player, NetworkEventClient>> {
-    List<Pair<Player, NetworkEventClient>> answer;
+public class Answer implements Iterable<Pair<Player, NetworkClientEvent>> {
+    List<Pair<Player, NetworkClientEvent>> answer;
 
     public Answer() {
         this.answer = new LinkedList<>();
     }
 
-    public void add(Player player, NetworkEventClient event) {
+    public void add(Player player, NetworkClientEvent event) {
         answer.add(new Pair<>(player, event));
     }
 
     @NotNull
-    public Iterator<Pair<Player, NetworkEventClient>> iterator() {
+    public Iterator<Pair<Player, NetworkClientEvent>> iterator() {
         return answer.iterator();
     }
 }

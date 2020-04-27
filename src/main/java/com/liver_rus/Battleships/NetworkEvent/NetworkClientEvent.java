@@ -1,9 +1,9 @@
 package com.liver_rus.Battleships.NetworkEvent;
 
-import com.liver_rus.Battleships.Network.Server.MetaInfo;
+import com.liver_rus.Battleships.Client.GUI.GUIActions;
 
-public interface NetworkEventServer {
-    Answer proceed(MetaInfo metaInfo);
+public interface NetworkClientEvent {
+    String proceed(GUIActions gui);
 
     //TODO convertToString methods excessive for incoming messages on server side
     String convertToString();

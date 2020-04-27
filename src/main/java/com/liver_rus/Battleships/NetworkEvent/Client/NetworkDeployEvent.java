@@ -1,8 +1,8 @@
 package com.liver_rus.Battleships.NetworkEvent.Client;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
+import com.liver_rus.Battleships.NetworkEvent.NetworkClientEvent;
 import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.NetworkEvent.NetworkEventClient;
 
 import java.util.Arrays;
 import java.util.stream.Collectors;
@@ -10,12 +10,11 @@ import java.util.stream.Collectors;
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_TYPE;
 
 //client do nothing
-public class NetworkEventDeploy implements NetworkEventClient {
-
-    int[] shipLeftByTypeInit;
+public class NetworkDeployEvent implements NetworkClientEvent {
+    private final int[] shipLeftByTypeInit;
 
     //left ships
-    public NetworkEventDeploy(int[] shipLeftByTypeInit) {
+    public NetworkDeployEvent(int[] shipLeftByTypeInit) {
         assert shipLeftByTypeInit.length == NUM_TYPE;
         this.shipLeftByTypeInit = shipLeftByTypeInit;
     }
