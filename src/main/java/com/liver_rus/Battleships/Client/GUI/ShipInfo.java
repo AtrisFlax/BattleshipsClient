@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.Client.GUI;
 
-import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.Constants.Constants;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.WrongShipInfoSizeException;
 

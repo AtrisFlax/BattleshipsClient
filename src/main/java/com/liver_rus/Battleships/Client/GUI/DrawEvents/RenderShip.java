@@ -1,9 +1,9 @@
 package com.liver_rus.Battleships.Client.GUI.DrawEvents;
 
-import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.FirstPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.Draw;
-import com.liver_rus.Battleships.NetworkEvent.PlayerType;
+import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import javafx.scene.canvas.GraphicsContext;
 
 public class RenderShip implements DrawGUIEvent {

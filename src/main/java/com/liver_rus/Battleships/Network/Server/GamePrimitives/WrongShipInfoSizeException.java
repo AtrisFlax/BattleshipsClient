@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.Network.Server.GamePrimitives;
 
-import com.liver_rus.Battleships.Client.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.Constants.Constants;
 
 public class WrongShipInfoSizeException extends Exception {
     public WrongShipInfoSizeException(String shipInfo) {

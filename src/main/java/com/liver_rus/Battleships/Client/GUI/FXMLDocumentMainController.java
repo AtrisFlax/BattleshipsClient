@@ -1,12 +1,12 @@
 package com.liver_rus.Battleships.Client.GUI;
 
-import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.Constants.GUIConstants;
-import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.Constants.FirstPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.GUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.*;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
-import com.liver_rus.Battleships.NetworkEvent.PlayerType;
+import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;

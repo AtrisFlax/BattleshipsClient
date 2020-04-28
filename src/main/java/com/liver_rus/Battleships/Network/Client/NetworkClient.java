@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Network.Client;
 
+import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.StartStopThread;
-import com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -79,6 +79,7 @@ public class NetworkClient implements MailBox, StartStopThread {
     }
 
     public void sendMessage(String message) {
+        System.out.println("NetworkClient sendMessage message= " + message);
         try {
             messageSynchronize.put(message);
             SelectionKey key = channel.keyFor(selector);

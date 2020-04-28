@@ -1,9 +1,13 @@
 package com.liver_rus.Battleships.Network.Server;
 
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.CreatorServerNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.NetworkDisconnectEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.StartStopThread;
-import com.liver_rus.Battleships.NetworkEvent.*;
-import com.liver_rus.Battleships.NetworkEvent.Server.NetworkDisconnectEvent;
 import javafx.util.Pair;
 
 import java.io.IOException;
@@ -218,8 +222,8 @@ public class GameServer extends Thread implements StartStopThread {
         metaInfo.setActivePlayer(socketChannel);
         NetworkServerEvent networkEvent = eventCreator.deserializeMessage(message);
 
-        System.out.println("Server: msg=" + message);
-        System.out.println(networkEvent.getClass().getSimpleName());
+        System.out.println("Server: msg= " + message);
+        System.out.println("Server: event= " + networkEvent.getClass().getSimpleName());
 
 
         Answer answer = networkEvent.proceed(metaInfo);

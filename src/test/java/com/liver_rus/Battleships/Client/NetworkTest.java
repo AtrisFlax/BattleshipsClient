@@ -22,8 +22,8 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant.MY_NAME;
-import static com.liver_rus.Battleships.NetworkEvent.NetworkCommandConstant.TRY_DEPLOY_SHIP;
+import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.MY_NAME;
+import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.TRY_DEPLOY_SHIP;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NetworkTest {
@@ -50,7 +50,7 @@ class NetworkTest {
             injectedGameFields[i] = new GameField();
         }
 
-        int port = 10071;
+        int port = 48999;
         String host = "127.0.0.1";
         server = GameServer.create(host, port, injectedGameFields);
         server.start();

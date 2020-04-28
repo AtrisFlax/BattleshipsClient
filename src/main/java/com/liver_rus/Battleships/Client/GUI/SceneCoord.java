@@ -1,8 +1,8 @@
 package com.liver_rus.Battleships.Client.GUI;
 
-import com.liver_rus.Battleships.Client.Constants.FirstPlayerGUIConstants;
-import com.liver_rus.Battleships.Client.Constants.GUIConstants;
-import com.liver_rus.Battleships.Client.Constants.SecondPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.FirstPlayerGUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.GUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.SecondPlayerGUIConstants;
 import javafx.scene.input.MouseEvent;
 
 /**

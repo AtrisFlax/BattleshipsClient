@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.Network.Server.GamePrimitives;
 
-import com.liver_rus.Battleships.Client.Constants.GUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.GUIConstants;
 import com.liver_rus.Battleships.Client.GUI.SceneCoord;
 import com.liver_rus.Battleships.Network.Server.FieldCell;
 import javafx.scene.input.MouseEvent;

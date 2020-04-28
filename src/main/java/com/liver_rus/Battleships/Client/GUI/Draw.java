@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Client.GUI;
 
-import com.liver_rus.Battleships.Client.Constants.Constants;
-import com.liver_rus.Battleships.Client.Constants.GUIConstants;
+import com.liver_rus.Battleships.Client.GUI.Constants.Constants;
+import com.liver_rus.Battleships.Client.GUI.Constants.GUIConstants;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.canvas.GraphicsContext;
@@ -59,15 +59,13 @@ public class Draw {
     //draw red and clear
     public static void impossibleDraw(GraphicsContext gc, GUIConstants constant,
                                       int x, int y, int shipType, boolean isHorizontal) {
-        gc.setLineDashes(DASH_WIDTH);
-        Timeline fiveSecondsWonder = new Timeline(
+        Timeline timeLine = new Timeline(
                 new KeyFrame(Duration.ZERO, event ->
                         Draw.Ship(gc, IMPOSSIBLE_DEPLOY_COLOR, constant, x, y, shipType, isHorizontal)),
                 new KeyFrame(Duration.seconds(0.25), event ->
                         clearCanvas(gc)));
-        fiveSecondsWonder.setCycleCount(1);
-        fiveSecondsWonder.play();
-        gc.setLineDashes(0);
+        timeLine.setCycleCount(1);
+        timeLine.play();
     }
 
     private static void Ship(GraphicsContext gc, Color shipColor, GUIConstants constant,
