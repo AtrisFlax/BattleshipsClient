@@ -9,8 +9,8 @@ import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
 public class Draw {
-    private final static int CELL_LINE_WIDTH = 2;
-    private final static int SHIP_LINE_WIDTH = 2;
+    private final static double CELL_LINE_WIDTH = 2;
+    private final static double SHIP_LINE_WIDTH = 2.2;
     private final static Color MISS_CELL_COLOR = Color.BLACK;
     private final static Color HIT_CELL_COLOR = Color.BLACK;
 

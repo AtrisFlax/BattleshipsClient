@@ -15,8 +15,12 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -33,6 +37,18 @@ import static com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField.
 
 
 public class FXMLDocumentMainController implements Initializable, GUIActions, ClientEngineHolder {
+
+    @FXML
+    public MenuItem menuItemSaveShooting;
+
+    public StackPane topLevelStackPane;
+    public ImageView imgView;
+    public MenuBar menuBarItem;
+    public Menu fileMenu;
+    public MenuItem menuItemExit;
+    public Menu helpMenu;
+    public MenuItem menuItemAbout;
+
     @FXML
     private Button shipType4Button;
 
@@ -91,6 +107,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     private boolean isShipSelected;
     boolean isDeploying;
     boolean isShooting;
+    boolean isSaveShooting;
+    private int[] shipLeftByTypeInit;
 
 
     @Override
@@ -103,11 +121,15 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         isShipSelected = false;
         isDeploying = false;
         isShooting = false;
+        isSaveShooting = true;
+        shipLeftByTypeInit = new int[NUM_TYPE];
     }
 
     @Override
     public void setEnemyName(String name) {
-        Platform.runLater(() -> playerEnemyLabel.setText(name));
+        Platform.runLater(() -> {
+            playerEnemyLabel.setText(name);
+        });
     }
 
 
@@ -126,19 +148,22 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void waitSecondPlayer(String reason) {
-        isDeploying = false;
-        disableShipButtons();
-        menuItemConnect.setDisable(true);
-        menuItemDisconnect.setDisable(false);
-        resetFleetButton.setDisable(true);
-        Platform.runLater(() -> statusListView.getItems().add("Waiting:" + reason));
+        Platform.runLater(() -> {
+            statusListView.getItems().add(reason);
+            isDeploying = false;
+            disableShipButtons();
+            menuItemConnect.setDisable(true);
+            menuItemDisconnect.setDisable(false);
+            resetFleetButton.setDisable(true);
+        });
     }
 
     @Override
     public void deploy(int[] shipLeftByTypeInit) {
-        isDeploying = true;
-        initShipButtonText(shipLeftByTypeInit);
-        Platform.runLater(()->{
+        Platform.runLater(() -> {
+            isDeploying = true;
+            this.shipLeftByTypeInit = shipLeftByTypeInit;
+            initShipButtonText(shipLeftByTypeInit);
             labelGameStatus.setText("Deploying fleet. Select and place ship");
             menuItemConnect.setDisable(true);
             menuItemDisconnect.setDisable(false);
@@ -149,18 +174,22 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void disconnect() {
-        labelGameStatus.setText("Player disconnected");
-        menuItemConnect.setDisable(false);
-        menuItemDisconnect.setDisable(true);
-        resetFleetButton.setDisable(true);
+        Platform.runLater(() -> {
+            labelGameStatus.setText("Player disconnected");
+            menuItemConnect.setDisable(false);
+            menuItemDisconnect.setDisable(true);
+            resetFleetButton.setDisable(true);
+        });
     }
 
     @Override
     public void notStartRematch() {
-        labelGameStatus.setText("Player choose no rematch");
-        menuItemConnect.setDisable(false);
-        menuItemDisconnect.setDisable(true);
-        resetFleetButton.setDisable(true);
+        Platform.runLater(() -> {
+            labelGameStatus.setText("Player choose no rematch");
+            menuItemConnect.setDisable(false);
+            menuItemDisconnect.setDisable(true);
+            resetFleetButton.setDisable(true);
+        });
     }
 
     @Override
@@ -170,15 +199,17 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void hit(RenderHit renderHit) {
-        draw(renderHit);
-        if (renderHit.getPlayerType() == PlayerType.YOU) {
-            String info = "YOU: HIT" + renderHit.getX() + renderHit.getY();
-            setInfo(info);
-        }
-        if (renderHit.getPlayerType() == PlayerType.ENEMY) {
-            String info = "ENEMY: HIT" + renderHit.getX() + renderHit.getY();
-            setInfo(info);
-        }
+        Platform.runLater(() -> {
+            draw(renderHit);
+            if (renderHit.getPlayerType() == PlayerType.YOU) {
+                String info = "YOU: HIT" + renderHit.getX() + renderHit.getY();
+                setInfo(info);
+            }
+            if (renderHit.getPlayerType() == PlayerType.ENEMY) {
+                String info = "ENEMY: HIT" + renderHit.getX() + renderHit.getY();
+                setInfo(info);
+            }
+        });
     }
 
     @FXML
@@ -275,7 +306,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                             alert.showAndWait();
                         }
                     }
-                    clientGameEngine.startNetwork(ip, port, dialog.getMyName());
+                    menuItemSaveShooting.setDisable(true);
+                    clientGameEngine.startNetwork(ip, port, dialog.getMyName(), isSaveShooting);
                 }
             });
             stage.show();
@@ -303,11 +335,38 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         clientGameEngine.close();
     }
 
-    public void draw(DrawGUIEvent guiEvent) {
-        if (guiEvent instanceof RenderImpossibleDeployShip) {
-            drawOverlay(guiEvent);
+    @FXML
+    protected void handleKeyReleased(KeyEvent keyEvent) {
+        if (KeyCode.ESCAPE == keyEvent.getCode()) {
+            if (isShipSelected) {
+                int oldTypeValue = shipLeftByTypeInit[shipInfo.getType()];
+                shipTypeList.get(shipInfo.getType()).setText(oldTypeValue + " x");
+                enableShipButtons();
+                Draw.clearCanvas(overlayCanvas);
+                isShipSelected = false;
+            }
         }
-        guiEvent.render(mainCanvas);
+    }
+
+    @FXML
+    protected void handleMenuItemSaveShooting() {
+        if (isSaveShooting) {
+            menuItemSaveShooting.setText("Save shooting : ✗");
+            isSaveShooting = false;
+        } else {
+            menuItemSaveShooting.setText("Save shooting : ✓");
+            isSaveShooting = true;
+        }
+    }
+
+    public void draw(DrawGUIEvent guiEvent) {
+        Platform.runLater(() -> {
+            if (guiEvent instanceof RenderImpossibleDeployShip) {
+                drawOverlay(guiEvent);
+                return;
+            }
+            guiEvent.render(mainCanvas);
+        });
     }
 
     public void drawOverlay(DrawGUIEvent guiEvent) {
@@ -325,28 +384,29 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     public void reset() {
-        if (isDeploying) {
-            labelGameStatus.setText("Fleet reset");
-            Draw.clearCanvas(mainCanvas);
-            Draw.clearCanvas(overlayCanvas);
-            isShipSelected = false;
-            shipInfo = new ShipInfo();
-            resetFleetButton.setDisable(true);
-            menuItemConnect.setDisable(false);
-            statusListView.getItems().clear();
-            statusListView.scrollTo(statusListView.getItems().size() - 1);
-            clientGameEngine.resetFleet();
-            isDeploying = false;
-        }
+        Platform.runLater(() -> {
+            if (isDeploying) {
+                labelGameStatus.setText("Fleet reset");
+                Draw.clearCanvas(mainCanvas);
+                Draw.clearCanvas(overlayCanvas);
+                isShipSelected = false;
+                shipInfo = new ShipInfo();
+                resetFleetButton.setDisable(true);
+                menuItemConnect.setDisable(false);
+                statusListView.getItems().clear();
+                statusListView.scrollTo(statusListView.getItems().size() - 1);
+                clientGameEngine.resetFleet();
+                isDeploying = false;
+            }
+        });
     }
 
     private void initShipButtonText(int[] amountShipByType) {
-        Platform.runLater(()-> {
+        Platform.runLater(() -> {
             for (int i = 0; i < NUM_TYPE; i++) {
                 shipTypeList.get(i).setText(amountShipByType[i] + " x");
                 shipTypeList.get(i).setDisable(amountShipByType[i] == 0);
             }
-
         });
     }
 
@@ -354,6 +414,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         isShipSelected = true;
         shipInfo.setShipType(type);
         disableShipButtons();
+        int reducedValue = shipLeftByTypeInit[type] - 1;
+        shipTypeList.get(type).setText(reducedValue + " x") ;
     }
 
     private void disableShipButtons() {
@@ -376,18 +438,21 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         if (isDeploying) {
             if (SceneCoord.isFromFirstPlayerField(event)) {
                 if (isShipSelected) {
-                    setXY(event, FirstPlayerGUIConstants.getGUIConstant());
-                    clientGameEngine.tryDeployShip(shipInfo);
-                    Draw.clearCanvas(overlayCanvas);
+                    if (isNotIntersectionShipWithBorder(shipInfo)) {
+                        setXY(event, FirstPlayerGUIConstants.getGUIConstant());
+                        clientGameEngine.tryDeployShip(shipInfo);
+                        Draw.clearCanvas(overlayCanvas);
+                        isDeploying = false;
+                        isShipSelected = false;
+                        return;
+                    }
                 }
-                isDeploying = false;
-                isShipSelected = false;
-                return;
             }
         }
 
         if (isShooting) {
             if (SceneCoord.isFromSecondPlayerField(event)) {
+                Draw.clearCanvas(overlayCanvas);
                 int x = SceneCoord.transformToFieldX(event.getSceneX(), SecondPlayerGUIConstants.getGUIConstant());
                 int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
                 clientGameEngine.shot(x, y);

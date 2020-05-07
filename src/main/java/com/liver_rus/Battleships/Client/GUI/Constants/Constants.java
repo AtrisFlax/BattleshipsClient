@@ -13,4 +13,8 @@ public class Constants {
     }
 
     public final static int ShipInfoLength = 4;
+
+    public static class Debug {
+        public static final boolean DEBUG_AUTO_DEPLOY = true;
+    }
 }

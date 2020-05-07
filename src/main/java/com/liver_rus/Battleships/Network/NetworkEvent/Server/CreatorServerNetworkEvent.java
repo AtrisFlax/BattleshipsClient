@@ -16,8 +16,10 @@ public class CreatorServerNetworkEvent {
     private final Pattern noTryRematchPattern;
     private final Pattern tryRematchPattern;
     private final Pattern resetFleetWhileDeployPattern;
+    private final Pattern setSaveShootingPattern;
 
     public CreatorServerNetworkEvent() {
+        String state = "(" + ON + "|" + OFF + ")";
         myNamePattern = Pattern.compile("^" + MY_NAME + "(.+)");
         tryDeployShipPattern = Pattern.compile("^" + TRY_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");
         shotPattern = Pattern.compile("^" + SHOT + "(\\d)(\\d)" + "$");
@@ -25,6 +27,7 @@ public class CreatorServerNetworkEvent {
         noTryRematchPattern = Pattern.compile("^" + NO_REMATCH + "$");
         tryRematchPattern = Pattern.compile("^" + TRY_REMATCH + "$");
         resetFleetWhileDeployPattern = Pattern.compile("^" + RESET_FLEET_WHILE_DEPLOY + "$");
+        setSaveShootingPattern = Pattern.compile("^" + SET_SAVE_SHOOTING + state  + "$");
     }
 
     public NetworkServerEvent deserializeMessage(String msg) {
@@ -67,6 +70,11 @@ public class CreatorServerNetworkEvent {
         matcher = resetFleetWhileDeployPattern.matcher(msg);
         if (matcher.find()) {
             return new NetworkResetFleetWhileDeployEvent();
+        }
+        matcher = setSaveShootingPattern.matcher(msg);
+        if (matcher.find()) {
+            boolean state = matcher.group(1).equals(ON);
+            return new NetworkSetSaveShooting(state);
         }
         return new NetworkUnknownCommandServerEvent(msg);
     }

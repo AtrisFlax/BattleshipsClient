@@ -2,6 +2,7 @@ package com.liver_rus.Battleships.Network.Server.GamePrimitives;
 
 import com.liver_rus.Battleships.Network.Server.FieldCell;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -57,28 +58,11 @@ public class GameField {
 
     //Отметка клеток корабля и ближлежайших клеток
     public void markFieldFieldCellsByShip(Ship ship) {
-        FieldCoord shipCoord = ship.getShipStartCoord();
-        int x = shipCoord.getX();
-        int y = shipCoord.getY();
-        int type = ship.getType();
-        boolean isHorizontal = ship.isHorizontal();
-
-        markShipFieldCells(x, y, type, isHorizontal);
-        if (isHorizontal) {
-            setFieldCellAsNearWithShip(x - 1, y);
-            setFieldCellAsNearWithShip(x + type + 1, y);
-            for (int i = x - 1; i <= x + type + 1; i++) {
-                setFieldCellAsNearWithShip(i, y + 1);
-                setFieldCellAsNearWithShip(i, y - 1);
-            }
-        } else {
-            setFieldCellAsNearWithShip(x, y - 1);
-            setFieldCellAsNearWithShip(x, y + type + 1);
-            for (int i = y - 1; i <= y + type + 1; i++) {
-                setFieldCellAsNearWithShip(x + 1, i);
-                setFieldCellAsNearWithShip(x - 1, i);
-            }
+        List<FieldCoord> nearShipCoord = getNearCoords(ship);
+        for (FieldCoord coord: nearShipCoord) {
+            coord.setType(FieldCell.NEAR_WITH_SHIP);
         }
+        ship.setNearCoords(nearShipCoord);
     }
 
     //Возвращает true, если все корабли уничтожены(игра закончена)
@@ -100,7 +84,7 @@ public class GameField {
 
     // return destroyed ship
     public Ship shoot(int x, int y) {
-        Ship ship = fleet.findShip(x, y);
+        Ship ship = fleet.findAliveShip(x, y);
         //if no ship on (x,y)
         if (ship == null) {
             field[x][y].setType(FieldCell.MISS);
@@ -116,20 +100,60 @@ public class GameField {
         }
     }
 
-    public boolean isFieldCellDamaged(int x, int y) {
+    public Ship saveShoot(int x, int y) {
+        if (field[x][y].getType() == FieldCell.MISS) {
+            field[x][y].setType(FieldCell.DOUBLE_MISS);
+            return null;
+        }
+        if (field[x][y].getType() == FieldCell.DOUBLE_DAMAGED) {
+            return null;
+        }
+        if (field[x][y].getType() == FieldCell.DAMAGED_SHIP) {
+            field[x][y].setType(FieldCell.DOUBLE_DAMAGED);
+            return null;
+        }
+        Ship ship = fleet.findAliveShip(x, y);
+        //if no ship on (x,y)
+        if (ship == null) {
+            if (field[x][y].getType() == FieldCell.CLEAR || field[x][y].getType() == FieldCell.NEAR_WITH_SHIP) {
+                field[x][y].setType(FieldCell.MISS);
+            }
+            return null;
+        } else {
+            field[x][y].setType(FieldCell.DAMAGED_SHIP);
+            fleet.updateAlive(ship);
+        }
+        if (ship.isAlive()) {
+            return null;
+        } else {
+            for (FieldCoord nearCoord : ship.getNearCoord()) {
+                nearCoord.setType(FieldCell.NEAR_WITH_DESTROYED_SHIP);
+            }
+            return ship;
+        }
+    }
+
+    public boolean isCellDamaged(int x, int y) {
+        //TODO or near with damaged
         return field[x][y].getType() == FieldCell.DAMAGED_SHIP;
+    }
+
+    public boolean isFreeShot(int x, int y) {
+        return field[x][y].getType() == FieldCell.NEAR_WITH_DESTROYED_SHIP ||
+                field[x][y].getType() == FieldCell.DOUBLE_DAMAGED ||
+                field[x][y].getType() == FieldCell.DOUBLE_MISS;
     }
 
     public boolean isNotIntersectionWithShips(int x, int y, int shipType, boolean isHorizontal) {
         if (isHorizontal) {
-            for (int i = x; i < x + shipType; i++) {
+            for (int i = x; i < x + shipType + 1; i++) {
                 if (field[i][y].getType() == FieldCell.SHIP || field[i][y].getType() == FieldCell.NEAR_WITH_SHIP) {
                     return false;
 
                 }
             }
         } else {
-            for (int i = y; i < y + shipType; i++) {
+            for (int i = y; i < y + shipType + 1; i++) {
                 if (field[x][i].getType() == FieldCell.SHIP || field[x][i].getType() == FieldCell.NEAR_WITH_SHIP) {
                     return false;
                 }
@@ -157,7 +181,7 @@ public class GameField {
                     continue;
                 }
                 if (field[j][i].getType() == FieldCell.MISS) {
-                    result.append(" o ");
+                    result.append(" / ");
                     continue;
                 }
                 if (field[j][i].getType() == FieldCell.SHIP) {
@@ -171,11 +195,42 @@ public class GameField {
                 if (field[j][i].getType() == FieldCell.DAMAGED_SHIP) {
                     result.append(" x ");
                 }
+                if (field[j][i].getType() == FieldCell.DOUBLE_DAMAGED) {
+                    result.append(" ✖ ");
+                }
+                if (field[j][i].getType() == FieldCell.NEAR_WITH_DESTROYED_SHIP) {
+                    result.append(" • ");
+                }
             }
             result.append("\n");
         }
         result.append(fleet.toString());
         return result.toString();
+    }
+
+    public List<FieldCoord> getNearCoords(Ship ship) {
+        List<FieldCoord> result = new ArrayList<>();
+        FieldCoord startCoord = ship.getShipStartCoord();
+        int x = startCoord.getX();
+        int y = startCoord.getY();
+        int type = ship.getType();
+        boolean isHorizontal = ship.isHorizontal();
+        if (isHorizontal) {
+            addFieldCoordIfPossible(x - 1, y, result);
+            addFieldCoordIfPossible(x + type + 1, y, result);
+            for (int i = x - 1; i <= x + type + 1; i++) {
+                addFieldCoordIfPossible(i, y + 1, result);
+                addFieldCoordIfPossible(i, y - 1, result);
+            }
+        } else {
+            addFieldCoordIfPossible(x, y - 1, result);
+            addFieldCoordIfPossible(x, y + type + 1, result);
+            for (int i = y - 1; i <= y + type + 1; i++) {
+                addFieldCoordIfPossible(x + 1, i, result);
+                addFieldCoordIfPossible(x - 1, i, result);
+            }
+        }
+        return result;
     }
 
     private static FieldCoord[][] createField() {
@@ -192,14 +247,13 @@ public class GameField {
         return gameField;
     }
 
-
     private void setFieldCellAsShip(int x, int y) {
         field[x][y].setType(FieldCell.SHIP);
     }
 
-    private void setFieldCellAsNearWithShip(int x, int y) {
+    private void addFieldCoordIfPossible(int x, int y, List<FieldCoord> result) {
         if (x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE) {
-            field[x][y].setType(FieldCell.NEAR_WITH_SHIP);
+            result.add(field[x][y]);
         }
     }
 
@@ -214,6 +268,7 @@ public class GameField {
             }
         }
     }
+
 
     @Override
     public boolean equals(Object o) {
@@ -231,7 +286,4 @@ public class GameField {
         result = 31 * result + fleet.hashCode();
         return result;
     }
-
-
-
 }

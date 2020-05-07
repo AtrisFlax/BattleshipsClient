@@ -32,15 +32,10 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void startNetwork(String ip, int port, String myName) {
+    public void startNetwork(String ip, int port, String myName, boolean isSaveShooting) {
         netClient = NetworkClient.create(ip, port);
         netClient.subscribeForInbox(this::proceedMessage);
-        sendEvent(new NetworkMyNameEvent(myName));
-        try {
-            Thread.sleep(500);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        initServerEvents(myName, isSaveShooting);
     }
 
     @Override
@@ -50,7 +45,11 @@ public class ClientGameEngine implements ClientActions {
 
     @Override
     public void tryDeployShip(ShipInfo state) {
-        sendEvent(new NetworkTryDeployShipEvent(state.getX(), state.getY(), state.getType(), state.isHorizontal()));
+        int x = state.getX();
+        int y = state.getY();
+        int type = state.getType();
+        boolean isHorizontal = state.isHorizontal();
+        sendEvent(new NetworkTryDeployShipEvent(x, y, type, isHorizontal));
     }
 
     @Override
@@ -69,15 +68,21 @@ public class ClientGameEngine implements ClientActions {
         gameServer.start();
     }
 
+    private void initServerEvents(String myName, boolean isSaveShooting) {
+        sendEvent(new NetworkSetSaveShooting(isSaveShooting));
+        sendEvent(new NetworkMyNameEvent(myName));
+    }
+
     private void sendEvent(NetworkServerEvent event) {
         netClient.sendMessage(event.convertToString());
     }
 
-    private void proceedMessage(String msg) {
-        NetworkClientEvent event = eventCreator.deserializeMessage(msg);
+    private void proceedMessage(String message) {
+        NetworkClientEvent event = eventCreator.deserializeMessage(message);
 
-        System.out.println("Client: msg= " + msg);
-        System.out.println("Client: event= " + event.getClass().getSimpleName());
+        //TODO delete or wrap for debug
+        System.out.println("Client read= " + message);
+        System.out.println("Client event= " + event.getClass().getSimpleName());
 
         String answer = event.proceed(controller);
         if (answer != null) {

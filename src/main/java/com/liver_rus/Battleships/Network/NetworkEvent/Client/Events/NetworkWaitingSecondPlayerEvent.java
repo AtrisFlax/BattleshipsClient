@@ -6,7 +6,7 @@ import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 
 public class NetworkWaitingSecondPlayerEvent implements NetworkClientEvent {
 
-    final String reason;
+    private final String reason;
 
     public NetworkWaitingSecondPlayerEvent(String reason) {
         this.reason = reason;
@@ -20,7 +20,7 @@ public class NetworkWaitingSecondPlayerEvent implements NetworkClientEvent {
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.WAITING_FOR_SECOND_PLAYER;
+        return NetworkCommandConstant.WAIT;
     }
 
 }

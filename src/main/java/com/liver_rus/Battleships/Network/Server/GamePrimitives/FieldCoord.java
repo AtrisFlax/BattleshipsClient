@@ -6,7 +6,8 @@ import com.liver_rus.Battleships.Network.Server.FieldCell;
 import javafx.scene.input.MouseEvent;
 
 public class FieldCoord {
-    private final int x, y;
+    private final int x;
+    private final int y;
     private FieldCell type;
 
     public FieldCoord(int x, int y) {
@@ -24,16 +25,16 @@ public class FieldCoord {
         this.y = SceneCoord.transformToFieldY(event.getSceneY(), constants);
     }
 
-    public final int getX() {
+    public int getX() {
         return x;
     }
 
-    public final int getY() {
+    public int getY() {
         return y;
     }
 
     public boolean getTag() {
-        return type == FieldCell.DAMAGED_SHIP;
+        return type == FieldCell.DAMAGED_SHIP ||type == FieldCell.DOUBLE_DAMAGED;
     }
 
     public void setTag() {

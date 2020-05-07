@@ -44,7 +44,7 @@ public class CreatorClientNetworkEvent {
         eventDrawShipPattern = Pattern.compile("^" + DRAW_SHIP + xyto + player + "$");
         eventSetEnemyNamePattern = Pattern.compile("^" + SET_ENEMY_NAME + "(.+)");
         eventStartRematchPattern = Pattern.compile("^" + START_REMATCH + "$");
-        eventWaitingForSecondPlayerPattern = Pattern.compile("^" + WAITING_FOR_SECOND_PLAYER + "(.*)");
+        eventWaitingForSecondPlayerPattern = Pattern.compile("^" + WAIT + "(.*)");
         eventEndMatchPattern = Pattern.compile("^" + END_MATCH + player + "$");
     }
 

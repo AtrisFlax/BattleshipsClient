@@ -11,6 +11,7 @@ public class Player {
     private boolean readyForGame;
     private boolean wantRematch;
     private String name;
+    private boolean saveShooting;
 
     public Player(SocketChannel channel, GameField gameField) {
         this.channel = channel;
@@ -18,6 +19,7 @@ public class Player {
         this.name = "Player";
         readyForDeployment = false;
         readyForGame = false;
+        saveShooting = true;
     }
 
     public SocketChannel getChannel() {
@@ -65,6 +67,14 @@ public class Player {
 
     public void setWantRematch(boolean wantRematch) {
         this.wantRematch = wantRematch;
+    }
+
+    public boolean isSaveShooting() {
+        return saveShooting;
+    }
+
+    public void setSaveShooting(boolean saveShooting) {
+        this.saveShooting = saveShooting;
     }
 
     @Override

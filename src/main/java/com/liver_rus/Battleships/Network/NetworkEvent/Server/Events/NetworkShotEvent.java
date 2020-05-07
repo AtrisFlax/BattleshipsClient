@@ -5,6 +5,7 @@ import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
+import com.liver_rus.Battleships.Network.Server.GamePrimitives.FieldCoord;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
@@ -21,6 +22,7 @@ public class NetworkShotEvent implements NetworkServerEvent {
         this.y = y;
     }
 
+    //TODO simpilify
     @Override
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();
@@ -29,31 +31,73 @@ public class NetworkShotEvent implements NetworkServerEvent {
         GameField passivePlayerField = passivePlayer.getGameField();
         if (metaInfo.isPlayersReadyForGame()) {
             if (activePlayer == metaInfo.getTurnHolderPlayer()) {
-                Ship destroyedShip = passivePlayerField.shoot(x, y);
-                if (passivePlayerField.isFieldCellDamaged(x, y)) {
-                    answer.add(activePlayer, new NetworkDrawHitEvent(x, y, PlayerType.ENEMY));
-                    answer.add(passivePlayer, new NetworkDrawHitEvent(x, y, PlayerType.YOU));
-                    if (destroyedShip != null) {
-                        answer.add(activePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.ENEMY));
-                        answer.add(passivePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.YOU));
+                if (activePlayer.isSaveShooting()) {
+                    Ship destroyedShip = passivePlayerField.saveShoot(x, y);
+                    if (passivePlayerField.isFreeShot(x, y)) {
                         metaInfo.setTurnHolderPlayer(activePlayer);
-                        if (passivePlayerField.isAllShipsDestroyed()){
-                            GameField field = activePlayer.getGameField();
-                            for (Ship leavesShip: field.getShips()) {
-                                answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
+                    } else {
+                        if (passivePlayerField.isCellDamaged(x, y)) {
+                            answer.add(activePlayer, new NetworkDrawHitEvent(x, y, PlayerType.ENEMY));
+                            answer.add(passivePlayer, new NetworkDrawHitEvent(x, y, PlayerType.YOU));
+                            if (destroyedShip != null) {
+                                answer.add(activePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.ENEMY));
+                                answer.add(passivePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.YOU));
+                                metaInfo.setTurnHolderPlayer(activePlayer);
+                                if (passivePlayerField.isAllShipsDestroyed()){
+                                    GameField field = activePlayer.getGameField();
+                                    for (Ship leavesShip: field.getShips()) {
+                                        answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
+                                    }
+                                    answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
+                                    answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
+                                    metaInfo.setGameEnded();
+                                    return answer;
+                                }
+                                if (activePlayer.isSaveShooting()) {
+                                    for (FieldCoord destroyedShipNearCoord: destroyedShip.getNearCoord()) {
+                                        answer.add(activePlayer, new NetworkDrawMissEvent(
+                                                destroyedShipNearCoord.getX(),
+                                                destroyedShipNearCoord.getY(),
+                                                PlayerType.ENEMY)
+                                        );
+                                    }
+                                }
                             }
-                            answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
-                            answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
-                            metaInfo.setGameEnded();
-                            return answer;
+                            metaInfo.setTurnHolderPlayer(activePlayer);
+                        } else {
+                            answer.add(activePlayer, new NetworkDrawMissEvent(x, y, PlayerType.ENEMY));
+                            answer.add(passivePlayer, new NetworkDrawMissEvent(x, y, PlayerType.YOU));
+                            metaInfo.setTurnHolderPlayer(passivePlayer);
                         }
                     }
-                    metaInfo.setTurnHolderPlayer(activePlayer);
                 } else {
-                    answer.add(activePlayer, new NetworkDrawMissEvent(x, y, PlayerType.ENEMY));
-                    answer.add(passivePlayer, new NetworkDrawMissEvent(x, y, PlayerType.YOU));
-                    metaInfo.setTurnHolderPlayer(passivePlayer);
+                    Ship destroyedShip = passivePlayerField.shoot(x, y);
+                    if (passivePlayerField.isCellDamaged(x, y)) {
+                        answer.add(activePlayer, new NetworkDrawHitEvent(x, y, PlayerType.ENEMY));
+                        answer.add(passivePlayer, new NetworkDrawHitEvent(x, y, PlayerType.YOU));
+                        if (destroyedShip != null) {
+                            answer.add(activePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.ENEMY));
+                            answer.add(passivePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.YOU));
+                            metaInfo.setTurnHolderPlayer(activePlayer);
+                            if (passivePlayerField.isAllShipsDestroyed()){
+                                GameField field = activePlayer.getGameField();
+                                for (Ship leavesShip: field.getShips()) {
+                                    answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
+                                }
+                                answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
+                                answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
+                                metaInfo.setGameEnded();
+                                return answer;
+                            }
+                        }
+                        metaInfo.setTurnHolderPlayer(activePlayer);
+                    } else {
+                        answer.add(activePlayer, new NetworkDrawMissEvent(x, y, PlayerType.ENEMY));
+                        answer.add(passivePlayer, new NetworkDrawMissEvent(x, y, PlayerType.YOU));
+                        metaInfo.setTurnHolderPlayer(passivePlayer);
+                    }
                 }
+                ///
                 answer.add(metaInfo.getTurnHolderPlayer(), new NetworkCanShootEvent());
             } else {
                 answer.add(activePlayer, new NetworkCommandNotAcceptedEvent("Not You Turn"));

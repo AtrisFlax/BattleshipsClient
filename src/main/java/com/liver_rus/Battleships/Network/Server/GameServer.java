@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Network.Server;
 
+import com.liver_rus.Battleships.Network.MessageSplitter;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.CreatorServerNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.NetworkDisconnectEvent;
@@ -68,11 +68,13 @@ public class GameServer extends Thread implements StartStopThread {
         this.metaInfo = MetaInfo.create(injectGameFields);
         openedClientChannels = new ArrayList<>(MAX_CONNECTIONS);
         configureServer();
+        log.info("GameServer created");
     }
 
-    public void sendMessage(SocketChannel socketChannel, String msg) {
-        msg = addSplitSymbol(msg);
-        ByteBuffer messageBuffer = ByteBuffer.wrap(msg.getBytes());
+    public void sendMessage(SocketChannel socketChannel, String message) {
+        message = MessageSplitter.AddSplitSymbol(message);
+        System.out.println("Server send= " + message + "to" + socketChannel);
+        ByteBuffer messageBuffer = ByteBuffer.wrap(message.getBytes());
         try {
             socketChannel.write(messageBuffer);
         } catch (IOException e) {
@@ -132,7 +134,6 @@ public class GameServer extends Thread implements StartStopThread {
         isRunning = false;
     }
 
-    //TODO delete crutch addSplitSymbol on client and server side
     private void sendMessage(SocketChannel socketChannel, NetworkClientEvent event) {
         sendMessage(socketChannel, event.convertToString());
     }
@@ -219,16 +220,23 @@ public class GameServer extends Thread implements StartStopThread {
         } else {
             message = messageBuilder.toString();
         }
+
+        for (String singleSplitMessage : MessageSplitter.GetSplit(message)) {
+            proceed(socketChannel, singleSplitMessage);
+        }
+    }
+
+    private void proceed(SocketChannel socketChannel, String message) {
         metaInfo.setActivePlayer(socketChannel);
-        NetworkServerEvent networkEvent = eventCreator.deserializeMessage(message);
+        NetworkServerEvent event = eventCreator.deserializeMessage(message);
 
-        System.out.println("Server: msg= " + message);
-        System.out.println("Server: event= " + networkEvent.getClass().getSimpleName());
+        //TODO delete or wrap for debug
+        System.out.println("Server read= " + message);
+        System.out.println("Server event= " + event.getClass().getSimpleName());
 
-
-        Answer answer = networkEvent.proceed(metaInfo);
+        Answer answer = event.proceed(metaInfo);
         sendEvent(answer);
-        if (networkEvent instanceof NetworkDisconnectEvent) {
+        if (event instanceof NetworkDisconnectEvent) {
             log.info("Connection closed upon one's client request");
             for (SocketChannel openChannel : openedClientChannels) {
                 sendMessage(openChannel, message);
@@ -243,9 +251,5 @@ public class GameServer extends Thread implements StartStopThread {
             NetworkClientEvent event = pair.getValue();
             sendMessage(channel, event);
         }
-    }
-
-    private String addSplitSymbol(String msg) {
-        return msg + NetworkCommandConstant.SPLIT_SYMBOL;
     }
 }

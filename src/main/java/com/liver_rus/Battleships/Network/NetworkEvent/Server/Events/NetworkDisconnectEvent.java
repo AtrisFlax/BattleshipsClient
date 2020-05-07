@@ -10,10 +10,10 @@ public class NetworkDisconnectEvent implements NetworkServerEvent {
 
     @Override
     public Answer proceed(MetaInfo metaInfo) {
-        Answer string = new Answer();
-        string.add(metaInfo.getActivePlayer(), new NetworkDoDisconnectEvent());
-        string.add(metaInfo.getPassivePlayer(), new NetworkDoDisconnectEvent());
-        return string;
+        Answer answer = new Answer();
+        answer.add(metaInfo.getActivePlayer(), new NetworkDoDisconnectEvent());
+        answer.add(metaInfo.getPassivePlayer(), new NetworkDoDisconnectEvent());
+        return answer;
     }
 
     @Override

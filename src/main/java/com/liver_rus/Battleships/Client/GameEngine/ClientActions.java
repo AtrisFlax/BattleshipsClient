@@ -8,7 +8,8 @@ import java.io.IOException;
 public interface ClientActions {
     void close() throws IOException;
 
-    void startNetwork(String ip, int port, String myName);
+    //possible replace with builder pattern
+    void startNetwork(String ip, int port, String myName, boolean isSaveShooting);
 
     void setController(FXMLDocumentMainController controller);
 

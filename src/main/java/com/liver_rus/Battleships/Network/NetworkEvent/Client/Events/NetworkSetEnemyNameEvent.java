@@ -7,7 +7,7 @@ import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 //client do nothing
 public class NetworkSetEnemyNameEvent implements NetworkClientEvent {
 
-    String enemy_name;
+    private final String enemy_name;
 
     public NetworkSetEnemyNameEvent(String enemy_name) {
         this.enemy_name = enemy_name;

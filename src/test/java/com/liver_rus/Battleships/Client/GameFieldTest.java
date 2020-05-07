@@ -16,6 +16,8 @@ class GameFieldTest {
         gameField = new GameField();
     }
 
+
+
     @Test
     void addShipsAndResetField() throws TryingAddTooManyShipsOnFieldException {
         final int MAX_DEPLOYMENT = 7;

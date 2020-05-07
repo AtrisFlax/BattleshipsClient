@@ -36,11 +36,13 @@ public class Fleet {
         return shipsList;
     }
 
-    public Ship findShip(int x, int y) {
+    public Ship findAliveShip(int x, int y) {
         for (Ship ship : shipsList) {
             for (FieldCoord coord : ship.getShipCoords()) {
                 if (coord.getX() == x && coord.getY() == y) {
-                    return ship;
+                    if (ship.isAlive()) {
+                        return ship;
+                    }
                 }
             }
         }

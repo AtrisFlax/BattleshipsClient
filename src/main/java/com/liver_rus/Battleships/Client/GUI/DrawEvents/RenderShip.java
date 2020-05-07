@@ -23,8 +23,6 @@ public class RenderShip implements DrawGUIEvent {
 
     @Override
     public void render(GraphicsContext gc) {
-        System.out.println("WHAT");
-        System.out.println(playerType == PlayerType.YOU);
         if (playerType == PlayerType.YOU) {
             Draw.Ship(gc, FirstPlayerGUIConstants.getGUIConstant(),
                     x, y,

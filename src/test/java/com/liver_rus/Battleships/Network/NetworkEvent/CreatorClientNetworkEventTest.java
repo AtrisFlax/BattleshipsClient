@@ -30,8 +30,8 @@ class CreatorClientNetworkEventTest {
         checkDeserialize(DRAW_SHIP + "360H" + ENEMY  , NetworkDrawShipEvent.class);
         checkDeserialize(SET_ENEMY_NAME + "ANY NAME"  , NetworkSetEnemyNameEvent.class);
         checkDeserialize(START_REMATCH  , NetworkStartRematchEvent.class);
-        checkDeserialize(WAITING_FOR_SECOND_PLAYER  , NetworkWaitingSecondPlayerEvent.class);
-        checkDeserialize(WAITING_FOR_SECOND_PLAYER + "ww"  , NetworkWaitingSecondPlayerEvent.class);
+        checkDeserialize(WAIT, NetworkWaitingSecondPlayerEvent.class);
+        checkDeserialize(WAIT + "ww"  , NetworkWaitingSecondPlayerEvent.class);
         checkDeserialize(END_MATCH + ENEMY  , NetworkEndMatchEvent.class);
         checkDeserialize(DRAW_SHIP + "113V" + YOU  , NetworkDrawShipEvent.class);
     }

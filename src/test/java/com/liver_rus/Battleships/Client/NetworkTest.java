@@ -92,9 +92,6 @@ class NetworkTest {
 
         Thread.sleep(250);
 
-        System.out.println("testGameFields= \n" + testGameFields[0]);
-        System.out.println("injectedGameFields= \n" + injectedGameFields[0]);
-
         assertEquals(testGameFields[0], injectedGameFields[0]);
         assertEquals(testGameFields[1], injectedGameFields[1]);
 
@@ -128,6 +125,8 @@ class NetworkTest {
         assertEquals(testGameFields[1], injectedGameFields[1]);
     }
 
+
+    //TODO save shooting test
 
     /* type <-> int
       AIRCRAFT_CARRIER(4),

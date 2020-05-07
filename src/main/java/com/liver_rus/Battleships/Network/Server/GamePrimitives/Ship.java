@@ -5,6 +5,7 @@ import com.liver_rus.Battleships.Network.Server.FieldCell;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * Класс Ship содержащий инормацию о расположении коробля(коррдинатах, ориентации и типе) в игровом поле GameField
@@ -15,6 +16,7 @@ public class Ship {
     private final boolean isHorizontal;
     private final int type;
     private boolean alive;
+    private List<FieldCoord> nearShipCoord;
 
     public static Ship create(int x, int y, int type, boolean isHorizontal, GameField field) {
         if (checkField(x, y, type, isHorizontal, field)) {
@@ -104,6 +106,14 @@ public class Ship {
         }
     }
 
+    public void setNearCoords(List<FieldCoord> nearShipCoord) {
+        this.nearShipCoord = nearShipCoord;
+    }
+
+    public List<FieldCoord> getNearCoord() {
+        return nearShipCoord;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -126,8 +136,8 @@ public class Ship {
         return result;
     }
 
+
     private Ship(int x, int y, int type, boolean isHorizontal, GameField field) {
-        //TODO check shipCoord array with null references
         shipCoords = new FieldCoord[type + 1];
         for (int i = 0; i < type + 1; i++) {
             if (isHorizontal) {
@@ -154,5 +164,6 @@ public class Ship {
             return 'V';
         }
     }
+
 }
 

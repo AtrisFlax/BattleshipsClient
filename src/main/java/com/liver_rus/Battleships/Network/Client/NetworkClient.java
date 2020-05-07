@@ -1,6 +1,6 @@
 package com.liver_rus.Battleships.Network.Client;
 
-import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
+import com.liver_rus.Battleships.Network.MessageSplitter;
 import com.liver_rus.Battleships.Network.StartStopThread;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -14,13 +14,13 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.regex.Pattern;
 
 import static java.nio.channels.SelectionKey.*;
 
@@ -33,6 +33,8 @@ public class NetworkClient implements MailBox, StartStopThread {
     private final BlockingQueue<String> messageSynchronize = new ArrayBlockingQueue<>(QUEUE_SIZE);
 
     private final ObservableList<String> inbox;
+
+    private final ByteBuffer readBuffer = ByteBuffer.allocate(8192);
 
     private InetAddress ipAddress;
     private final int port;
@@ -49,11 +51,12 @@ public class NetworkClient implements MailBox, StartStopThread {
             selector = Selector.open();
             channel.register(selector, OP_CONNECT);
             channel.connect(new InetSocketAddress(this.ipAddress, this.port));
-        } catch (IOException e ) {
+        } catch (IOException e) {
             e.printStackTrace();
         }
         ReceiveThread clientReceiver = new ReceiveThread(channel, inbox);
         clientReceiver.start();
+        log.info("NetworkClient created");
     }
 
     public static NetworkClient create(String ip, int port) {
@@ -71,15 +74,17 @@ public class NetworkClient implements MailBox, StartStopThread {
     @Override
     public void subscribeForInbox(Consumer<String> consumer) {
         inbox.addListener((ListChangeListener<String>) listener -> {
-            String received_msg = inbox.get(inbox.size() - 1);
-            log.info("NetworkClient Message receive: " + received_msg);
+            final int FIRST_ELEMENT_INDEX = 0;
+            String received_msg = inbox.get(FIRST_ELEMENT_INDEX);
             consumer.accept(received_msg);
-            inbox.clear();
+            inbox.remove(FIRST_ELEMENT_INDEX);
         });
     }
 
     public void sendMessage(String message) {
-        System.out.println("NetworkClient sendMessage message= " + message);
+        message = MessageSplitter.AddSplitSymbol(message);
+        //TODO delete
+        System.out.println("Client send= " + message);
         try {
             messageSynchronize.put(message);
             SelectionKey key = channel.keyFor(selector);
@@ -119,7 +124,7 @@ public class NetworkClient implements MailBox, StartStopThread {
 
     private class ReceiveThread extends Thread {
         private final SocketChannel channel;
-        ObservableList<String> inbox;
+        private final ObservableList<String> inbox;
 
         ReceiveThread(SocketChannel client, ObservableList<String> inbox) {
             super("Receive thread");
@@ -143,7 +148,7 @@ public class NetworkClient implements MailBox, StartStopThread {
                                     key.interestOps(OP_WRITE);
                                 }
                                 if (key.isReadable()) {
-                                    receiveMessage();
+                                    receiveMessage(key);
                                 }
                                 if (key.isWritable()) {
                                     String line = messageSynchronize.poll();
@@ -156,27 +161,39 @@ public class NetworkClient implements MailBox, StartStopThread {
                         }
                     }
                 }
-            } catch (IOException ignored) {
+            } catch (IOException e) {
+                log.info("Client Error:" + e);
+                close();
             }
         }
 
+        private void receiveMessage(SelectionKey key) throws IOException {
+            SocketChannel socketChannel = (SocketChannel) key.channel();
 
-        private void receiveMessage() throws IOException {
-            ByteBuffer buf = ByteBuffer.allocate(2048);
-            int nBytes;
-            nBytes = channel.read(buf);
+            // Clear out our read buffer so it's ready for new data
+            readBuffer.clear();
 
-            if (nBytes == 2048 || nBytes == 0)
+            // Attempt to read off the channel
+            int numRead;
+            try {
+                numRead = socketChannel.read(readBuffer);
+            } catch (IOException e) {
+                // The remote forcibly closed the connection, cancel
+                // the selection key and close the channel.
+                key.cancel();
+                socketChannel.close();
                 return;
-            String message = new String(buf.array());
-
-            //TODO почему два сообщение за раз?
-            //TODO постараться убрать SPLIT_SYMBOL
-            for (String inboxStr : message.trim().split(Pattern.quote(NetworkCommandConstant.SPLIT_SYMBOL))) {
-                if (inboxStr.length() != 0) {
-                    inbox.add(inboxStr);
-                }
             }
+
+            if (numRead == -1) {
+                // Remote entity shut the socket down cleanly. Do the
+                // same from our end and cancel the channel.
+                key.channel().close();
+                key.cancel();
+                return;
+            }
+            String message = new String(readBuffer.array()).trim();
+            inbox.addAll(Arrays.asList(MessageSplitter.GetSplit(message)));
         }
     }
 }
