@@ -15,10 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.input.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -248,8 +245,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @FXML
     public void handleOverlayCanvasMouseMoved(MouseEvent event) {
-        //TODO delete debug
-        //System.out.println("x=" + event.getX() + " y=" + event.getY());
         if (isDeploying) {
             if (SceneCoord.isFromFirstPlayerField(event)) {
                 if (isShipSelected) {
@@ -506,5 +501,19 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     private void setMyName(String name) {
         playerMeLabel.setText(name);
+    }
+
+    @FXML
+    private void listViewScrollHandler(ScrollEvent scrollEvent) {
+        System.out.println("Delta scroll");
+        System.out.println(scrollEvent.getDeltaY());
+        int scrollIndex;
+        if (scrollEvent.getDeltaY() > 0) {
+            scrollIndex = statusListView.getSelectionModel().getSelectedIndex() - 1;
+        } else {
+            scrollIndex = statusListView.getSelectionModel().getSelectedIndex() + 1;
+        }
+
+        statusListView.getSelectionModel().select(scrollIndex);
     }
 }

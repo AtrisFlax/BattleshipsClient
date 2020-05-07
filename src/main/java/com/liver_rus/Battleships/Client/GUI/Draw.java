@@ -11,12 +11,11 @@ import javafx.util.Duration;
 public class Draw {
     private final static double CELL_LINE_WIDTH = 2;
     private final static double SHIP_LINE_WIDTH = 2.2;
+    private final static double DESTROY_LIST_WIDTH = 4;
+
     private final static Color MISS_CELL_COLOR = Color.BLACK;
     private final static Color DESTROY_LIST_COLOR = Color.BLACK;
-    private final static double DESTROY_LIST_WIDTH = 4;
     private final static Color HIT_CELL_COLOR = Color.BLACK;
-
-    private static final double DASH_WIDTH = 3.0;
     private static final Color POSSIBLE_DEPLOY_COLOR = Color.BLACK;
     private static final Color IMPOSSIBLE_DEPLOY_COLOR = Color.RED;
 
@@ -48,8 +47,7 @@ public class Draw {
             leftY = Constants.DestroyedListGUI.LEFT_Y_ROW0;
             row = shipNumber;
         } else {
-            final int SHIPS_ON_FIST_COL = 3;
-            row = shipNumber - SHIPS_ON_FIST_COL;
+            row = shipNumber - NEXT_ROW_ID;
             leftX = Constants.DestroyedListGUI.LEFT_X_ROW1;
             leftY = Constants.DestroyedListGUI.LEFT_Y_ROW1;
         }
@@ -57,14 +55,6 @@ public class Draw {
         double widthY = Constants.DestroyedListGUI.WIDTH_CELL_Y;
         graphicContext.setStroke(DESTROY_LIST_COLOR);
         graphicContext.setLineWidth(DESTROY_LIST_WIDTH);
-        System.out.println("*********************************");
-        System.out.println("shipNumber " + shipNumber);
-        System.out.println("leftX " + leftX);
-        System.out.println("leftY - widthY * shipNumber " + (leftY - widthY * shipNumber));
-        System.out.println("leftX + widthX " + (leftX + widthX));
-        System.out.println("leftY - widthY  * shipNumber + widthY " + (leftY - widthY * shipNumber + widthY));
-        System.out.println("*********************************");
-
         graphicContext.strokeLine(
                 leftX,
                 leftY + widthY * row,

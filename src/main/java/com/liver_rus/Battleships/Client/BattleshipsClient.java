@@ -16,7 +16,6 @@ public class BattleshipsClient extends Application {
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/FXMLDocumentMain.fxml"));
         Parent root = loader.load();
         ClientGameEngine gameEngine = new ClientGameEngine();
-        //TODO gameServerThread перенести на этот уровень
         FXMLDocumentMainController controller = loader.getController();
         controller.setClientEngine(gameEngine);
         gameEngine.setController(controller);

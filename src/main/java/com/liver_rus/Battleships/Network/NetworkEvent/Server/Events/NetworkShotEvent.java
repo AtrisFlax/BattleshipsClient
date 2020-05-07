@@ -22,7 +22,6 @@ public class NetworkShotEvent implements NetworkServerEvent {
         this.y = y;
     }
 
-    //TODO simpilify
     @Override
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();

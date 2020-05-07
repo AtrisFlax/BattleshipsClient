@@ -126,8 +126,8 @@ class NetworkTest {
     }
 
 
-    //TODO save shooting test
-
+    //TODO save shooting test. One client in save shooting mode another not
+    //TODO add reset test
     /* type <-> int
       AIRCRAFT_CARRIER(4),
         BATTLESHIP(3),
@@ -156,6 +156,8 @@ class NetworkTest {
         field.addShip(7, 8, 0, false);
     }
 
+
+    //TODO change content of awaitedInboxClient[0-1].txt. Now test fail
     @Test
     void fullGameCycleInboxTest() throws InterruptedException {
         String TEST_CASE = "Case1";

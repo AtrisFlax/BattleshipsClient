@@ -16,14 +16,11 @@ class GameFieldTest {
         gameField = new GameField();
     }
 
-
-
     @Test
     void addShipsAndResetField() throws TryingAddTooManyShipsOnFieldException {
         final int MAX_DEPLOYMENT = 7;
         int leftForDeploy = MAX_DEPLOYMENT;
         assertEquals(MAX_DEPLOYMENT, gameField.getShipsLeftForDeploy());
-
         gameField.addShip(3, 4, 2, true);
         leftForDeploy--;
         gameField.addShip(2, 1, 0, true);
@@ -80,7 +77,6 @@ class GameFieldTest {
         assertEquals(numExpectedShipOnField, gameField.getShipLeftAlive());
         assertTrue(gameField.isAllShipsDestroyed());
     }
-
 
     @Test
     void addTooManyShips() throws TryingAddTooManyShipsOnFieldException {

@@ -134,7 +134,6 @@ public class GameField {
     }
 
     public boolean isCellDamaged(int x, int y) {
-        //TODO or near with damaged
         return field[x][y].getType() == FieldCell.DAMAGED_SHIP;
     }
 

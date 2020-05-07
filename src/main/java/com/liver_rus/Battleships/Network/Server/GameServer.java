@@ -110,13 +110,12 @@ public class GameServer extends Thread implements StartStopThread {
                 selector.close();
             }
         } catch (IOException e) {
-            //TODO add info
+            //TODO add print in log
             e.printStackTrace();
         }
         metaInfo = null;
     }
 
-    //TODO
     public void reset() {
         metaInfo.resetForRematch();
     }
@@ -229,8 +228,6 @@ public class GameServer extends Thread implements StartStopThread {
     private void proceed(SocketChannel socketChannel, String message) {
         metaInfo.setActivePlayer(socketChannel);
         NetworkServerEvent event = eventCreator.deserializeMessage(message);
-
-//        assert !(event instanceof NetworkUnknownCommandServerEvent);
 
         //TODO delete or wrap for debug
         System.out.println("Server read= " + message);

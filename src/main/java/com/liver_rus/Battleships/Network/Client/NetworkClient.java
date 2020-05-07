@@ -82,7 +82,7 @@ public class NetworkClient implements MailBox, StartStopThread {
 
     public void sendMessage(String message) {
         message = MessageSplitter.AddSplitSymbol(message);
-        //TODO delete
+        //TODO for debug delete
         System.out.println("Client send= " + message);
         try {
             messageSynchronize.put(message);
