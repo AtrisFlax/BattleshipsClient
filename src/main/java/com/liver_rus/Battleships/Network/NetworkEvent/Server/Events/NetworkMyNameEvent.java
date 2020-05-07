@@ -31,6 +31,8 @@ public class NetworkMyNameEvent implements NetworkServerEvent {
             //TODO delete debug
             if (DEBUG_AUTO_DEPLOY) {
                 Player passivePlayer = metaInfo.getPassivePlayer();
+                answer.add(activePlayer, new NetworkSetEnemyNameEvent(passivePlayer.getName()));
+                answer.add(passivePlayer, new NetworkSetEnemyNameEvent(activePlayer.getName()));
                 GameField activePlayerField = activePlayer.getGameField();
                 GameField passivePlayerField = passivePlayer.getGameField();
                 try {
@@ -61,10 +63,8 @@ public class NetworkMyNameEvent implements NetworkServerEvent {
                 answer.add(activePlayer, new NetworkDeployEvent(activePlayerField.getShipsLeftByTypeForDeploy()));
                 answer.add(passivePlayer, new NetworkDeployEvent(passivePlayerField.getShipsLeftByTypeForDeploy()));
             }
-//
-
         } else {
-            answer.add(activePlayer, new NetworkWaitingSecondPlayerEvent("Waiting start deployment"));
+            answer.add(activePlayer, new NetworkWaitingSecondPlayerEvent("Deployment"));
         }
         return answer;
     }

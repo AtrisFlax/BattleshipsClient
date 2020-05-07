@@ -51,10 +51,10 @@ public class NetworkTryDeployShipEvent implements NetworkServerEvent {
                     metaInfo.setTurnHolder();
                     answer.add(metaInfo.getTurnHolderPlayer(), new NetworkCanShootEvent());
                     answer.add(metaInfo.getNotTurnHolderPlayer(),
-                            new NetworkWaitingSecondPlayerEvent("Waiting shot of second player"));
+                            new NetworkWaitingSecondPlayerEvent("Shot of second player"));
                 } else {
                     answer.add(activePlayer,
-                            new NetworkWaitingSecondPlayerEvent("Waiting deployment of second player"));
+                            new NetworkWaitingSecondPlayerEvent("Deployment"));
                 }
             } else {
                 answer.add(activePlayer, new NetworkDeployEvent(activePlayerField.getShipsLeftByTypeForDeploy()));

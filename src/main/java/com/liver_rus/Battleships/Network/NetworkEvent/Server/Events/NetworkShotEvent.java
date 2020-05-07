@@ -31,57 +31,36 @@ public class NetworkShotEvent implements NetworkServerEvent {
         GameField passivePlayerField = passivePlayer.getGameField();
         if (metaInfo.isPlayersReadyForGame()) {
             if (activePlayer == metaInfo.getTurnHolderPlayer()) {
-                if (activePlayer.isSaveShooting()) {
-                    Ship destroyedShip = passivePlayerField.saveShoot(x, y);
-                    if (passivePlayerField.isFreeShot(x, y)) {
-                        metaInfo.setTurnHolderPlayer(activePlayer);
-                    } else {
-                        if (passivePlayerField.isCellDamaged(x, y)) {
-                            answer.add(activePlayer, new NetworkDrawHitEvent(x, y, PlayerType.ENEMY));
-                            answer.add(passivePlayer, new NetworkDrawHitEvent(x, y, PlayerType.YOU));
-                            if (destroyedShip != null) {
-                                answer.add(activePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.ENEMY));
-                                answer.add(passivePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.YOU));
-                                metaInfo.setTurnHolderPlayer(activePlayer);
-                                if (passivePlayerField.isAllShipsDestroyed()){
-                                    GameField field = activePlayer.getGameField();
-                                    for (Ship leavesShip: field.getShips()) {
-                                        answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
-                                    }
-                                    answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
-                                    answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
-                                    metaInfo.setGameEnded();
-                                    return answer;
-                                }
-                                if (activePlayer.isSaveShooting()) {
-                                    for (FieldCoord destroyedShipNearCoord: destroyedShip.getNearCoord()) {
-                                        answer.add(activePlayer, new NetworkDrawMissEvent(
-                                                destroyedShipNearCoord.getX(),
-                                                destroyedShipNearCoord.getY(),
-                                                PlayerType.ENEMY)
-                                        );
-                                    }
-                                }
-                            }
-                            metaInfo.setTurnHolderPlayer(activePlayer);
-                        } else {
-                            answer.add(activePlayer, new NetworkDrawMissEvent(x, y, PlayerType.ENEMY));
-                            answer.add(passivePlayer, new NetworkDrawMissEvent(x, y, PlayerType.YOU));
-                            metaInfo.setTurnHolderPlayer(passivePlayer);
-                        }
-                    }
+                Ship destroyedShip = passivePlayerField.saveShoot(x, y);
+                if (activePlayer.isSaveShooting() && passivePlayerField.isFreeShot(x, y)) {
+                    metaInfo.setTurnHolderPlayer(activePlayer);
                 } else {
-                    Ship destroyedShip = passivePlayerField.shoot(x, y);
                     if (passivePlayerField.isCellDamaged(x, y)) {
+                        //draw hit
                         answer.add(activePlayer, new NetworkDrawHitEvent(x, y, PlayerType.ENEMY));
                         answer.add(passivePlayer, new NetworkDrawHitEvent(x, y, PlayerType.YOU));
                         if (destroyedShip != null) {
+                            //draw left num ships indicator
+                            int numAliveShips = passivePlayerField.getShipLeftAlive();
+                            answer.add(activePlayer, new NetworkDrawShipsLeftEvent(numAliveShips));
+                            //draw ship
                             answer.add(activePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.ENEMY));
                             answer.add(passivePlayer, new NetworkDrawShipEvent(destroyedShip, PlayerType.YOU));
                             metaInfo.setTurnHolderPlayer(activePlayer);
-                            if (passivePlayerField.isAllShipsDestroyed()){
+                            //send near cells of destroyedShip
+                            if (activePlayer.isSaveShooting()) {
+                                for (FieldCoord destroyedShipNearCoord : destroyedShip.getNearCoord()) {
+                                    answer.add(activePlayer,
+                                            new NetworkDrawMissEvent(
+                                                    destroyedShipNearCoord.getX(), destroyedShipNearCoord.getY(),
+                                                    PlayerType.ENEMY
+                                            ));
+                                }
+                            }
+                            //end game. send alive ships for loser
+                            if (passivePlayerField.isAllShipsDestroyed()) {
                                 GameField field = activePlayer.getGameField();
-                                for (Ship leavesShip: field.getShips()) {
+                                for (Ship leavesShip : field.getShips()) {
                                     answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
                                 }
                                 answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
@@ -89,15 +68,17 @@ public class NetworkShotEvent implements NetworkServerEvent {
                                 metaInfo.setGameEnded();
                                 return answer;
                             }
+
                         }
                         metaInfo.setTurnHolderPlayer(activePlayer);
                     } else {
+                        //draw miss
                         answer.add(activePlayer, new NetworkDrawMissEvent(x, y, PlayerType.ENEMY));
                         answer.add(passivePlayer, new NetworkDrawMissEvent(x, y, PlayerType.YOU));
                         metaInfo.setTurnHolderPlayer(passivePlayer);
                     }
                 }
-                ///
+                //send can shoot for turnHolderPlayer
                 answer.add(metaInfo.getTurnHolderPlayer(), new NetworkCanShootEvent());
             } else {
                 answer.add(activePlayer, new NetworkCommandNotAcceptedEvent("Not You Turn"));

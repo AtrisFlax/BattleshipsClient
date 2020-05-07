@@ -6,7 +6,7 @@ import com.liver_rus.Battleships.Client.GUI.Draw;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import javafx.scene.canvas.GraphicsContext;
 
-public class RenderHit implements DrawGUIEvent {
+public final class RenderHit implements DrawGUIEvent {
     private final int x;
     private final int y;
     private final PlayerType playerType;

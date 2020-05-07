@@ -21,7 +21,9 @@ public class NetworkSetSaveShooting implements NetworkServerEvent {
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();
         Player activePlayer = metaInfo.getActivePlayer();
-        activePlayer.setSaveShooting(state);
+        if (!metaInfo.isPlayersReadyForGame()) {
+            activePlayer.setSaveShooting(state);
+        }
         return answer;
     }
 

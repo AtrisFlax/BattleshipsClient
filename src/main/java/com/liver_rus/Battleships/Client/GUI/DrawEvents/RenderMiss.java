@@ -6,7 +6,7 @@ import com.liver_rus.Battleships.Client.GUI.Draw;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import javafx.scene.canvas.GraphicsContext;
 
-public class RenderMiss implements DrawGUIEvent {
+public final class RenderMiss implements DrawGUIEvent {
     private final int x;
     private final int y;
     private final PlayerType playerType;
@@ -15,6 +15,18 @@ public class RenderMiss implements DrawGUIEvent {
         this.x = x;
         this.y = y;
         this.playerType = playerType;
+    }
+
+    public int getX() {
+        return x;
+    }
+
+    public int getY() {
+        return y;
+    }
+
+    public PlayerType getPlayerType() {
+        return playerType;
     }
 
     @Override

@@ -24,6 +24,7 @@ public class NetworkCommandConstant {
     public final static String CAN_SHOOT = "CAN_SHOOT";
     public final static String DRAW_SHIP = "DRAW_SHIP";
     public final static String HIT = "HIT";
+    public final static String DRAW_SHIP_LEFT = "DRAW_SHIP_LEFT";
     public final static String MISS = "MISS";
     public final static String END_MATCH = "END_MATCH";
     public final static String DO_DISCONNECT = "DO_DISCONNECT";

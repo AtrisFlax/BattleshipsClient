@@ -44,9 +44,9 @@
                 <Insets left="478.0" top="150.0" />
             </StackPane.margin>
         </Label>
-        <ListView fx:id="statusListView" cache="true" editable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="122.0" prefWidth="194.0" StackPane.alignment="TOP_RIGHT">
+        <ListView fx:id="statusListView" cache="true" editable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="122.0" prefWidth="175.0" StackPane.alignment="TOP_RIGHT">
             <StackPane.margin>
-                <Insets right="28.0" top="170.0" />
+                <Insets bottom="170.0" left="170.0" right="47.0" top="170.0" />
             </StackPane.margin>
         </ListView>
         <Label fx:id="playerMeLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
@@ -75,12 +75,7 @@
             <Insets top="25.0" />
          </StackPane.margin>
       </Canvas>
-        <Button fx:id="resetFleetButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handleResetFleetButton" text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
-            <StackPane.margin>
-                <Insets right="30.0" top="100.0" />
-            </StackPane.margin>
-        </Button>
-        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER" >
+        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER">
             <children>
                 <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handleButtonShipType4" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <VBox.margin>
@@ -111,7 +106,6 @@
                     </padding>
                 </Button>
 
-
                 <fx:define>
                     <ArrayList fx:id="shipTypeList" >
                         <fx:reference source="shipType0Button"/>
@@ -121,11 +115,17 @@
                         <fx:reference source="shipType4Button"/>
                     </ArrayList>
                 </fx:define>
+              
 
             </children>
             <StackPane.margin>
                 <Insets left="192.0" top="850.0" />
             </StackPane.margin>
         </VBox>
+        <Button fx:id="resetFleetButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handleResetFleetButton" prefHeight="25.0" prefWidth="85.0" text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
+            <StackPane.margin>
+                <Insets right="47.0" top="117.0" />
+            </StackPane.margin>
+        </Button>
     </children>
 </StackPane>

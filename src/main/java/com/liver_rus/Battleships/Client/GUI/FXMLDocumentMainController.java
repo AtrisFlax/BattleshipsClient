@@ -15,12 +15,10 @@ import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.StackPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 
@@ -37,17 +35,8 @@ import static com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField.
 
 
 public class FXMLDocumentMainController implements Initializable, GUIActions, ClientEngineHolder {
-
     @FXML
     public MenuItem menuItemSaveShooting;
-
-    public StackPane topLevelStackPane;
-    public ImageView imgView;
-    public MenuBar menuBarItem;
-    public Menu fileMenu;
-    public MenuItem menuItemExit;
-    public Menu helpMenu;
-    public MenuItem menuItemAbout;
 
     @FXML
     private Button shipType4Button;
@@ -105,11 +94,10 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     private ShipInfo shipInfo;
 
     private boolean isShipSelected;
-    boolean isDeploying;
-    boolean isShooting;
-    boolean isSaveShooting;
+    private boolean isDeploying;
+    private boolean isShooting;
+    private boolean isSaveShooting;
     private int[] shipLeftByTypeInit;
-
 
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -149,7 +137,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     @Override
     public void waitSecondPlayer(String reason) {
         Platform.runLater(() -> {
-            statusListView.getItems().add(reason);
+            labelGameStatus.setText("Wait Second Player:" + reason);
             isDeploying = false;
             disableShipButtons();
             menuItemConnect.setDisable(true);
@@ -194,56 +182,62 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void canShot() {
-        isShooting = true;
-    }
-
-    @Override
-    public void hit(RenderHit renderHit) {
         Platform.runLater(() -> {
-            draw(renderHit);
-            if (renderHit.getPlayerType() == PlayerType.YOU) {
-                String info = "YOU: HIT" + renderHit.getX() + renderHit.getY();
-                setInfo(info);
-            }
-            if (renderHit.getPlayerType() == PlayerType.ENEMY) {
-                String info = "ENEMY: HIT" + renderHit.getX() + renderHit.getY();
-                setInfo(info);
-            }
+            labelGameStatus.setText("Shoot!!!");
+            isShooting = true;
         });
     }
 
+    @Override
+    public void hit(RenderHit hitEvent) {
+        String fromWho = (hitEvent.getPlayerType() == PlayerType.YOU) ? "You     " : "Enemy";
+        setGUI(hitEvent, "Hit", fromWho, hitEvent.getX(), hitEvent.getY());
+    }
+
+    @Override
+    public void miss(RenderMiss missEvent) {
+        String fromWho = (missEvent.getPlayerType() == PlayerType.YOU) ? "You     " : "Enemy";
+        setGUI(missEvent, "Miss", fromWho, missEvent.getX(), missEvent.getY());
+    }
+
+    @Override
+    public void endMatch(PlayerType playerType) {
+        String player = (playerType == PlayerType.YOU) ? "You" : "Win";
+        setInfo(player + " Win!");
+    }
+
     @FXML
-    protected void handleButtonShipType4() {
+    public void handleButtonShipType4() {
         handleButtonShip(4);
     }
 
     @FXML
-    protected void handleButtonShipType3() {
+    public void handleButtonShipType3() {
         handleButtonShip(3);
     }
 
     @FXML
-    protected void handleButtonShipType2() {
+    public void handleButtonShipType2() {
         handleButtonShip(2);
     }
 
     @FXML
-    protected void handleButtonShipType1() {
+    public void handleButtonShipType1() {
         handleButtonShip(1);
     }
 
     @FXML
-    protected void handleButtonShipType0() {
+    public void handleButtonShipType0() {
         handleButtonShip(0);
     }
 
     @FXML
-    protected void handleResetFleetButton() {
+    public void handleResetFleetButton() {
         reset();
     }
 
     @FXML
-    protected void handleToCanvasMouseClick(MouseEvent event) {
+    public void handleToCanvasMouseClick(MouseEvent event) {
         if (event.getButton().equals(MouseButton.PRIMARY)) {
             handleToMouseClickPrimaryButton(event);
         }
@@ -253,7 +247,9 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     @FXML
-    protected void handleOverlayCanvasMouseMoved(MouseEvent event) {
+    public void handleOverlayCanvasMouseMoved(MouseEvent event) {
+        //TODO delete debug
+        //System.out.println("x=" + event.getX() + " y=" + event.getY());
         if (isDeploying) {
             if (SceneCoord.isFromFirstPlayerField(event)) {
                 if (isShipSelected) {
@@ -275,7 +271,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     @FXML
-    protected void handleMenuItemConnectGame() {
+    public void handleMenuItemConnectGame() {
         try {
             FXMLLoader fxmlLoader = new FXMLLoader();
             fxmlLoader.setLocation(getClass().getResource("/fxml/FXMLDocumentConnectGame.fxml"));
@@ -317,12 +313,12 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     @FXML
-    protected void handleMenuItemExit() {
+    public void handleMenuItemExit() {
         Platform.exit();
     }
 
     @FXML
-    protected void handleMenuItemAbout() {
+    public void handleMenuItemAbout() {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(Constants.AboutInfo.ABOUT_GAME_TITLE);
         alert.setHeaderText(Constants.AboutInfo.ABOUT_GAME_HEADER);
@@ -331,12 +327,12 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     @FXML
-    protected void handleDisconnectMenuItem() {
+    public void handleDisconnectMenuItem() {
         clientGameEngine.close();
     }
 
     @FXML
-    protected void handleKeyReleased(KeyEvent keyEvent) {
+    public void handleKeyReleased(KeyEvent keyEvent) {
         if (KeyCode.ESCAPE == keyEvent.getCode()) {
             if (isShipSelected) {
                 int oldTypeValue = shipLeftByTypeInit[shipInfo.getType()];
@@ -349,7 +345,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     @FXML
-    protected void handleMenuItemSaveShooting() {
+    public void handleMenuItemSaveShooting() {
         if (isSaveShooting) {
             menuItemSaveShooting.setText("Save shooting : ✗");
             isSaveShooting = false;
@@ -401,6 +397,24 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         });
     }
 
+    private void setGUI(DrawGUIEvent event, String action, String fromWho, int x, int y) {
+        Platform.runLater(() -> {
+            draw(event);
+
+            String infoFormat = fromWho + ": " + action + " " + XYtoGameFormat(x, y);
+            setInfo(infoFormat);
+            labelGameStatus.setText(fromWho + " " + action);
+        });
+    }
+
+    //convert coord 00 -> A1
+    private static String XYtoGameFormat(int x, int y) {
+        int tmpX = x + 1;
+        int tmpY = y + 1;
+        String strY = tmpY > 0 && tmpY < 27 ? String.valueOf((char) (tmpY + 'A' - 1)) : null;
+        return strY + tmpX;
+    }
+
     private void initShipButtonText(int[] amountShipByType) {
         Platform.runLater(() -> {
             for (int i = 0; i < NUM_TYPE; i++) {
@@ -415,7 +429,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         shipInfo.setShipType(type);
         disableShipButtons();
         int reducedValue = shipLeftByTypeInit[type] - 1;
-        shipTypeList.get(type).setText(reducedValue + " x") ;
+        shipTypeList.get(type).setText(reducedValue + " x");
     }
 
     private void disableShipButtons() {
@@ -457,6 +471,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                 int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
                 clientGameEngine.shot(x, y);
                 isShooting = false;
+                labelGameStatus.setText("");
             }
         }
     }

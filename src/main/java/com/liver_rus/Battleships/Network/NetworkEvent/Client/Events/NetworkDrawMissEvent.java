@@ -6,7 +6,6 @@ import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 
-//client do nothing
 public class NetworkDrawMissEvent implements NetworkClientEvent {
     private final int x;
     private final int y;
@@ -22,7 +21,7 @@ public class NetworkDrawMissEvent implements NetworkClientEvent {
 
     @Override
     public String proceed(GUIActions action) {
-        action.draw(new RenderMiss(x, y, playerType));
+        action.miss(new RenderMiss(x, y, playerType));
         return null;
     }
 

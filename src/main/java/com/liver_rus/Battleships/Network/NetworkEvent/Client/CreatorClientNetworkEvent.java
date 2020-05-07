@@ -26,6 +26,7 @@ public class CreatorClientNetworkEvent {
     private final Pattern eventStartRematchPattern;
     private final Pattern eventWaitingForSecondPlayerPattern;
     private final Pattern eventEndMatchPattern;
+    private final Pattern eventDrawShipsLeftPattern;
 
     public CreatorClientNetworkEvent() {
         String xyto = "(\\d)(\\d)(\\d)([VH])"; //x y type orientation
@@ -46,6 +47,7 @@ public class CreatorClientNetworkEvent {
         eventStartRematchPattern = Pattern.compile("^" + START_REMATCH + "$");
         eventWaitingForSecondPlayerPattern = Pattern.compile("^" + WAIT + "(.*)");
         eventEndMatchPattern = Pattern.compile("^" + END_MATCH + player + "$");
+        eventDrawShipsLeftPattern = Pattern.compile("^" + DRAW_SHIP_LEFT + "(\\d)" + "$");
     }
 
     public NetworkClientEvent deserializeMessage(String msg) {
@@ -120,6 +122,10 @@ public class CreatorClientNetworkEvent {
         if (matcher.find()) {
             PlayerType playerType = matcher.group(1).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
             return new NetworkEndMatchEvent(playerType);
+        }
+        matcher = eventDrawShipsLeftPattern.matcher(msg);
+        if (matcher.find()) {
+            return new NetworkDrawShipsLeftEvent(Integer.parseInt(matcher.group(1)));
         }
         return new NetworkUnknownCommandClientEvent(msg);
     }

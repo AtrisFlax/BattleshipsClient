@@ -8,12 +8,12 @@ public class Fleet {
     private int[] ships;
     //amount ships by type <------------>  {4, 3, 2, 1, 0} type 4 has possible locate 2 ship, etc.
     private final static int[] initShipsByType = {2, 2, 1, 1, 1};
-    private static final int NUM_MAX_SHIPS = Arrays.stream(initShipsByType).sum();
     private int leftForDeployment;
     private int leftAlive;
     private final List<Ship> shipsList;
 
-    public final static int NUM_TYPE = initShipsByType.length;
+    public static final int NUM_MAX_SHIPS = Arrays.stream(initShipsByType).sum();
+    public static final int NUM_TYPE = initShipsByType.length;
 
     public Fleet() {
         this.shipsList = new ArrayList<>();

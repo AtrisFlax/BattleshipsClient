@@ -80,8 +80,9 @@ public class ClientGameEngine implements ClientActions {
     private void proceedMessage(String message) {
         NetworkClientEvent event = eventCreator.deserializeMessage(message);
 
+//        assert !(event instanceof NetworkUnknownCommandClientEvent);
+
         //TODO delete or wrap for debug
-        System.out.println("Client read= " + message);
         System.out.println("Client event= " + event.getClass().getSimpleName());
 
         String answer = event.proceed(controller);

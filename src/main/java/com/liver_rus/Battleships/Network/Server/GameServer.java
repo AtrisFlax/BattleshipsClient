@@ -73,7 +73,7 @@ public class GameServer extends Thread implements StartStopThread {
 
     public void sendMessage(SocketChannel socketChannel, String message) {
         message = MessageSplitter.AddSplitSymbol(message);
-        System.out.println("Server send= " + message + "to" + socketChannel);
+        System.out.println("Server send= " + message + " to= " + socketChannel);
         ByteBuffer messageBuffer = ByteBuffer.wrap(message.getBytes());
         try {
             socketChannel.write(messageBuffer);
@@ -229,6 +229,8 @@ public class GameServer extends Thread implements StartStopThread {
     private void proceed(SocketChannel socketChannel, String message) {
         metaInfo.setActivePlayer(socketChannel);
         NetworkServerEvent event = eventCreator.deserializeMessage(message);
+
+//        assert !(event instanceof NetworkUnknownCommandServerEvent);
 
         //TODO delete or wrap for debug
         System.out.println("Server read= " + message);

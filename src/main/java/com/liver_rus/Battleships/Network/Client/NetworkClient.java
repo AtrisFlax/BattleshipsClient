@@ -34,8 +34,6 @@ public class NetworkClient implements MailBox, StartStopThread {
 
     private final ObservableList<String> inbox;
 
-    private final ByteBuffer readBuffer = ByteBuffer.allocate(8192);
-
     private InetAddress ipAddress;
     private final int port;
 
@@ -76,6 +74,7 @@ public class NetworkClient implements MailBox, StartStopThread {
         inbox.addListener((ListChangeListener<String>) listener -> {
             final int FIRST_ELEMENT_INDEX = 0;
             String received_msg = inbox.get(FIRST_ELEMENT_INDEX);
+            System.out.println("Client read= " + received_msg + " to= " + channel);
             consumer.accept(received_msg);
             inbox.remove(FIRST_ELEMENT_INDEX);
         });
@@ -148,7 +147,7 @@ public class NetworkClient implements MailBox, StartStopThread {
                                     key.interestOps(OP_WRITE);
                                 }
                                 if (key.isReadable()) {
-                                    receiveMessage(key);
+                                    receiveMessage();
                                 }
                                 if (key.isWritable()) {
                                     String line = messageSynchronize.poll();
@@ -167,32 +166,15 @@ public class NetworkClient implements MailBox, StartStopThread {
             }
         }
 
-        private void receiveMessage(SelectionKey key) throws IOException {
-            SocketChannel socketChannel = (SocketChannel) key.channel();
+        private void receiveMessage() throws IOException {
+            ByteBuffer buf = ByteBuffer.allocate(4096);
+            int nBytes;
+            nBytes = channel.read(buf);
 
-            // Clear out our read buffer so it's ready for new data
-            readBuffer.clear();
-
-            // Attempt to read off the channel
-            int numRead;
-            try {
-                numRead = socketChannel.read(readBuffer);
-            } catch (IOException e) {
-                // The remote forcibly closed the connection, cancel
-                // the selection key and close the channel.
-                key.cancel();
-                socketChannel.close();
+            if (nBytes == 4096 || nBytes == 0)
                 return;
-            }
-
-            if (numRead == -1) {
-                // Remote entity shut the socket down cleanly. Do the
-                // same from our end and cancel the channel.
-                key.channel().close();
-                key.cancel();
-                return;
-            }
-            String message = new String(readBuffer.array()).trim();
+            String message = new String(buf.array()).trim();
+            System.out.println(message);
             inbox.addAll(Arrays.asList(MessageSplitter.GetSplit(message)));
         }
     }
