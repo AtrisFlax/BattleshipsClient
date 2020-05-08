@@ -15,7 +15,7 @@ public class Constants {
     public final static int ShipInfoLength = 4;
 
     public static class Debug {
-        public static final boolean DEBUG_AUTO_DEPLOY = true;
+        public static final boolean DEBUG_AUTO_DEPLOY = false;
     }
 
     public static class DestroyedListGUI {

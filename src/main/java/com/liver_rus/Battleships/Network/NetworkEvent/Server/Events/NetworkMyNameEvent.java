@@ -42,10 +42,14 @@ public class NetworkMyNameEvent implements NetworkServerEvent {
                     e.printStackTrace();
                 }
                 for (Ship ship: activePlayerField.getShips()) {
-                    answer.add(activePlayer, new NetworkDrawShipEvent(ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU));
+                    answer.add(activePlayer, new NetworkDrawShipEvent(
+                            ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU)
+                    );
                 }
                 for (Ship ship: passivePlayerField.getShips()) {
-                    answer.add(passivePlayer, new NetworkDrawShipEvent(ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU));
+                    answer.add(passivePlayer, new NetworkDrawShipEvent(
+                            ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU)
+                    );
                 }
                 activePlayer.setReadyForGame(true);
                 passivePlayer.setReadyForGame(true);

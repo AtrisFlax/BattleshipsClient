@@ -22,8 +22,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.MY_NAME;
-import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.TRY_DEPLOY_SHIP;
+import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NetworkTest {
@@ -83,14 +82,11 @@ class NetworkTest {
         //add ships to server
         for (Ship ship : testGameFields[0].getShips()) {
             send(client0, TRY_DEPLOY_SHIP + ship.toString());
-            Thread.sleep(250);
         }
         for (Ship ship : testGameFields[1].getShips()) {
             send(client1, TRY_DEPLOY_SHIP + ship.toString());
-            Thread.sleep(250);
         }
 
-        Thread.sleep(250);
 
         assertEquals(testGameFields[0], injectedGameFields[0]);
         assertEquals(testGameFields[1], injectedGameFields[1]);
@@ -100,7 +96,6 @@ class NetworkTest {
         x = 7;
         y = 8;
         send(client0, "SHOT" + x + y);
-        Thread.sleep(250);
         testGameFields[1].shoot(x, y);
         assertEquals(testGameFields[0], injectedGameFields[0]);
         assertEquals(testGameFields[1], injectedGameFields[1]);
@@ -109,7 +104,6 @@ class NetworkTest {
         x = 8;
         y = 8;
         send(client0, "SHOT" + x + y);
-        Thread.sleep(250);
         testGameFields[1].shoot(x, y);
         assertEquals(testGameFields[0], injectedGameFields[0]);
         assertEquals(testGameFields[1], injectedGameFields[1]);
@@ -118,42 +112,64 @@ class NetworkTest {
         x = 1;
         y = 8;
         send(client1, "SHOT" + x + y);
-        Thread.sleep(250);
         testGameFields[0].shoot(x, y);
         //check after destroy
         assertEquals(testGameFields[0], injectedGameFields[0]);
         assertEquals(testGameFields[1], injectedGameFields[1]);
     }
 
+    @Test
+    void testSaveShooting() throws TryingAddTooManyShipsOnFieldException {
+        server.setFirstTurn(TurnOrder.FIRST_CONNECTED);
+        //add ships to test fields
+        addShipsPreset1(testGameFields[0]);
+        addShipsPreset2(testGameFields[1]);
+        //set mode
+        send(client0, SET_SAVE_SHOOTING + ON);
+        send(client1, SET_SAVE_SHOOTING + OFF);
+        //set name
+        send(client0, MY_NAME + "Player1");
+        send(client1, MY_NAME + "Player2");
 
-    //TODO save shooting test. One client in save shooting mode another not
-    //TODO add reset test
-    /* type <-> int
-      AIRCRAFT_CARRIER(4),
-        BATTLESHIP(3),
-        CRUISER(2),
-        DESTROYER(1),
-        SUBMARINE(0),
-        UNKNOWN(-1);
-    */
-    private void addShipsPreset1(GameField field) throws TryingAddTooManyShipsOnFieldException {
-        field.addShip(1, 8, 0, true);
-        field.addShip(3, 2, 0, true);
-        field.addShip(1, 1, 1, false);
-        field.addShip(3, 4, 1, true);
-        field.addShip(2, 6, 2, true);
-        field.addShip(7, 4, 3, false);
-        field.addShip(9, 1, 4, false);
-    }
+        //add ships to server
+        for (Ship ship : testGameFields[0].getShips()) {
+            send(client0, TRY_DEPLOY_SHIP + ship.toString());
+        }
+        for (Ship ship : testGameFields[1].getShips()) {
+            send(client1, TRY_DEPLOY_SHIP + ship.toString());
+        }
 
-    private void addShipsPreset2(GameField field) throws TryingAddTooManyShipsOnFieldException {
-        field.addShip(6, 2, 3, false);
-        field.addShip(2, 3, 2, false);
-        field.addShip(1, 0, 4, true);
-        field.addShip(4, 7, 1, true);
-        field.addShip(8, 4, 1, false);
-        field.addShip(1, 8, 0, false);
-        field.addShip(7, 8, 0, false);
+        System.out.println(testGameFields[0]);
+        System.out.println(testGameFields[1]);
+
+        assertEquals(testGameFields[0], injectedGameFields[0]);
+        assertEquals(testGameFields[1], injectedGameFields[1]);
+
+        int x, y;
+        //client0 make hit. client0 shot but mark field on client1
+        x = 7;
+        y = 8;
+        send(client0, "SHOT" + x + y);
+        testGameFields[1].shoot(x, y);
+        assertEquals(testGameFields[0], injectedGameFields[0]);
+        assertEquals(testGameFields[1], injectedGameFields[1]);
+
+        //client0 make miss
+        x = 8;
+        y = 8;
+        send(client0, "SHOT" + x + y);
+        testGameFields[1].shoot(x, y);
+        assertEquals(testGameFields[0], injectedGameFields[0]);
+        assertEquals(testGameFields[1], injectedGameFields[1]);
+
+        //client1 destroy ship
+        x = 1;
+        y = 8;
+        send(client1, "SHOT" + x + y);
+        testGameFields[0].shoot(x, y);
+        //check after destroy
+        assertEquals(testGameFields[0], injectedGameFields[0]);
+        assertEquals(testGameFields[1], injectedGameFields[1]);
     }
 
 
@@ -177,7 +193,6 @@ class NetworkTest {
         for (String message : sendInfo) {
             if (message.equals("client0 client1")) continue;
             splitAndSend(message, firstClientTag, secondClientTag);
-            Thread.sleep(250);
         }
 
         //check inboxes
@@ -207,7 +222,8 @@ class NetworkTest {
         new Thread(() -> {
             assertTimeout(Duration.ofMillis(TIMEOUT_FOR_SINGLE_MESSAGE), () -> networkClient.sendMessage(msg));
             try {
-                Thread.sleep(300);
+                final int NET_LAG = 10;
+                Thread.sleep(NET_LAG);
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
@@ -218,5 +234,35 @@ class NetworkTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    //TODO save shooting test. One client in save shooting mode another not
+    //TODO add reset test
+    /* type <-> int
+      AIRCRAFT_CARRIER(4),
+        BATTLESHIP(3),
+        CRUISER(2),
+        DESTROYER(1),
+        SUBMARINE(0),
+        UNKNOWN(-1);
+    */
+    private void addShipsPreset1(GameField field) throws TryingAddTooManyShipsOnFieldException {
+        field.addShip(1, 8, 0, true);
+        field.addShip(3, 2, 0, true);
+        field.addShip(1, 1, 1, false);
+        field.addShip(3, 4, 1, true);
+        field.addShip(2, 6, 2, true);
+        field.addShip(7, 4, 3, false);
+        field.addShip(9, 1, 4, false);
+    }
+
+    private void addShipsPreset2(GameField field) throws TryingAddTooManyShipsOnFieldException {
+        field.addShip(6, 2, 3, false);
+        field.addShip(2, 3, 2, false);
+        field.addShip(1, 0, 4, true);
+        field.addShip(4, 7, 1, true);
+        field.addShip(8, 4, 1, false);
+        field.addShip(1, 8, 0, false);
+        field.addShip(7, 8, 0, false);
     }
 }

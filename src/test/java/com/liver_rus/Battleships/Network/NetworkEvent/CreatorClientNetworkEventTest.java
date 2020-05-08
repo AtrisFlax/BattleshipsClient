@@ -27,6 +27,7 @@ class CreatorClientNetworkEventTest {
         checkDeserialize(NOT_START_REMATCH  , NetworkNotStartRematchEvent.class);
         checkDeserialize(HIT + "25" + YOU   , NetworkDrawHitEvent.class);
         checkDeserialize(MISS + "46" + ENEMY  , NetworkDrawMissEvent.class);
+        checkDeserialize(NEAR + "56" + ENEMY  , NetworkDrawNearEvent.class);
         checkDeserialize(DRAW_SHIP + "360H" + ENEMY  , NetworkDrawShipEvent.class);
         checkDeserialize(SET_ENEMY_NAME + "ANY NAME"  , NetworkSetEnemyNameEvent.class);
         checkDeserialize(START_REMATCH  , NetworkStartRematchEvent.class);

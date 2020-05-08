@@ -187,19 +187,19 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void hit(RenderHit hitEvent) {
-        String fromWho = (hitEvent.getPlayerType() == PlayerType.YOU) ? "You     " : "Enemy";
-        setGUI(hitEvent, "Hit", fromWho, hitEvent.getX(), hitEvent.getY());
+        String fromWho = getFromWho(hitEvent.getPlayerType());
+        setGUI(hitEvent, "Hit  ", fromWho, hitEvent.getX(), hitEvent.getY());
     }
 
     @Override
     public void miss(RenderMiss missEvent) {
-        String fromWho = (missEvent.getPlayerType() == PlayerType.YOU) ? "You     " : "Enemy";
+        String fromWho = getFromWho(missEvent.getPlayerType());
         setGUI(missEvent, "Miss", fromWho, missEvent.getX(), missEvent.getY());
     }
 
     @Override
     public void endMatch(PlayerType playerType) {
-        String player = (playerType == PlayerType.YOU) ? "You" : "Win";
+        String player = getFromWho(playerType);
         setInfo(player + " Win!");
     }
 
@@ -390,6 +390,10 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                 isDeploying = false;
             }
         });
+    }
+
+    private String getFromWho(PlayerType playerType) {
+        return (playerType == PlayerType.YOU) ? "Enemy" : "     You";
     }
 
     private void setGUI(DrawGUIEvent event, String action, String fromWho, int x, int y) {

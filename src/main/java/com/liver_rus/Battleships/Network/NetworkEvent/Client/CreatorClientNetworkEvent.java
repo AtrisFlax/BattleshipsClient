@@ -21,6 +21,7 @@ public class CreatorClientNetworkEvent {
     private final Pattern eventNotStartRematchPattern;
     private final Pattern eventDrawHitPattern;
     private final Pattern eventDrawMissPattern;
+    private final Pattern eventDrawNearPattern;
     private final Pattern eventDrawShipPattern;
     private final Pattern eventSetEnemyNamePattern;
     private final Pattern eventStartRematchPattern;
@@ -42,6 +43,7 @@ public class CreatorClientNetworkEvent {
         eventNotStartRematchPattern = Pattern.compile("^" + NOT_START_REMATCH + "$");
         eventDrawHitPattern = Pattern.compile("^" + HIT + xy + player + "$");
         eventDrawMissPattern = Pattern.compile("^" + MISS + xy + player + "$");
+        eventDrawNearPattern = Pattern.compile("^" + NEAR + xy + player + "$");
         eventDrawShipPattern = Pattern.compile("^" + DRAW_SHIP + xyto + player + "$");
         eventSetEnemyNamePattern = Pattern.compile("^" + SET_ENEMY_NAME + "(.+)");
         eventStartRematchPattern = Pattern.compile("^" + START_REMATCH + "$");
@@ -96,6 +98,12 @@ public class CreatorClientNetworkEvent {
             int y = Integer.parseInt(matcher.group(2));
             PlayerType playerType = matcher.group(3).equals(YOU) ? PlayerType.YOU : PlayerType.ENEMY;
             return new NetworkDrawMissEvent(x, y, playerType);
+        }
+        matcher = eventDrawNearPattern.matcher(msg);
+        if (matcher.find()) {
+            int x = Integer.parseInt(matcher.group(1));
+            int y = Integer.parseInt(matcher.group(2));
+            return new NetworkDrawNearEvent(x, y);
         }
         matcher = eventDrawShipPattern.matcher(msg);
         if (matcher.find()) {

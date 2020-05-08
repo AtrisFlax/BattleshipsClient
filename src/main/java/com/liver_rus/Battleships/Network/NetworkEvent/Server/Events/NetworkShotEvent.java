@@ -49,11 +49,9 @@ public class NetworkShotEvent implements NetworkServerEvent {
                             //send near cells of destroyedShip
                             if (activePlayer.isSaveShooting()) {
                                 for (FieldCoord destroyedShipNearCoord : destroyedShip.getNearCoord()) {
-                                    answer.add(activePlayer,
-                                            new NetworkDrawMissEvent(
-                                                    destroyedShipNearCoord.getX(), destroyedShipNearCoord.getY(),
-                                                    PlayerType.ENEMY
-                                            ));
+                                    answer.add(activePlayer, new NetworkDrawNearEvent(
+                                                    destroyedShipNearCoord.getX(), destroyedShipNearCoord.getY()
+                                    ));
                                 }
                             }
                             //end game. send alive ships for loser
@@ -62,8 +60,8 @@ public class NetworkShotEvent implements NetworkServerEvent {
                                 for (Ship leavesShip : field.getShips()) {
                                     answer.add(passivePlayer, new NetworkDrawShipEvent(leavesShip, PlayerType.ENEMY));
                                 }
-                                answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
-                                answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
+                                answer.add(activePlayer, new NetworkEndMatchEvent(PlayerType.ENEMY));
+                                answer.add(passivePlayer, new NetworkEndMatchEvent(PlayerType.YOU));
                                 metaInfo.setGameEnded();
                                 return answer;
                             }
