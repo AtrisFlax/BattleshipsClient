@@ -1,18 +1,18 @@
 package com.liver_rus.Battleships.Network.NetworkEvent.Server.Events;
 
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.NetworkDoDisconnectEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.DoDisconnectNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 
-public class NetworkDisconnectEvent implements NetworkServerEvent {
+public class DisconnectNetworkEvent implements ServerNetworkEvent {
 
     @Override
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();
-        answer.add(metaInfo.getActivePlayer(), new NetworkDoDisconnectEvent());
-        answer.add(metaInfo.getPassivePlayer(), new NetworkDoDisconnectEvent());
+        answer.add(metaInfo.getActivePlayer(), new DoDisconnectNetworkEvent());
+        answer.add(metaInfo.getPassivePlayer(), new DoDisconnectNetworkEvent());
         return answer;
     }
 

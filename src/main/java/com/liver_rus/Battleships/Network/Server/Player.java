@@ -19,7 +19,7 @@ public class Player {
         this.name = "Player";
         readyForDeployment = false;
         readyForGame = false;
-        saveShooting = true;
+        saveShooting = false;
     }
 
     public SocketChannel getChannel() {

@@ -1,13 +1,13 @@
 package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 
-public class NetworkUnknownCommandClientEvent implements NetworkClientEvent {
+public class UnknownCommandClientNetworkEvent implements ClientNetworkEvent {
     private final String unknownMsg;
 
-    public NetworkUnknownCommandClientEvent(String unknownMsg) {
+    public UnknownCommandClientNetworkEvent(String unknownMsg) {
         this.unknownMsg = unknownMsg;
     }
 

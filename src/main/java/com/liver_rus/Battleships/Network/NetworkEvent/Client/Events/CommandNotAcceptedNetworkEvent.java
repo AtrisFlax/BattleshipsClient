@@ -1,26 +1,25 @@
 package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 
-public class NetworkWaitingSecondPlayerEvent implements NetworkClientEvent {
-
+//client do nothing
+public class CommandNotAcceptedNetworkEvent implements ClientNetworkEvent {
     private final String reason;
 
-    public NetworkWaitingSecondPlayerEvent(String reason) {
+    public CommandNotAcceptedNetworkEvent(String reason) {
         this.reason = reason;
     }
 
     @Override
     public String proceed(GUIActions action) {
-        action.waitSecondPlayer(reason);
         return null;
     }
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.WAIT;
+        return NetworkCommandConstant.COMMAND_NOT_ACCEPTED + reason;
     }
 
 }

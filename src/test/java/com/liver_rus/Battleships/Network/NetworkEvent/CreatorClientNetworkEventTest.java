@@ -1,8 +1,8 @@
 package com.liver_rus.Battleships.Network.NetworkEvent;
 
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.CreatorClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.*;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,44 +19,44 @@ class CreatorClientNetworkEventTest {
 
     @Test
     void creationValidEvents() {
-        checkDeserialize(CANNOT_DEPLOY + "321H", NetworkCannotDeployEvent.class);
-        checkDeserialize(CAN_SHOOT  , NetworkCanShootEvent.class);
-        checkDeserialize(COMMAND_NOT_ACCEPTED + "REASON FROM SERVER"  , NetworkCommandNotAcceptedEvent.class);
-        checkDeserialize(DEPLOY + "21111"  , NetworkDeployEvent.class);
-        checkDeserialize(DO_DISCONNECT  , NetworkDoDisconnectEvent.class);
-        checkDeserialize(NOT_START_REMATCH  , NetworkNotStartRematchEvent.class);
-        checkDeserialize(HIT + "25" + YOU   , NetworkDrawHitEvent.class);
-        checkDeserialize(MISS + "46" + ENEMY  , NetworkDrawMissEvent.class);
-        checkDeserialize(NEAR + "56" + ENEMY  , NetworkDrawNearEvent.class);
-        checkDeserialize(DRAW_SHIP + "360H" + ENEMY  , NetworkDrawShipEvent.class);
-        checkDeserialize(SET_ENEMY_NAME + "ANY NAME"  , NetworkSetEnemyNameEvent.class);
-        checkDeserialize(START_REMATCH  , NetworkStartRematchEvent.class);
-        checkDeserialize(WAIT, NetworkWaitingSecondPlayerEvent.class);
-        checkDeserialize(WAIT + "ww"  , NetworkWaitingSecondPlayerEvent.class);
-        checkDeserialize(END_MATCH + ENEMY  , NetworkEndMatchEvent.class);
-        checkDeserialize(DRAW_SHIP + "113V" + YOU  , NetworkDrawShipEvent.class);
+        checkDeserialize(CANNOT_DEPLOY + "321H", CannotDeployNetworkEvent.class);
+        checkDeserialize(CAN_SHOOT  , CanShootNetworkEvent.class);
+        checkDeserialize(COMMAND_NOT_ACCEPTED + "REASON FROM SERVER"  , CommandNotAcceptedNetworkEvent.class);
+        checkDeserialize(DEPLOY + "21111"  , DeployNetworkEvent.class);
+        checkDeserialize(DO_DISCONNECT  , DoDisconnectNetworkEvent.class);
+        checkDeserialize(NOT_START_REMATCH  , NotStartRematchNetworkEvent.class);
+        checkDeserialize(HIT + "25" + YOU   , DrawHitNetworkEvent.class);
+        checkDeserialize(MISS + "46" + ENEMY  , DrawMissNetworkEvent.class);
+        checkDeserialize(NEAR + "56" + ENEMY  , DrawNearNetworkEvent.class);
+        checkDeserialize(DRAW_SHIP + "360H" + ENEMY  , DrawShipNetworkEvent.class);
+        checkDeserialize(SET_ENEMY_NAME + "ANY NAME"  , SetEnemyNameNetworkEvent.class);
+        checkDeserialize(START_REMATCH  , StartRematchNetworkEvent.class);
+        checkDeserialize(WAIT, WaitingSecondPlayerNetworkEvent.class);
+        checkDeserialize(WAIT + "ww"  , WaitingSecondPlayerNetworkEvent.class);
+        checkDeserialize(END_MATCH + ENEMY  , EndMatchNetworkEvent.class);
+        checkDeserialize(DRAW_SHIP + "113V" + YOU  , DrawShipNetworkEvent.class);
     }
 
     @Test
     void creationInvalidEvents() {
-        checkDeserialize(DEPLOY + "1123H", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(CANNOT_DEPLOY + "3213H", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(CAN_SHOOT + " ", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize("FFF" + COMMAND_NOT_ACCEPTED + "REASON FROM SERVER", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(DEPLOY + "211111", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize("DO" + DO_DISCONNECT + "1", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(" " + NOT_START_REMATCH, NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(HIT + "YOUR" + "25", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(HIT + YOU + "233", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(MISS + "ME" + "46", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(MISS + ENEMY + "4", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize(DRAW_SHIP + ENEMY + "3603H", NetworkUnknownCommandClientEvent.class);
-        checkDeserialize("T" + SET_ENEMY_NAME + "ANY NAME", NetworkUnknownCommandClientEvent.class);
+        checkDeserialize(DEPLOY + "1123H", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(CANNOT_DEPLOY + "3213H", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(CAN_SHOOT + " ", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize("FFF" + COMMAND_NOT_ACCEPTED + "REASON FROM SERVER", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(DEPLOY + "211111", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize("DO" + DO_DISCONNECT + "1", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(" " + NOT_START_REMATCH, UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(HIT + "YOUR" + "25", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(HIT + YOU + "233", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(MISS + "ME" + "46", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(MISS + ENEMY + "4", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(DRAW_SHIP + ENEMY + "3603H", UnknownCommandClientNetworkEvent.class);
+        checkDeserialize("T" + SET_ENEMY_NAME + "ANY NAME", UnknownCommandClientNetworkEvent.class);
     }
     
     @SuppressWarnings("rawtypes")
     private void checkDeserialize(String msg, Class expectedClass) {
-        NetworkClientEvent event = eventCreator.deserializeMessage(msg);
+        ClientNetworkEvent event = eventCreator.deserializeMessage(msg);
         assertEquals(expectedClass, event.getClass());
     }
 }

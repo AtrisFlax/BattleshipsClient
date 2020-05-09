@@ -2,21 +2,21 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderShip;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_TYPE;
 
-public class NetworkDrawShipEvent implements NetworkClientEvent {
+public class DrawShipNetworkEvent implements ClientNetworkEvent {
     private final int x;
     private final int y;
     private final int shipType;
     private final boolean isHorizontal;
     private final PlayerType playerType;
 
-    public NetworkDrawShipEvent(Ship ship, PlayerType playerType) {
+    public DrawShipNetworkEvent(Ship ship, PlayerType playerType) {
         this.x = ship.getX();
         this.y = ship.getY();
         this.shipType = ship.getType();
@@ -24,7 +24,7 @@ public class NetworkDrawShipEvent implements NetworkClientEvent {
         this.playerType = playerType;
     }
 
-    public NetworkDrawShipEvent(int x, int y, int shipType, boolean isHorizontal, PlayerType playerType) {
+    public DrawShipNetworkEvent(int x, int y, int shipType, boolean isHorizontal, PlayerType playerType) {
         assert (x >= 0 && x <= 9);
         assert (y >= 0 && y <= 9);
         assert (shipType >= 0 && shipType < NUM_TYPE);

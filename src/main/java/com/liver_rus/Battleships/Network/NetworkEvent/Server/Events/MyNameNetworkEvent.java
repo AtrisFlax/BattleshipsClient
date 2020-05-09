@@ -4,7 +4,7 @@ import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.*;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.TryingAddTooManyShipsOnFieldException;
@@ -14,10 +14,10 @@ import com.liver_rus.Battleships.Network.Server.TurnOrder;
 
 import static com.liver_rus.Battleships.Client.GUI.Constants.Constants.Debug.DEBUG_AUTO_DEPLOY;
 
-public class NetworkMyNameEvent implements NetworkServerEvent {
+public class MyNameNetworkEvent implements ServerNetworkEvent {
     private final String name;
 
-    public NetworkMyNameEvent(String name) {
+    public MyNameNetworkEvent(String name) {
         this.name = name;
     }
 
@@ -31,8 +31,8 @@ public class NetworkMyNameEvent implements NetworkServerEvent {
             //TODO delete debug
             if (DEBUG_AUTO_DEPLOY) {
                 Player passivePlayer = metaInfo.getPassivePlayer();
-                answer.add(activePlayer, new NetworkSetEnemyNameEvent(passivePlayer.getName()));
-                answer.add(passivePlayer, new NetworkSetEnemyNameEvent(activePlayer.getName()));
+                answer.add(activePlayer, new SetEnemyNameNetworkEvent(passivePlayer.getName()));
+                answer.add(passivePlayer, new SetEnemyNameNetworkEvent(activePlayer.getName()));
                 GameField activePlayerField = activePlayer.getGameField();
                 GameField passivePlayerField = passivePlayer.getGameField();
                 try {
@@ -42,12 +42,12 @@ public class NetworkMyNameEvent implements NetworkServerEvent {
                     e.printStackTrace();
                 }
                 for (Ship ship: activePlayerField.getShips()) {
-                    answer.add(activePlayer, new NetworkDrawShipEvent(
+                    answer.add(activePlayer, new DrawShipNetworkEvent(
                             ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU)
                     );
                 }
                 for (Ship ship: passivePlayerField.getShips()) {
-                    answer.add(passivePlayer, new NetworkDrawShipEvent(
+                    answer.add(passivePlayer, new DrawShipNetworkEvent(
                             ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU)
                     );
                 }
@@ -57,18 +57,18 @@ public class NetworkMyNameEvent implements NetworkServerEvent {
                 passivePlayer.setReadyForDeployment(false);
                 metaInfo.setInitTurnOrder(TurnOrder.FIRST_CONNECTED);
                 metaInfo.setTurnHolder();
-                answer.add(metaInfo.getTurnHolderPlayer(), new NetworkCanShootEvent());
+                answer.add(metaInfo.getTurnHolderPlayer(), new CanShootNetworkEvent());
             } else {
                 Player passivePlayer = metaInfo.getPassivePlayer();
-                answer.add(activePlayer, new NetworkSetEnemyNameEvent(passivePlayer.getName()));
-                answer.add(passivePlayer, new NetworkSetEnemyNameEvent(activePlayer.getName()));
+                answer.add(activePlayer, new SetEnemyNameNetworkEvent(passivePlayer.getName()));
+                answer.add(passivePlayer, new SetEnemyNameNetworkEvent(activePlayer.getName()));
                 GameField activePlayerField = activePlayer.getGameField();
                 GameField passivePlayerField = passivePlayer.getGameField();
-                answer.add(activePlayer, new NetworkDeployEvent(activePlayerField.getShipsLeftByTypeForDeploy()));
-                answer.add(passivePlayer, new NetworkDeployEvent(passivePlayerField.getShipsLeftByTypeForDeploy()));
+                answer.add(activePlayer, new DeployNetworkEvent(activePlayerField.getShipsLeftByTypeForDeploy()));
+                answer.add(passivePlayer, new DeployNetworkEvent(passivePlayerField.getShipsLeftByTypeForDeploy()));
             }
         } else {
-            answer.add(activePlayer, new NetworkWaitingSecondPlayerEvent("Deployment"));
+            answer.add(activePlayer, new WaitingSecondPlayerNetworkEvent("Deployment"));
         }
         return answer;
     }

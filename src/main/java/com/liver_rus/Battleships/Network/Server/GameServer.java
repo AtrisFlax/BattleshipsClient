@@ -1,11 +1,11 @@
 package com.liver_rus.Battleships.Network.Server;
 
 import com.liver_rus.Battleships.Network.MessageSplitter;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.CreatorServerNetworkEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.NetworkDisconnectEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.DisconnectNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.StartStopThread;
 import javafx.util.Pair;
@@ -133,7 +133,7 @@ public class GameServer extends Thread implements StartStopThread {
         isRunning = false;
     }
 
-    private void sendMessage(SocketChannel socketChannel, NetworkClientEvent event) {
+    private void sendMessage(SocketChannel socketChannel, ClientNetworkEvent event) {
         sendMessage(socketChannel, event.convertToString());
     }
 
@@ -227,7 +227,7 @@ public class GameServer extends Thread implements StartStopThread {
 
     private void proceed(SocketChannel socketChannel, String message) {
         metaInfo.setActivePlayer(socketChannel);
-        NetworkServerEvent event = eventCreator.deserializeMessage(message);
+        ServerNetworkEvent event = eventCreator.deserializeMessage(message);
 
         //TODO delete or wrap for debug
         System.out.println("Server read= " + message);
@@ -235,7 +235,7 @@ public class GameServer extends Thread implements StartStopThread {
 
         Answer answer = event.proceed(metaInfo);
         sendEvent(answer);
-        if (event instanceof NetworkDisconnectEvent) {
+        if (event instanceof DisconnectNetworkEvent) {
             log.info("Connection closed upon one's client request");
             for (SocketChannel openChannel : openedClientChannels) {
                 sendMessage(openChannel, message);
@@ -245,9 +245,9 @@ public class GameServer extends Thread implements StartStopThread {
     }
 
     private void sendEvent(Answer answer) {
-        for (Pair<Player, NetworkClientEvent> pair : answer) {
+        for (Pair<Player, ClientNetworkEvent> pair : answer) {
             SocketChannel channel = pair.getKey().getChannel();
-            NetworkClientEvent event = pair.getValue();
+            ClientNetworkEvent event = pair.getValue();
             sendMessage(channel, event);
         }
     }

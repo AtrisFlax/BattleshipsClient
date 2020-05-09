@@ -2,13 +2,13 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.RenderMarkDestroy;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 
-public class NetworkDrawShipsLeftEvent implements NetworkClientEvent {
+public class DrawShipsLeftNetworkEvent implements ClientNetworkEvent {
     private final int num;
 
-    public NetworkDrawShipsLeftEvent(int num) {
+    public DrawShipsLeftNetworkEvent(int num) {
         this.num = num;
     }
 

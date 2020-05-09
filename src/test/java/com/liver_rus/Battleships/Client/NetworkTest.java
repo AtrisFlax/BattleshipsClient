@@ -1,6 +1,10 @@
 package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.MyNameNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.SetSaveShootingNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.TryDeployShipNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.TryingAddTooManyShipsOnFieldException;
@@ -22,13 +26,15 @@ import java.util.concurrent.CountDownLatch;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
-import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.*;
 import static org.junit.jupiter.api.Assertions.*;
 
+
+//TODO add reset test
 class NetworkTest {
     private static final Logger log = Logger.getLogger(String.valueOf(NetworkTest.class));
 
     final static int TIMEOUT_FOR_SINGLE_MESSAGE = 500;
+    final long NET_LAG_TIMEOUT = 20;
     static final int MAX_CONNECTIONS = 2;
 
     private static GameField[] testGameFields;
@@ -73,171 +79,102 @@ class NetworkTest {
     void testGameFieldChangingOnServerFromClientMessages() throws InterruptedException,
             TryingAddTooManyShipsOnFieldException {
         server.setFirstTurn(TurnOrder.FIRST_CONNECTED);
-        //add ships to test fields
+
         addShipsPreset1(testGameFields[0]);
         addShipsPreset2(testGameFields[1]);
-        send(client0, MY_NAME + "Player1");
-        send(client1, MY_NAME + "Player2");
 
+        //add ships to test fields
+        sendInitSequence(client0, "Player0", false);
+        sendInitSequence(client1, "Player1", false);
         //add ships to server
-        for (Ship ship : testGameFields[0].getShips()) {
-            send(client0, TRY_DEPLOY_SHIP + ship.toString());
-        }
-        for (Ship ship : testGameFields[1].getShips()) {
-            send(client1, TRY_DEPLOY_SHIP + ship.toString());
-        }
+        sendShipsForPlayers();
 
-
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
-
-        int x, y;
-        //client0 make hit. client0 shot but mark field on client1
-        x = 7;
-        y = 8;
-        send(client0, "SHOT" + x + y);
-        testGameFields[1].shoot(x, y);
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
-
-        //client0 make miss
-        x = 8;
-        y = 8;
-        send(client0, "SHOT" + x + y);
-        testGameFields[1].shoot(x, y);
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
-
-        //client1 destroy ship
-        x = 1;
-        y = 8;
-        send(client1, "SHOT" + x + y);
-        testGameFields[0].shoot(x, y);
-        //check after destroy
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
+        shoot(client0,7, 8);
+        shoot(client0,8, 8);
+        shoot(client1,1, 8);
     }
 
     @Test
-    void testSaveShooting() throws TryingAddTooManyShipsOnFieldException {
+    void testSaveShooting() throws InterruptedException,
+            TryingAddTooManyShipsOnFieldException {
         server.setFirstTurn(TurnOrder.FIRST_CONNECTED);
         //add ships to test fields
         addShipsPreset1(testGameFields[0]);
         addShipsPreset2(testGameFields[1]);
-        //set mode
-        send(client0, SET_SAVE_SHOOTING + ON);
-        send(client1, SET_SAVE_SHOOTING + OFF);
-        //set name
-        send(client0, MY_NAME + "Player1");
-        send(client1, MY_NAME + "Player2");
+        sendInitSequence(client0, "Player0", true);
+        sendInitSequence(client1, "Player1", true);
 
-        //add ships to server
-        for (Ship ship : testGameFields[0].getShips()) {
-            send(client0, TRY_DEPLOY_SHIP + ship.toString());
+        sendShipsForPlayers();
+
+        shoot(client0, 7, 8);
+        shoot(client0, 7, 8);
+        shoot(client0, 7, 8);
+        //save shoot to near
+        shoot(client0, 6, 8);
+        shoot(client0, 6, 7);
+        shoot(client0, 7, 7);
+        shoot(client0, 8, 7);
+        shoot(client0, 8, 8);
+        shoot(client0, 8, 9);
+        shoot(client0, 7, 8);
+        //miss
+        shoot(client0, 4, 8);
+        //hits
+        shoot(client1, 1, 8);
+        shoot(client1, 3, 2);
+        shoot(client1, 1, 8);
+        shoot(client1, 3, 2);
+        shoot(client1, 9, 1);
+        //save
+        shoot(client1, 2, 2);
+        //miss
+        shoot(client1, 8, 1);
+    }
+
+    private void sendInitSequence(NetworkClient client, String name, boolean saveShooting) {
+        sendEvent(client, new SetSaveShootingNetworkEvent(saveShooting));
+        sendEvent(client, new MyNameNetworkEvent(name));
+    }
+
+    //firstClient==true -> client0
+    //firstClient==false -> client1
+    private void sendShipsForPlayers() throws InterruptedException {
+        sendShips(client0, testGameFields[0]);
+        sendShips(client1, testGameFields[1]);
+        assertFields();
+    }
+
+    private void sendShips(NetworkClient networkClient, GameField gameField) throws InterruptedException {
+        for (Ship ship : gameField.getShips()) {
+            sendEvent(networkClient,
+                    new TryDeployShipNetworkEvent(ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal()));
+            Thread.sleep(getNetLagTimeOut());
         }
-        for (Ship ship : testGameFields[1].getShips()) {
-            send(client1, TRY_DEPLOY_SHIP + ship.toString());
+    }
+
+    private void shoot(NetworkClient client, int x, int y) throws InterruptedException {
+        GameField gameField;
+        if (client == client0) {
+            gameField = testGameFields[1];
+        } else {
+            gameField = testGameFields[0];
         }
+        send(client, "SHOT" + x + y);
+        Thread.sleep(getNetLagTimeOut());
+        gameField.shoot(x, y);
+        assertFields();
+    }
 
-        System.out.println(testGameFields[0]);
-        System.out.println(testGameFields[1]);
-
+    private void assertFields() {
         assertEquals(testGameFields[0], injectedGameFields[0]);
         assertEquals(testGameFields[1], injectedGameFields[1]);
+    }
 
-        int x, y;
-        //client0 make hit. client0 shot but mark field on client1
-        x = 7;
-        y = 8;
-        send(client0, "SHOT" + x + y);
-        testGameFields[1].shoot(x, y);
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
-
-        //client0 make miss
-        x = 8;
-        y = 8;
-        send(client0, "SHOT" + x + y);
-        testGameFields[1].shoot(x, y);
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
-
-        //client1 destroy ship
-        x = 1;
-        y = 8;
-        send(client1, "SHOT" + x + y);
-        testGameFields[0].shoot(x, y);
-        //check after destroy
-        assertEquals(testGameFields[0], injectedGameFields[0]);
-        assertEquals(testGameFields[1], injectedGameFields[1]);
+    private long getNetLagTimeOut() {
+        return NET_LAG_TIMEOUT;
     }
 
 
-    //TODO change content of awaitedInboxClient[0-1].txt. Now test fail
-    @Test
-    void fullGameCycleInboxTest() throws InterruptedException {
-        String TEST_CASE = "Case1";
-        server.setFirstTurn(TurnOrder.FIRST_CONNECTED);
-        //Load send info
-        Stream<String> sendInfoStream =
-                getStringStreamFromFile(TEST_CASE + "/sendToServer.txt");
-        Stream<String> client0ExpectedInboxStream =
-                getStringStreamFromFile(TEST_CASE + "/awaitedInboxClient0.txt");
-        Stream<String> client1ExpectedInboxStream =
-                getStringStreamFromFile(TEST_CASE + "/awaitedInboxClient1.txt");
-        //Extract client tag
-        String[] sendInfo = sendInfoStream.toArray(String[]::new);
-        String firstClientTag = sendInfo[0].split("\\s")[0];
-        String secondClientTag = sendInfo[0].split("\\s")[1];
-        //send messages
-        for (String message : sendInfo) {
-            if (message.equals("client0 client1")) continue;
-            splitAndSend(message, firstClientTag, secondClientTag);
-        }
-
-        //check inboxes
-        assertTrue(Arrays.deepEquals(client0ExpectedInboxStream.toArray(), inboxClient0.toArray()));
-        assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.toArray(), inboxClient1.toArray()));
-    }
-
-    private void splitAndSend(String str, String first_client_tag, String second_client_tag) {
-        String[] splitStr = str.split("\\s");
-        if (splitStr[0].equals(first_client_tag)) {
-            send(client0, splitStr[1]);
-        }
-        if (splitStr[0].equals(second_client_tag)) {
-            send(client1, splitStr[1]);
-        }
-    }
-
-    private Stream<String> getStringStreamFromFile(String fileName) {
-        String testResourceFolder = "TestCases/";
-        InputStreamReader inputStreamReader = new InputStreamReader(
-                Objects.requireNonNull(ClassLoader.getSystemResourceAsStream(testResourceFolder + fileName)));
-        return new BufferedReader(inputStreamReader).lines();
-    }
-
-    private void send(NetworkClient networkClient, String msg) {
-        CountDownLatch sendMessageLatch = new CountDownLatch(1);
-        new Thread(() -> {
-            assertTimeout(Duration.ofMillis(TIMEOUT_FOR_SINGLE_MESSAGE), () -> networkClient.sendMessage(msg));
-            try {
-                final int NET_LAG = 10;
-                Thread.sleep(NET_LAG);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            sendMessageLatch.countDown();
-        }).start();
-        try {
-            sendMessageLatch.await();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    //TODO save shooting test. One client in save shooting mode another not
-    //TODO add reset test
     /* type <-> int
       AIRCRAFT_CARRIER(4),
         BATTLESHIP(3),
@@ -264,5 +201,74 @@ class NetworkTest {
         field.addShip(8, 4, 1, false);
         field.addShip(1, 8, 0, false);
         field.addShip(7, 8, 0, false);
+    }
+
+
+    //TODO change content of awaitedInboxClient[0-1].txt. Now test fail
+    @Test
+    void fullGameCycleInboxTest() throws InterruptedException {
+        String TEST_CASE = "Case1";
+        server.setFirstTurn(TurnOrder.FIRST_CONNECTED);
+        //Load send info
+        Stream<String> sendInfoStream =
+                getStringStreamFromFile(TEST_CASE + "/sendToServer.txt");
+        Stream<String> client0ExpectedInboxStream =
+                getStringStreamFromFile(TEST_CASE + "/awaitedInboxClient0.txt");
+        Stream<String> client1ExpectedInboxStream =
+                getStringStreamFromFile(TEST_CASE + "/awaitedInboxClient1.txt");
+        //Extract client tag
+        String[] sendInfo = sendInfoStream.toArray(String[]::new);
+        String firstClientTag = sendInfo[0].split("\\s")[0];
+        String secondClientTag = sendInfo[0].split("\\s")[1];
+        //send messages
+        for (String message : sendInfo) {
+            if (message.equals("client0 client1")) continue;
+            splitAndSend(message, firstClientTag, secondClientTag);
+            Thread.sleep(250);
+        }
+
+        //check inboxes
+        assertTrue(Arrays.deepEquals(client0ExpectedInboxStream.toArray(), inboxClient0.toArray()));
+        assertTrue(Arrays.deepEquals(client1ExpectedInboxStream.toArray(), inboxClient1.toArray()));
+    }
+
+    private void splitAndSend(String str, String first_client_tag, String second_client_tag) {
+        String[] splitStr = str.split("\\s");
+        if (splitStr[0].equals(first_client_tag)) {
+            send(client0, splitStr[1]);
+        }
+        if (splitStr[0].equals(second_client_tag)) {
+            send(client1, splitStr[1]);
+        }
+    }
+
+    private Stream<String> getStringStreamFromFile(String fileName) {
+        String testResourceFolder = "TestCases/";
+        InputStreamReader inputStreamReader = new InputStreamReader(
+                Objects.requireNonNull(ClassLoader.getSystemResourceAsStream(testResourceFolder + fileName)));
+        return new BufferedReader(inputStreamReader).lines();
+    }
+
+
+    private void sendEvent(NetworkClient networkClient, ServerNetworkEvent event) {
+        send(networkClient, event.convertToString());
+    }
+
+    private void send(NetworkClient networkClient, String msg) {
+        CountDownLatch sendMessageLatch = new CountDownLatch(1);
+        new Thread(() -> {
+            assertTimeout(Duration.ofMillis(TIMEOUT_FOR_SINGLE_MESSAGE), () -> networkClient.sendMessage(msg));
+            try {
+                Thread.sleep(300);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            sendMessageLatch.countDown();
+        }).start();
+        try {
+            sendMessageLatch.await();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

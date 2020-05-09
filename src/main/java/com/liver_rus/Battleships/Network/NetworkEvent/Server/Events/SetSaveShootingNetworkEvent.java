@@ -2,18 +2,18 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Server.Events;
 
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 
 import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.OFF;
 import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.ON;
 
-public class NetworkSetSaveShooting implements NetworkServerEvent {
+public class SetSaveShootingNetworkEvent implements ServerNetworkEvent {
 
     private final boolean state;
 
-    public NetworkSetSaveShooting(boolean state) {
+    public SetSaveShootingNetworkEvent(boolean state) {
         this.state = state;
     }
 

@@ -4,11 +4,11 @@ import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 import com.liver_rus.Battleships.Network.Client.MailBox;
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.CreatorClientNetworkEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.NetworkDoDisconnectEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.NetworkClientEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.DoDisconnectNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.*;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.NetworkServerEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GameServer;
 
 import java.io.IOException;
@@ -49,17 +49,17 @@ public class ClientGameEngine implements ClientActions {
         int y = state.getY();
         int type = state.getType();
         boolean isHorizontal = state.isHorizontal();
-        sendEvent(new NetworkTryDeployShipEvent(x, y, type, isHorizontal));
+        sendEvent(new TryDeployShipNetworkEvent(x, y, type, isHorizontal));
     }
 
     @Override
     public void resetFleet() {
-        sendEvent(new NetworkResetFleetWhileDeployEvent());
+        sendEvent(new ResetFleetWhileDeployNetworkEvent());
     }
 
     @Override
     public void shot(int x, int y) {
-        sendEvent(new NetworkShotEvent(x, y));
+        sendEvent(new ShotNetworkEvent(x, y));
     }
 
     @Override
@@ -69,16 +69,16 @@ public class ClientGameEngine implements ClientActions {
     }
 
     private void initServerEvents(String myName, boolean isSaveShooting) {
-        sendEvent(new NetworkSetSaveShooting(isSaveShooting));
-        sendEvent(new NetworkMyNameEvent(myName));
+        sendEvent(new SetSaveShootingNetworkEvent(isSaveShooting));
+        sendEvent(new MyNameNetworkEvent(myName));
     }
 
-    private void sendEvent(NetworkServerEvent event) {
+    private void sendEvent(ServerNetworkEvent event) {
         netClient.sendMessage(event.convertToString());
     }
 
     private void proceedMessage(String message) {
-        NetworkClientEvent event = eventCreator.deserializeMessage(message);
+        ClientNetworkEvent event = eventCreator.deserializeMessage(message);
 
         //TODO delete or wrap for debug
         System.out.println("Client event= " + event.getClass().getSimpleName());
@@ -87,7 +87,7 @@ public class ClientGameEngine implements ClientActions {
         if (answer != null) {
             netClient.sendMessage(answer);
         }
-        if (event instanceof NetworkDoDisconnectEvent || event instanceof NetworkNoRematchEvent) {
+        if (event instanceof DoDisconnectNetworkEvent || event instanceof NoRematchNetworkEvent) {
             netClient.disconnect();
         }
     }

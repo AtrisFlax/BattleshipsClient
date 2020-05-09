@@ -30,10 +30,10 @@ public class CreatorServerNetworkEvent {
         setSaveShootingPattern = Pattern.compile("^" + SET_SAVE_SHOOTING + state  + "$");
     }
 
-    public NetworkServerEvent deserializeMessage(String msg) {
+    public ServerNetworkEvent deserializeMessage(String msg) {
         Matcher matcher = myNamePattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkMyNameEvent(matcher.group(1));
+            return new MyNameNetworkEvent(matcher.group(1));
         }
 
         matcher = tryDeployShipPattern.matcher(msg);
@@ -42,40 +42,40 @@ public class CreatorServerNetworkEvent {
             int y = Integer.parseInt(matcher.group(2));
             int type = Integer.parseInt(matcher.group(3));
             boolean isHorizontal = matcher.group(4).equals("H");
-            return new NetworkTryDeployShipEvent(x, y, type, isHorizontal);
+            return new TryDeployShipNetworkEvent(x, y, type, isHorizontal);
         }
 
         matcher = shotPattern.matcher(msg);
         if (matcher.find()) {
             int x = Integer.parseInt(matcher.group(1));
             int y = Integer.parseInt(matcher.group(2));
-            return new NetworkShotEvent(x, y);
+            return new ShotNetworkEvent(x, y);
         }
 
         matcher = disconnectPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkDisconnectEvent();
+            return new DisconnectNetworkEvent();
         }
 
         matcher = noTryRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkNoRematchEvent();
+            return new NoRematchNetworkEvent();
         }
 
         matcher = tryRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkTryRematchEvent();
+            return new TryRematchNetworkEvent();
         }
 
         matcher = resetFleetWhileDeployPattern.matcher(msg);
         if (matcher.find()) {
-            return new NetworkResetFleetWhileDeployEvent();
+            return new ResetFleetWhileDeployNetworkEvent();
         }
         matcher = setSaveShootingPattern.matcher(msg);
         if (matcher.find()) {
             boolean state = matcher.group(1).equals(ON);
-            return new NetworkSetSaveShooting(state);
+            return new SetSaveShootingNetworkEvent(state);
         }
-        return new NetworkUnknownCommandServerEvent(msg);
+        return new UnknownCommandServerNetworkEvent(msg);
     }
 }
