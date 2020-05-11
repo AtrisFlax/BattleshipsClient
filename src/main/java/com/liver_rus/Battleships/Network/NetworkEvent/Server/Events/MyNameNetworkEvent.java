@@ -12,7 +12,8 @@ import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.Network.Server.TurnOrder;
 
-import static com.liver_rus.Battleships.Client.GUI.Constants.Constants.Debug.DEBUG_AUTO_DEPLOY;
+import static com.liver_rus.Battleships.utils.Debug.DEBUG_AUTO_DEPLOY;
+
 
 public class MyNameNetworkEvent implements ServerNetworkEvent {
     private final String name;

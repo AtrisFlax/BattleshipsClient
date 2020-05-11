@@ -158,11 +158,24 @@ public class MetaInfo {
         return true;
     }
 
+    public boolean isPlayersSetRematch() {
+        for (Player player : players) {
+            if (!player.isRematchHasSet()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public void resetForRematch() {
-        for (GameField field : injectedGameFields) {
+        initTurnOrder = TurnOrder.RANDOM_TURN;
+        for (Player player : players) {
+            player.setRematchHasSet(false);
+            player.setReadyForDeployment(true);
+            player.setReadyForGame(false);
+            GameField field = player.getGameField();
             field.reset();
         }
-        initTurnOrder = TurnOrder.RANDOM_TURN;
     }
 
     /**

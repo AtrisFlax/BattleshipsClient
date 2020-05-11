@@ -19,13 +19,11 @@ class CreatorServerNetworkEventTest {
     @Test
     void creationValidEvents() {
         checkDeserialize(NetworkCommandConstant.DISCONNECT, DisconnectNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.NO_REMATCH, NoRematchNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.MY_NAME + "Player1", MyNameNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.MY_NAME, MyNameNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.SHOT + "56", ShotNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "553H", TryDeployShipNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.TRY_REMATCH, TryRematchNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.NO_REMATCH, NoRematchNetworkEvent.class);
+        checkDeserialize(NetworkCommandConstant.REMATCH_ANSWER, TryRematchStateNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.RESET_FLEET_WHILE_DEPLOY, ResetFleetWhileDeployNetworkEvent.class);
     }
 
@@ -44,8 +42,7 @@ class CreatorServerNetworkEventTest {
         checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "2\23H", UnknownCommandServerNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "23", UnknownCommandServerNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP, UnknownCommandServerNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.TRY_REMATCH + "|", UnknownCommandServerNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.NO_REMATCH + "||", UnknownCommandServerNetworkEvent.class);
+        checkDeserialize(NetworkCommandConstant.REMATCH_ANSWER + "|", UnknownCommandServerNetworkEvent.class);
         checkDeserialize("  ", UnknownCommandServerNetworkEvent.class);
         checkDeserialize("| | | |", UnknownCommandServerNetworkEvent.class);
     }

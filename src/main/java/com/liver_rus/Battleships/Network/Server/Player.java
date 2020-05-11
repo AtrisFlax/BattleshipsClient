@@ -9,17 +9,22 @@ public class Player {
     private final GameField gameField;
     private boolean readyForDeployment;
     private boolean readyForGame;
-    private boolean wantRematch;
     private String name;
     private boolean saveShooting;
+
+    //tri state enum or Boolean possible
+    private boolean wantRematch;
+    private boolean rematchHasSet;
 
     public Player(SocketChannel channel, GameField gameField) {
         this.channel = channel;
         this.gameField = gameField;
         this.name = "Player";
-        readyForDeployment = false;
-        readyForGame = false;
-        saveShooting = false;
+        this.readyForDeployment = false;
+        this.readyForGame = false;
+        this.saveShooting = false;
+        this.wantRematch = false;
+        this.rematchHasSet = false;
     }
 
     public SocketChannel getChannel() {
@@ -62,11 +67,20 @@ public class Player {
     }
 
     public boolean isWantRematch() {
-        return wantRematch;
+        return wantRematch && rematchHasSet;
     }
 
     public void setWantRematch(boolean wantRematch) {
         this.wantRematch = wantRematch;
+        setRematchHasSet(true);
+    }
+
+    public boolean isRematchHasSet() {
+        return rematchHasSet;
+    }
+
+    public void setRematchHasSet(boolean rematchHasSet) {
+        this.rematchHasSet = rematchHasSet;
     }
 
     public boolean isSaveShooting() {

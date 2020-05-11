@@ -4,17 +4,16 @@ import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 
-public class StartRematchNetworkEvent implements ClientNetworkEvent {
+public class AskForRematchNetworkEvent implements ClientNetworkEvent {
 
     @Override
     public String proceed(GUIActions action) {
-        action.startRematch();
+        action.askRematch();
         return null;
     }
 
     @Override
     public String convertToString() {
-        return NetworkCommandConstant.START_REMATCH;
+        return NetworkCommandConstant.ASK_REMATCH;
     }
-
 }

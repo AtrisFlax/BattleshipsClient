@@ -29,7 +29,7 @@ import static java.nio.ByteBuffer.allocate;
 import static java.nio.channels.SelectionKey.OP_ACCEPT;
 
 public class GameServer extends Thread implements StartStopThread {
-    private static final Logger log = Logger.getLogger(String.valueOf(GameServer.class));
+    private static final Logger log = Logger.getLogger(GameServer.class.getName());
 
     private static final int WRITE_BUFFER_SIZE = 8192;
     private final ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);

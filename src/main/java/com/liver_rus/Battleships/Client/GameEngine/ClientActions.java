@@ -20,4 +20,6 @@ public interface ClientActions {
     void shot(int x, int y);
 
     void startServer(String ip, int port) throws IOException;
+
+    void rematch(boolean wantRematch);
 }

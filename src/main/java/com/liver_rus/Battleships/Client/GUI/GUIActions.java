@@ -12,7 +12,7 @@ public interface GUIActions {
 
     void reset();
 
-    void startRematch();
+    void askRematch();
 
     void waitSecondPlayer(String reason);
 
@@ -21,6 +21,8 @@ public interface GUIActions {
     void disconnect();
 
     void notStartRematch();
+
+    void startRematch();
 
     void canShot();
 

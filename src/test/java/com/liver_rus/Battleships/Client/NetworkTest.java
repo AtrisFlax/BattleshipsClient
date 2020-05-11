@@ -10,6 +10,7 @@ import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.TryingAddTooManyShipsOnFieldException;
 import com.liver_rus.Battleships.Network.Server.GameServer;
 import com.liver_rus.Battleships.Network.Server.TurnOrder;
+import com.liver_rus.Battleships.utils.MyLogger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,11 +32,15 @@ import static org.junit.jupiter.api.Assertions.*;
 
 //TODO add reset test
 class NetworkTest {
-    private static final Logger log = Logger.getLogger(String.valueOf(NetworkTest.class));
+    private static final Logger LOGGER;
+
+    static {
+        LOGGER = MyLogger.GetLogger(NetworkTest.class);
+    }
 
     final static int TIMEOUT_FOR_SINGLE_MESSAGE = 500;
     final long NET_LAG_TIMEOUT = 20;
-    static final int MAX_CONNECTIONS = 2;
+    final static int MAX_CONNECTIONS = 2;
 
     private static GameField[] testGameFields;
     private static GameField[] injectedGameFields;
@@ -48,6 +53,10 @@ class NetworkTest {
 
     @BeforeEach
     void setUpClientAndServer() throws IOException {
+//        LOGGER.info("an info msg");
+//        LOGGER.warning("a warning msg");
+//        LOGGER.severe("a severe msg");
+
         testGameFields = new GameField[2];
         injectedGameFields = new GameField[2];
         for (int i = 0; i < MAX_CONNECTIONS; i++) {
@@ -67,7 +76,7 @@ class NetworkTest {
 
     @AfterEach
     void closeConnections() {
-        log.info("Close all connection");
+        LOGGER.info("Close all connection");
         client0.close();
         client1.close();
         server.close();
@@ -243,9 +252,11 @@ class NetworkTest {
     }
 
     private Stream<String> getStringStreamFromFile(String fileName) {
-        String testResourceFolder = "TestCases/";
+        String testCasesFolderName = "TestCases/";
+        String path = testCasesFolderName + fileName;
         InputStreamReader inputStreamReader = new InputStreamReader(
-                Objects.requireNonNull(ClassLoader.getSystemResourceAsStream(testResourceFolder + fileName)));
+                Objects.requireNonNull(ClassLoader.getSystemResourceAsStream(path))
+        );
         return new BufferedReader(inputStreamReader).lines();
     }
 

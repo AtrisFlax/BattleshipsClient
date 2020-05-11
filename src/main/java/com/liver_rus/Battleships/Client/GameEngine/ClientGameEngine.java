@@ -68,6 +68,11 @@ public class ClientGameEngine implements ClientActions {
         gameServer.start();
     }
 
+    @Override
+    public void rematch(boolean wantRematch) {
+        sendEvent(new TryRematchStateNetworkEvent(wantRematch));
+    }
+
     private void initServerEvents(String myName, boolean isSaveShooting) {
         sendEvent(new SetSaveShootingNetworkEvent(isSaveShooting));
         sendEvent(new MyNameNetworkEvent(myName));
@@ -87,7 +92,7 @@ public class ClientGameEngine implements ClientActions {
         if (answer != null) {
             netClient.sendMessage(answer);
         }
-        if (event instanceof DoDisconnectNetworkEvent || event instanceof NoRematchNetworkEvent) {
+        if (event instanceof DoDisconnectNetworkEvent) {
             netClient.disconnect();
         }
     }

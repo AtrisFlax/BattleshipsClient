@@ -56,7 +56,7 @@ public class ShotNetworkEvent implements ServerNetworkEvent {
                                 ));
                             }
                         }
-                        //end game. send alive ships for loser
+                        //end game. send alive ships for loser and ask for rematch
                         if (passivePlayerField.isAllShipsDestroyed()) {
                             GameField field = activePlayer.getGameField();
                             for (Ship leavesShip : field.getShips()) {
@@ -64,6 +64,8 @@ public class ShotNetworkEvent implements ServerNetworkEvent {
                             }
                             answer.add(activePlayer, new EndMatchNetworkEvent(PlayerType.ENEMY));
                             answer.add(passivePlayer, new EndMatchNetworkEvent(PlayerType.YOU));
+                            answer.add(activePlayer, new AskForRematchNetworkEvent());
+                            answer.add(passivePlayer, new AskForRematchNetworkEvent());
                             metaInfo.setGameEnded();
                             return answer;
                         }

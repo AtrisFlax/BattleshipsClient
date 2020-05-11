@@ -13,7 +13,6 @@ public class CreatorServerNetworkEvent {
     private final Pattern tryDeployShipPattern;
     private final Pattern shotPattern;
     private final Pattern disconnectPattern;
-    private final Pattern noTryRematchPattern;
     private final Pattern tryRematchPattern;
     private final Pattern resetFleetWhileDeployPattern;
     private final Pattern setSaveShootingPattern;
@@ -24,8 +23,7 @@ public class CreatorServerNetworkEvent {
         tryDeployShipPattern = Pattern.compile("^" + TRY_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");
         shotPattern = Pattern.compile("^" + SHOT + "(\\d)(\\d)" + "$");
         disconnectPattern = Pattern.compile("^" + DISCONNECT + "$");
-        noTryRematchPattern = Pattern.compile("^" + NO_REMATCH + "$");
-        tryRematchPattern = Pattern.compile("^" + TRY_REMATCH + "$");
+        tryRematchPattern = Pattern.compile("^" + REMATCH_ANSWER + state + "$");
         resetFleetWhileDeployPattern = Pattern.compile("^" + RESET_FLEET_WHILE_DEPLOY + "$");
         setSaveShootingPattern = Pattern.compile("^" + SET_SAVE_SHOOTING + state  + "$");
     }
@@ -57,25 +55,21 @@ public class CreatorServerNetworkEvent {
             return new DisconnectNetworkEvent();
         }
 
-        matcher = noTryRematchPattern.matcher(msg);
-        if (matcher.find()) {
-            return new NoRematchNetworkEvent();
-        }
-
         matcher = tryRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new TryRematchNetworkEvent();
+            return new TryRematchStateNetworkEvent(matcher.group(1).equals(ON));
         }
 
         matcher = resetFleetWhileDeployPattern.matcher(msg);
         if (matcher.find()) {
             return new ResetFleetWhileDeployNetworkEvent();
         }
+
         matcher = setSaveShootingPattern.matcher(msg);
         if (matcher.find()) {
-            boolean state = matcher.group(1).equals(ON);
-            return new SetSaveShootingNetworkEvent(state);
+            return new SetSaveShootingNetworkEvent(matcher.group(1).equals(ON));
         }
+
         return new UnknownCommandServerNetworkEvent(msg);
     }
 }

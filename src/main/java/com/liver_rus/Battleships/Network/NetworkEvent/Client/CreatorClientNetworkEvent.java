@@ -18,7 +18,7 @@ public class CreatorClientNetworkEvent {
     private final Pattern eventCommandNotAcceptedPattern;
     private final Pattern eventDeployPattern;
     private final Pattern eventDoDisconnectPattern;
-    private final Pattern eventNotStartRematchPattern;
+    private final Pattern eventStartRematchStatePattern;
     private final Pattern eventDrawHitPattern;
     private final Pattern eventDrawMissPattern;
     private final Pattern eventDrawNearPattern;
@@ -30,23 +30,24 @@ public class CreatorClientNetworkEvent {
     private final Pattern eventDrawShipsLeftPattern;
 
     public CreatorClientNetworkEvent() {
+        //TODO CreatorServerNetworkEvent has same patterns
         String xyto = "(\\d)(\\d)(\\d)([VH])"; //x y type orientation
         String xy = "(\\d)(\\d)";
         String player = "(" + YOU + "|" + ENEMY + ")";
         String shipsLeftByType = "(\\d)(\\d)(\\d)(\\d)(\\d)"; //x y type orientation
-
+        String state = "(" + ON + "|" + OFF + ")";
         eventCannotDeployPattern = Pattern.compile("^" + CANNOT_DEPLOY + xyto + "$");
         eventCanShootPattern = Pattern.compile("^" + CAN_SHOOT + "$");
         eventCommandNotAcceptedPattern = Pattern.compile("^" + COMMAND_NOT_ACCEPTED + "(.*)");
         eventDeployPattern = Pattern.compile("^" + DEPLOY + shipsLeftByType + "$");
         eventDoDisconnectPattern = Pattern.compile("^" + DO_DISCONNECT + "$");
-        eventNotStartRematchPattern = Pattern.compile("^" + NOT_START_REMATCH + "$");
+        eventStartRematchStatePattern = Pattern.compile("^" + START_REMATCH + state + "$");
         eventDrawHitPattern = Pattern.compile("^" + HIT + xy + player + "$");
         eventDrawMissPattern = Pattern.compile("^" + MISS + xy + player + "$");
-        eventDrawNearPattern = Pattern.compile("^" + NEAR + xy + player + "$");
+        eventDrawNearPattern = Pattern.compile("^" + NEAR + xy + "$");
         eventDrawShipPattern = Pattern.compile("^" + DRAW_SHIP + xyto + player + "$");
         eventSetEnemyNamePattern = Pattern.compile("^" + SET_ENEMY_NAME + "(.+)");
-        eventStartRematchPattern = Pattern.compile("^" + START_REMATCH + "$");
+        eventStartRematchPattern = Pattern.compile("^" + ASK_REMATCH + "$");
         eventWaitingForSecondPlayerPattern = Pattern.compile("^" + WAIT + "(.*)");
         eventEndMatchPattern = Pattern.compile("^" + END_MATCH + player + "$");
         eventDrawShipsLeftPattern = Pattern.compile("^" + DRAW_SHIP_LEFT + "(\\d)" + "$");
@@ -81,9 +82,9 @@ public class CreatorClientNetworkEvent {
         if (matcher.find()) {
             return new DoDisconnectNetworkEvent();
         }
-        matcher = eventNotStartRematchPattern.matcher(msg);
+        matcher = eventStartRematchStatePattern.matcher(msg);
         if (matcher.find()) {
-            return new NotStartRematchNetworkEvent();
+            return new StartRematchStatusNetworkEvent(matcher.group(1).equals(ON));
         }
         matcher = eventDrawHitPattern.matcher(msg);
         if (matcher.find()) {
@@ -120,7 +121,7 @@ public class CreatorClientNetworkEvent {
         }
         matcher = eventStartRematchPattern.matcher(msg);
         if (matcher.find()) {
-            return new StartRematchNetworkEvent();
+            return new AskForRematchNetworkEvent();
         }
         matcher = eventWaitingForSecondPlayerPattern.matcher(msg);
         if (matcher.find()) {

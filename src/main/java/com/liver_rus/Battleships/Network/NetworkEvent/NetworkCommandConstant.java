@@ -8,14 +8,13 @@ public class NetworkCommandConstant {
     public final static String SHOT = "SHOT";
     public final static String DISCONNECT = "DISCONNECT";
     public final static String UNKNOWN_COMMAND = "UNKNOWN_COMMAND";
-    public final static String TRY_REMATCH = "TRY_REMATCH";
-    public final static String NO_REMATCH = "DONT_TRY_REMATCH";
+    public final static String REMATCH_ANSWER = "REMATCH_ANSWER";
     public final static String RESET_FLEET_WHILE_DEPLOY = "RESET_FLEET_WHILE_DEPLOY";
     public final static String SET_SAVE_SHOOTING = "SET_SAVE_SHOOTING";
 
     //server commands to client
+    public final static String ASK_REMATCH = "ASK_REMATCH";
     public final static String START_REMATCH = "START_REMATCH";
-    public final static String NOT_START_REMATCH = "DONT_START_REMATCH";
     public final static String WAIT = "WAIT";
     public final static String COMMAND_NOT_ACCEPTED = "COMMAND_NOT_ACCEPTED";
     public final static String SET_ENEMY_NAME = "SET_ENEMY_NAME";
@@ -41,4 +40,6 @@ public class NetworkCommandConstant {
     //player type on client side
     public final static String ON = "ON_STATE";
     public final static String OFF = "OFF_STATE";
+
+    //todo make static check all String different
 }

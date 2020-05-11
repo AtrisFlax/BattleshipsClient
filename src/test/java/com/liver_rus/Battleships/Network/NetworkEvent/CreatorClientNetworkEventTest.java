@@ -24,13 +24,13 @@ class CreatorClientNetworkEventTest {
         checkDeserialize(COMMAND_NOT_ACCEPTED + "REASON FROM SERVER"  , CommandNotAcceptedNetworkEvent.class);
         checkDeserialize(DEPLOY + "21111"  , DeployNetworkEvent.class);
         checkDeserialize(DO_DISCONNECT  , DoDisconnectNetworkEvent.class);
-        checkDeserialize(NOT_START_REMATCH  , NotStartRematchNetworkEvent.class);
+        checkDeserialize(START_REMATCH, StartRematchStatusNetworkEvent.class);
         checkDeserialize(HIT + "25" + YOU   , DrawHitNetworkEvent.class);
         checkDeserialize(MISS + "46" + ENEMY  , DrawMissNetworkEvent.class);
         checkDeserialize(NEAR + "56" + ENEMY  , DrawNearNetworkEvent.class);
         checkDeserialize(DRAW_SHIP + "360H" + ENEMY  , DrawShipNetworkEvent.class);
         checkDeserialize(SET_ENEMY_NAME + "ANY NAME"  , SetEnemyNameNetworkEvent.class);
-        checkDeserialize(START_REMATCH  , StartRematchNetworkEvent.class);
+        checkDeserialize(ASK_REMATCH, AskForRematchNetworkEvent.class);
         checkDeserialize(WAIT, WaitingSecondPlayerNetworkEvent.class);
         checkDeserialize(WAIT + "ww"  , WaitingSecondPlayerNetworkEvent.class);
         checkDeserialize(END_MATCH + ENEMY  , EndMatchNetworkEvent.class);
@@ -45,7 +45,7 @@ class CreatorClientNetworkEventTest {
         checkDeserialize("FFF" + COMMAND_NOT_ACCEPTED + "REASON FROM SERVER", UnknownCommandClientNetworkEvent.class);
         checkDeserialize(DEPLOY + "211111", UnknownCommandClientNetworkEvent.class);
         checkDeserialize("DO" + DO_DISCONNECT + "1", UnknownCommandClientNetworkEvent.class);
-        checkDeserialize(" " + NOT_START_REMATCH, UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(" " + START_REMATCH, UnknownCommandClientNetworkEvent.class);
         checkDeserialize(HIT + "YOUR" + "25", UnknownCommandClientNetworkEvent.class);
         checkDeserialize(HIT + YOU + "233", UnknownCommandClientNetworkEvent.class);
         checkDeserialize(MISS + "ME" + "46", UnknownCommandClientNetworkEvent.class);

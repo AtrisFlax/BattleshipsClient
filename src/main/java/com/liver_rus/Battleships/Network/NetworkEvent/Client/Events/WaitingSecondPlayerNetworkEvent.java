@@ -22,5 +22,4 @@ public class WaitingSecondPlayerNetworkEvent implements ClientNetworkEvent {
     public String convertToString() {
         return NetworkCommandConstant.WAIT;
     }
-
 }

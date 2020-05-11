@@ -7,7 +7,6 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
 import java.io.IOException;
-import java.lang.invoke.MethodHandles;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
@@ -25,7 +24,7 @@ import java.util.logging.Logger;
 import static java.nio.channels.SelectionKey.*;
 
 public class NetworkClient implements MailBox, StartStopThread {
-    private static final Logger log = Logger.getLogger(MethodHandles.lookup().lookupClass().getName());
+    private static final Logger log = Logger.getLogger(NetworkClient.class.getName());
     private static final int QUEUE_SIZE = 16;
 
     private SocketChannel channel;
