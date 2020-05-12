@@ -240,7 +240,7 @@ public class GameServer extends Thread implements StartStopThread {
             for (SocketChannel openChannel : openedClientChannels) {
                 sendMessage(openChannel, message);
             }
-            close();
+            stopThread();
         }
     }
 

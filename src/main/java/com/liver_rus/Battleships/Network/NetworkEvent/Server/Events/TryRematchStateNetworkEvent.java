@@ -24,11 +24,20 @@ public class TryRematchStateNetworkEvent implements ServerNetworkEvent {
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();
         Player activePlayer = metaInfo.getActivePlayer();
+        Player passivePlayer = metaInfo.getPassivePlayer();
+
         if (metaInfo.isGameEnded()) {
-            activePlayer.setWantRematch(state);
+            if (!state) {
+                answer.add(activePlayer, new StartRematchStatusNetworkEvent(false));
+                answer.add(passivePlayer, new StartRematchStatusNetworkEvent(false));
+                answer.add(activePlayer, new DoDisconnectNetworkEvent());
+                answer.add(passivePlayer, new DoDisconnectNetworkEvent());
+            } else {
+                activePlayer.setWantRematch(true);
+            }
         }
+
         if (metaInfo.isPlayersSetRematch()) {
-            Player passivePlayer = metaInfo.getPassivePlayer();
             if (metaInfo.isPlayersWantReamatch()) {
                 metaInfo.resetForRematch();
                 answer.add(activePlayer, new StartRematchStatusNetworkEvent(true));
@@ -36,12 +45,7 @@ public class TryRematchStateNetworkEvent implements ServerNetworkEvent {
                 GameField activePlayerField = activePlayer.getGameField();
                 GameField passivePlayerField = passivePlayer.getGameField();
                 answer.add(activePlayer, new DeployNetworkEvent(activePlayerField.getShipsLeftByTypeForDeploy()));
-                answer.add(activePlayer, new DeployNetworkEvent(passivePlayerField.getShipsLeftByTypeForDeploy()));
-            } else {
-                answer.add(activePlayer, new StartRematchStatusNetworkEvent(false));
-                answer.add(passivePlayer, new StartRematchStatusNetworkEvent(false));
-                answer.add(activePlayer, new DoDisconnectNetworkEvent());
-                answer.add(passivePlayer, new DoDisconnectNetworkEvent());
+                answer.add(passivePlayer, new DeployNetworkEvent(passivePlayerField.getShipsLeftByTypeForDeploy()));
             }
         }
         return answer;

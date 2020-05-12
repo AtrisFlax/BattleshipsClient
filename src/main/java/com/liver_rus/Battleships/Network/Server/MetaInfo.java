@@ -17,7 +17,6 @@ public class MetaInfo {
 
     private TurnOrder initTurnOrder;
 
-    private boolean isGameStarted;
     private Player activePlayer; //msg from this one
     private Player turnHolderPlayer; //wait action from this one
 
@@ -90,12 +89,12 @@ public class MetaInfo {
         this.turnHolderPlayer = turnHolderPlayer;
     }
 
-    //turnholder from whom the server is waiting for actions
+    //turnHolder from whom the server is waiting for actions
     public Player getTurnHolderPlayer() {
         return turnHolderPlayer;
     }
 
-    //notTurnholder from whom the server is NOT waiting for actions
+    //notTurnHolder from whom the server is NOT waiting for actions
     public Player getNotTurnHolderPlayer() {
         return getOtherPlayer(turnHolderPlayer);
     }
@@ -173,8 +172,8 @@ public class MetaInfo {
             player.setRematchHasSet(false);
             player.setReadyForDeployment(true);
             player.setReadyForGame(false);
-            GameField field = player.getGameField();
-            field.reset();
+            GameField gameField = player.getGameField();
+            gameField.reset();
         }
     }
 

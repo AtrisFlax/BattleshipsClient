@@ -17,13 +17,16 @@ public class GameField {
     private Fleet fleet;
 
     public GameField() {
-        fleet = new Fleet();
-        field = createField();
+        createGameField();
     }
 
     public void reset() {
-        fleet = new Fleet();
-        field = new FieldCoord[FIELD_SIZE][FIELD_SIZE];
+        createGameField();
+    }
+
+    private void createGameField() {
+        this.fleet = new Fleet();
+        this.field = createField();
     }
 
     //return true if ship had been created; false if not
@@ -232,43 +235,6 @@ public class GameField {
         return result;
     }
 
-    private static FieldCoord[][] createField() {
-        FieldCoord[][] gameField = new FieldCoord[FIELD_SIZE][];
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            gameField[i] = new FieldCoord[FIELD_SIZE];
-        }
-        for (int i = 0; i < FIELD_SIZE; i++) {
-            for (int j = 0; j < FIELD_SIZE; j++) {
-                gameField[i][j] = new FieldCoord(i, j);
-                gameField[i][j].setType(FieldCell.CLEAR);
-            }
-        }
-        return gameField;
-    }
-
-    private void setFieldCellAsShip(int x, int y) {
-        field[x][y].setType(FieldCell.SHIP);
-    }
-
-    private void addFieldCoordIfPossible(int x, int y, List<FieldCoord> result) {
-        if (x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE) {
-            result.add(field[x][y]);
-        }
-    }
-
-    private void markShipFieldCells(int x, int y, int shipType, boolean isHorizontal) {
-        if (isHorizontal) {
-            for (int i = 0; i < shipType + 1; i++) {
-                setFieldCellAsShip(x + i, y);
-            }
-        } else {
-            for (int i = 0; i < shipType + 1; i++) {
-                setFieldCellAsShip(x, y + i);
-            }
-        }
-    }
-
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -284,5 +250,25 @@ public class GameField {
         int result = Arrays.deepHashCode(field);
         result = 31 * result + fleet.hashCode();
         return result;
+    }
+
+    private static FieldCoord[][] createField() {
+        FieldCoord[][] gameField = new FieldCoord[FIELD_SIZE][];
+        for (int i = 0; i < FIELD_SIZE; i++) {
+            gameField[i] = new FieldCoord[FIELD_SIZE];
+        }
+        for (int i = 0; i < FIELD_SIZE; i++) {
+            for (int j = 0; j < FIELD_SIZE; j++) {
+                gameField[i][j] = new FieldCoord(i, j);
+                gameField[i][j].setType(FieldCell.CLEAR);
+            }
+        }
+        return gameField;
+    }
+
+    private void addFieldCoordIfPossible(int x, int y, List<FieldCoord> result) {
+        if (x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE) {
+            result.add(field[x][y]);
+        }
     }
 }

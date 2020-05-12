@@ -111,7 +111,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         isSaveShooting = true;
         askRematch = false;
         shipLeftByTypeInit = new int[NUM_TYPE];
-        leftButton.setManaged(false);
+        leftButton.managedProperty().bind(leftButton.visibleProperty());
+        leftButton.setVisible(false);
     }
 
     @Override
@@ -131,11 +132,11 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         Platform.runLater(() -> {
             askRematch = true;
             labelGameStatus.setText("Do you want rematch?");
-            leftButton.setManaged(true);
-            leftButton.setVisible(true);
             leftButton.setText("Yes");
+            leftButton.setVisible(true);
             rightButton.setText("No");
             rightButton.setVisible(true);
+            rightButton.setDisable(false);
         });
     }
 
@@ -157,7 +158,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             isDeploying = true;
             this.shipLeftByTypeInit = shipLeftByTypeInit;
             initShipButtonText(shipLeftByTypeInit);
-            labelGameStatus.setText("Deploying fleet. Select and place ship");
+            labelGameStatus.setText("Deploy fleet. Select and place ship");
             menuItemConnect.setDisable(true);
             menuItemDisconnect.setDisable(false);
             rightButton.setDisable(true);
@@ -171,6 +172,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             labelGameStatus.setText("Player disconnected");
             menuItemConnect.setDisable(false);
             menuItemDisconnect.setDisable(true);
+            leftButton.setVisible(false);
+            rightButton.setText("Reset");
             rightButton.setDisable(true);
         });
     }
@@ -196,15 +199,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             rightButton.setDisable(true);
             Draw.clearCanvas(overlayCanvas);
             Draw.clearCanvas(mainCanvas);
-        });
-        //do nothing for player notice  Time for rematch!
-        try {
-            Thread.sleep(250);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        Platform.runLater(() -> {
-           statusListView.getItems().clear();
+            statusListView.getItems().clear();
         });
     }
 
@@ -265,10 +260,10 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             //TODO make leftButton invisible
             askRematch = false;
             leftButton.setVisible(false);
-            leftButton.managedProperty().bind(leftButton.visibleProperty());
             clientGameEngine.rematch(true);
             labelGameStatus.setText("Wait second player");
             rightButton.setText("Reset");
+            rightButton.setDisable(true);
         }
     }
 
@@ -278,6 +273,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             askRematch = false;
             rightButton.setDisable(true);
             rightButton.setText("Reset");
+            leftButton.setVisible(false);
             clientGameEngine.rematch(false);
         } else { //while deploy
             reset();
@@ -444,7 +440,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     private String getFromWho(PlayerType playerType) {
-        return (playerType == PlayerType.YOU) ? "Enemy" : "     You";
+        return (playerType == PlayerType.YOU) ? "Enemy" : "    You";
     }
 
     private void setGUI(DrawGUIEvent event, String action, String fromWho, int x, int y) {

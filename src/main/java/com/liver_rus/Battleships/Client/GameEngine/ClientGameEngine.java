@@ -28,7 +28,7 @@ public class ClientGameEngine implements ClientActions {
     }
 
     public ClientGameEngine() {
-         eventCreator = new CreatorClientNetworkEvent();
+        eventCreator = new CreatorClientNetworkEvent();
     }
 
     @Override
@@ -94,6 +94,10 @@ public class ClientGameEngine implements ClientActions {
         }
         if (event instanceof DoDisconnectNetworkEvent) {
             netClient.disconnect();
+            if (gameServer != null) {
+                gameServer.stopThread();
+                gameServer = null;
+            }
         }
     }
 }
