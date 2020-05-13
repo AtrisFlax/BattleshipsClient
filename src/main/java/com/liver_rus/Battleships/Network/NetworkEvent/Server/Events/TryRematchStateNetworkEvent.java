@@ -2,7 +2,7 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Server.Events;
 
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.DeployNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.DoDisconnectNetworkEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.StartRematchStatusNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.StartMatchStatusNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
@@ -28,8 +28,8 @@ public class TryRematchStateNetworkEvent implements ServerNetworkEvent {
 
         if (metaInfo.isGameEnded()) {
             if (!state) {
-                answer.add(activePlayer, new StartRematchStatusNetworkEvent(false));
-                answer.add(passivePlayer, new StartRematchStatusNetworkEvent(false));
+                answer.add(activePlayer, new StartMatchStatusNetworkEvent(false));
+                answer.add(passivePlayer, new StartMatchStatusNetworkEvent(false));
                 answer.add(activePlayer, new DoDisconnectNetworkEvent());
                 answer.add(passivePlayer, new DoDisconnectNetworkEvent());
             } else {
@@ -40,8 +40,8 @@ public class TryRematchStateNetworkEvent implements ServerNetworkEvent {
         if (metaInfo.isPlayersSetRematch()) {
             if (metaInfo.isPlayersWantReamatch()) {
                 metaInfo.resetForRematch();
-                answer.add(activePlayer, new StartRematchStatusNetworkEvent(true));
-                answer.add(passivePlayer, new StartRematchStatusNetworkEvent(true));
+                answer.add(activePlayer, new StartMatchStatusNetworkEvent(true));
+                answer.add(passivePlayer, new StartMatchStatusNetworkEvent(true));
                 GameField activePlayerField = activePlayer.getGameField();
                 GameField passivePlayerField = passivePlayer.getGameField();
                 answer.add(activePlayer, new DeployNetworkEvent(activePlayerField.getShipsLeftByTypeForDeploy()));

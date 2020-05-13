@@ -9,7 +9,7 @@ public class MessageSplitter {
         return msg + NetworkCommandConstant.SPLIT_SYMBOL;
     }
 
-    public static String[] GetSplit(String message) {
+    public static String[] Split(String message) {
         return message.split(Pattern.quote(NetworkCommandConstant.SPLIT_SYMBOL));
     }
 }

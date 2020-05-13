@@ -13,14 +13,12 @@ public class MetaInfo {
     private static final int SECOND_CONNECTED_PLAYER_ID = 1;
     private final static int MAX_CONNECTIONS = 2;
 
-    List<Player> players;
+    private GameField[] injectedGameFields;
 
+    private final List<Player> players;
     private TurnOrder initTurnOrder;
-
     private Player activePlayer; //msg from this one
     private Player turnHolderPlayer; //wait action from this one
-
-    private GameField[] injectedGameFields;
 
     public static MetaInfo create(GameField[] injectedGameFields) {
         if (injectedGameFields == null) {

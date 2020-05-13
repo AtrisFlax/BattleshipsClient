@@ -10,8 +10,10 @@ import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.DoDisconnect
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.*;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GameServer;
+import com.liver_rus.Battleships.utils.MyLogger;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 public class ClientGameEngine implements ClientActions {
     private MailBox netClient;
@@ -19,23 +21,38 @@ public class ClientGameEngine implements ClientActions {
     private final CreatorClientNetworkEvent eventCreator;
     private GameServer gameServer;
 
-    @Override
-    public void close() {
-        netClient.disconnect();
-        netClient = null;
-        controller.reset();
-        gameServer.close();
-    }
+    //TODO logging
+    private static final Logger LOGGER = MyLogger.GetLogger(ClientGameEngine.class);
 
     public ClientGameEngine() {
         eventCreator = new CreatorClientNetworkEvent();
     }
 
     @Override
-    public void startNetwork(String ip, int port, String myName, boolean isSaveShooting) {
-        netClient = NetworkClient.create(ip, port);
-        netClient.subscribeForInbox(this::proceedMessage);
+    public void startClient(String ip, int port, String myName, boolean isSaveShooting) throws IOException {
+        if (netClient == null) {
+            netClient = NetworkClient.create(ip, port);
+            netClient.subscribeForInbox(this::proceedMessage);
+        } else {
+            netClient.restart(ip, port);
+            netClient.subscribeForInbox(this::proceedMessage);
+        }
         initServerEvents(myName, isSaveShooting);
+    }
+
+    @Override
+    public void startServer(String ip, int port) throws IOException {
+        if (gameServer == null) {
+            gameServer = GameServer.create(ip, port);
+            gameServer.start();
+        } else {
+            gameServer.restart(ip, port);
+        }
+    }
+
+    @Override
+    public void disconnect() {
+        sendEvent(new DisconnectNetworkEvent());
     }
 
     @Override
@@ -63,12 +80,6 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void startServer(String ip, int port) throws IOException {
-        gameServer = GameServer.create(ip, port);
-        gameServer.start();
-    }
-
-    @Override
     public void rematch(boolean wantRematch) {
         sendEvent(new TryRematchStateNetworkEvent(wantRematch));
     }
@@ -93,11 +104,14 @@ public class ClientGameEngine implements ClientActions {
             netClient.sendMessage(answer);
         }
         if (event instanceof DoDisconnectNetworkEvent) {
-            netClient.disconnect();
-            if (gameServer != null) {
-                gameServer.stopThread();
-                gameServer = null;
-            }
+            stopNetwork();
+        }
+    }
+
+    private void stopNetwork() {
+        netClient.stopConnection();
+        if (gameServer != null) {
+            gameServer.stopConnection();
         }
     }
 }

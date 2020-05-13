@@ -6,10 +6,10 @@ import com.liver_rus.Battleships.Client.GUI.ShipInfo;
 import java.io.IOException;
 
 public interface ClientActions {
-    void close() throws IOException;
+    void disconnect() throws IOException;
 
     //possible replace with builder pattern
-    void startNetwork(String ip, int port, String myName, boolean isSaveShooting);
+    void startClient(String ip, int port, String myName, boolean isSaveShooting) throws IOException;
 
     void setController(FXMLDocumentMainController controller);
 

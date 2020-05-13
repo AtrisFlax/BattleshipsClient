@@ -32,11 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 //TODO add reset test
 class NetworkTest {
-    private static final Logger LOGGER;
-
-    static {
-        LOGGER = MyLogger.GetLogger(NetworkTest.class);
-    }
+    private static final Logger LOGGER = MyLogger.GetLogger(NetworkTest.class);
 
     final static int TIMEOUT_FOR_SINGLE_MESSAGE = 500;
     final long NET_LAG_TIMEOUT = 20;
@@ -77,9 +73,9 @@ class NetworkTest {
     @AfterEach
     void closeConnections() {
         LOGGER.info("Close all connection");
-        client0.close();
-        client1.close();
-        server.close();
+        client0.stopConnection();
+        client1.stopConnection();
+        server.stopConnection();
         inboxClient0.clear();
         inboxClient1.clear();
     }

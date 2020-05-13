@@ -88,7 +88,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     private ClientGameEngine clientGameEngine;
 
-
     private ShipInfo shipInfo;
 
     private boolean isShipSelected;
@@ -119,6 +118,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     public void setEnemyName(String name) {
         Platform.runLater(() -> {
             playerEnemyLabel.setText(name);
+            Draw.clearCanvas(mainCanvas);
+            statusListView.getItems().clear();
         });
     }
 
@@ -169,6 +170,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     @Override
     public void disconnect() {
         Platform.runLater(() -> {
+            isDeploying = false;
+            isShooting = false;
             labelGameStatus.setText("Player disconnected");
             menuItemConnect.setDisable(false);
             menuItemDisconnect.setDisable(true);
@@ -180,7 +183,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void notStartRematch() {
-        //TODO
         Platform.runLater(() -> {
             labelGameStatus.setText("Enemy has chosen No rematch");
             menuItemConnect.setDisable(false);
@@ -191,7 +193,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @Override
     public void startRematch() {
-        //TODO
         Platform.runLater(() -> {
             labelGameStatus.setText("Time for rematch!");
             menuItemConnect.setDisable(false);
@@ -337,21 +338,32 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                             clientGameEngine.startServer(ip, port);
                         } catch (IOException e) {
                             e.printStackTrace();
-                            Alert alert = new Alert(Alert.AlertType.WARNING);
-                            alert.setTitle("Server doesn't created");
-                            alert.setHeaderText("Try another port");
-                            alert.setContentText("");
-                            alert.showAndWait();
+                            createAlert("Server doesn't created");
                         }
                     }
+                    try {
+                        clientGameEngine.startClient(ip, port, dialog.getMyName(), isSaveShooting);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        createAlert("Client doesn't created");
+                    }
                     menuItemSaveShooting.setDisable(true);
-                    clientGameEngine.startNetwork(ip, port, dialog.getMyName(), isSaveShooting);
+                    menuItemConnect.setDisable(true);
+                    menuItemDisconnect.setDisable(false);
                 }
             });
             stage.show();
         } catch (IOException e) {
             log.log(Level.SEVERE, "Failed to create new Window.", e);
         }
+    }
+
+    private void createAlert(String title) {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle(title);
+        alert.setHeaderText("Try another port");
+        alert.setContentText("");
+        alert.showAndWait();
     }
 
     @FXML
@@ -370,7 +382,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @FXML
     public void handlerDisconnectMenuItem() {
-        clientGameEngine.close();
+        menuItemSaveShooting.setDisable(true);
+        clientGameEngine.disconnect();
     }
 
     @FXML
@@ -426,7 +439,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             if (isDeploying) {
                 labelGameStatus.setText("Fleet reset");
                 Draw.clearCanvas(mainCanvas);
-                Draw.clearCanvas(overlayCanvas);
                 isShipSelected = false;
                 shipInfo = new ShipInfo();
                 rightButton.setDisable(true);
@@ -509,7 +521,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                 }
             }
         }
-
         if (isShooting) {
             if (SceneCoord.isFromSecondPlayerField(event)) {
                 Draw.clearCanvas(overlayCanvas);
@@ -555,16 +566,13 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     }
 
     @FXML
-    private void listViewScrollhandlerr(ScrollEvent scrollEvent) {
-        System.out.println("Delta scroll");
-        System.out.println(scrollEvent.getDeltaY());
+    private void listViewScrollHandler(ScrollEvent scrollEvent) {
         int scrollIndex;
         if (scrollEvent.getDeltaY() > 0) {
             scrollIndex = statusListView.getSelectionModel().getSelectedIndex() - 1;
         } else {
             scrollIndex = statusListView.getSelectionModel().getSelectedIndex() + 1;
         }
-
         statusListView.getSelectionModel().select(scrollIndex);
     }
 }

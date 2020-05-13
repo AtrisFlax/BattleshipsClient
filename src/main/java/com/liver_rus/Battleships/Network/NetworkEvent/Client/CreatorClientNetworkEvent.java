@@ -41,7 +41,7 @@ public class CreatorClientNetworkEvent {
         eventCommandNotAcceptedPattern = Pattern.compile("^" + COMMAND_NOT_ACCEPTED + "(.*)");
         eventDeployPattern = Pattern.compile("^" + DEPLOY + shipsLeftByType + "$");
         eventDoDisconnectPattern = Pattern.compile("^" + DO_DISCONNECT + "$");
-        eventStartRematchStatePattern = Pattern.compile("^" + START_REMATCH + state + "$");
+        eventStartRematchStatePattern = Pattern.compile("^" + START_MATCH + state + "$");
         eventDrawHitPattern = Pattern.compile("^" + HIT + xy + player + "$");
         eventDrawMissPattern = Pattern.compile("^" + MISS + xy + player + "$");
         eventDrawNearPattern = Pattern.compile("^" + NEAR + xy + "$");
@@ -84,7 +84,7 @@ public class CreatorClientNetworkEvent {
         }
         matcher = eventStartRematchStatePattern.matcher(msg);
         if (matcher.find()) {
-            return new StartRematchStatusNetworkEvent(matcher.group(1).equals(ON));
+            return new StartMatchStatusNetworkEvent(matcher.group(1).equals(ON));
         }
         matcher = eventDrawHitPattern.matcher(msg);
         if (matcher.find()) {

@@ -1,7 +1,7 @@
 package com.liver_rus.Battleships.Network.Client;
 
 import com.liver_rus.Battleships.Network.MessageSplitter;
-import com.liver_rus.Battleships.Network.StartStopThread;
+import com.liver_rus.Battleships.Network.Restartable;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -23,7 +23,8 @@ import java.util.logging.Logger;
 
 import static java.nio.channels.SelectionKey.*;
 
-public class NetworkClient implements MailBox, StartStopThread {
+public class NetworkClient implements MailBox, Restartable {
+    //TODO replace logger
     private static final Logger log = Logger.getLogger(NetworkClient.class.getName());
     private static final int QUEUE_SIZE = 16;
 
@@ -34,26 +35,40 @@ public class NetworkClient implements MailBox, StartStopThread {
     private final ObservableList<String> inbox;
 
     private InetAddress ipAddress;
-    private final int port;
+    private int port;
 
     private volatile boolean isRunning = true;
 
-    public NetworkClient(String ipAddress, int port) {
-        this.port = port;
+    ReceiveThread clientReceiver;
+
+    public NetworkClient(String ip, int port) {
         this.inbox = FXCollections.observableArrayList();
+        configure(ip, port);
+        this.clientReceiver = new ReceiveThread(channel, inbox);
+        this.clientReceiver.start();
+        log.info("NetworkClient created");
+    }
+
+    private void configure(String ip, int port) {
+        this.port = port;
         try {
-            this.ipAddress = InetAddress.getByName(ipAddress);
-            channel = SocketChannel.open();
-            channel.configureBlocking(false);
-            selector = Selector.open();
-            channel.register(selector, OP_CONNECT);
-            channel.connect(new InetSocketAddress(this.ipAddress, this.port));
+            this.ipAddress = InetAddress.getByName(ip);
+            this.channel = SocketChannel.open();
+            this.channel.configureBlocking(false);
+            this.selector = Selector.open();
+            this.channel.register(selector, OP_CONNECT);
+            this.channel.connect(new InetSocketAddress(this.ipAddress, this.port));
         } catch (IOException e) {
             e.printStackTrace();
         }
-        ReceiveThread clientReceiver = new ReceiveThread(channel, inbox);
-        clientReceiver.start();
-        log.info("NetworkClient created");
+    }
+
+    @Override
+    public void restart(String ip, int port) {
+        this.inbox.clear();
+        configure(ip, port);
+        log.info("NetworkClient restarted");
+        clientReceiver.startThread();
     }
 
     public static NetworkClient create(String ip, int port) {
@@ -94,35 +109,16 @@ public class NetworkClient implements MailBox, StartStopThread {
     }
 
     @Override
-    public void disconnect() {
-        stopThread();
-    }
-
-    public void close() {
-        isRunning = false;
-        try {
-            channel.close();
-            selector.close();
-        } catch (IOException e) {
-            log.log(Level.SEVERE, "NetworkClient: Failed while closing", e);
-        }
-    }
-
-    public boolean isRunning() {
-        return isRunning;
-    }
-
-    public void startThread() {
-        isRunning = true;
-    }
-
-    public void stopThread() {
-        isRunning = false;
+    public void stopConnection() {
+        clientReceiver.close();
     }
 
     private class ReceiveThread extends Thread {
         private final SocketChannel channel;
         private final ObservableList<String> inbox;
+
+        final int BUFFER_SIZE = 16384;
+        ByteBuffer buffer = ByteBuffer.allocate(BUFFER_SIZE);
 
         ReceiveThread(SocketChannel client, ObservableList<String> inbox) {
             super("Receive thread");
@@ -130,30 +126,46 @@ public class NetworkClient implements MailBox, StartStopThread {
             this.inbox = inbox;
         }
 
+        private void startThread() {
+            isRunning = true;
+        }
+
+        private void stopThread() {
+            isRunning = false;
+        }
+
+        private void close() {
+            stopThread();
+            try {
+                channel.close();
+                selector.close();
+            } catch (IOException e) {
+                log.log(Level.SEVERE, "NetworkClient: Failed while closing", e);
+            }
+        }
+
         public void run() {
             try {
-                while (channel.isOpen()) {
+                while (isRunning && channel.isOpen()) {
                     selector.select();
-                    if (selector.isOpen() && isRunning) {
+                    if (selector.isOpen()) {
                         Iterator<SelectionKey> keys = selector.selectedKeys().iterator();
                         SelectionKey key;
                         while (keys.hasNext()) {
                             key = keys.next();
                             keys.remove();
-                            if (key.isValid()) {
-                                if (key.isConnectable()) {
-                                    channel.finishConnect();
-                                    key.interestOps(OP_WRITE);
-                                }
-                                if (key.isReadable()) {
-                                    receiveMessage();
-                                }
-                                if (key.isWritable()) {
-                                    String line = messageSynchronize.poll();
-                                    if (line != null) {
-                                        channel.write(ByteBuffer.wrap(line.getBytes()));
-                                        key.interestOps(OP_READ);
-                                    }
+                            if (key.isValid() && key.isConnectable()) {
+                                channel.finishConnect();
+                                key.interestOps(OP_WRITE);
+                            }
+                            if (key.isValid() && key.isReadable()) {
+                                receiveMessage();
+                            }
+                            if (key.isValid() && key.isWritable()) {
+                                String line = messageSynchronize.poll();
+                                if (line != null) {
+                                    sendMessage(line);
+                                    key.interestOps(OP_READ);
                                 }
                             }
                         }
@@ -165,17 +177,23 @@ public class NetworkClient implements MailBox, StartStopThread {
             }
         }
 
-        private void receiveMessage() throws IOException {
-            ByteBuffer buf = ByteBuffer.allocate(4096);
-            int nBytes;
-            nBytes = channel.read(buf);
-
-            if (nBytes == 4096 || nBytes == 0)
-                return;
-            String message = new String(buf.array()).trim();
-            System.out.println(message);
-            inbox.addAll(Arrays.asList(MessageSplitter.GetSplit(message)));
+        private void sendMessage(String line) throws IOException {
+            channel.write(ByteBuffer.wrap(line.getBytes()));
         }
+
+
+        private void receiveMessage() throws IOException {
+            buffer.clear();
+            int nBytes;
+            nBytes = channel.read(buffer);
+            //TODO if buffer full - (nBytes == BUFFER_SIZE) ???
+            if (nBytes == BUFFER_SIZE || nBytes == 0)
+                return;
+            String message = new String(buffer.array()).trim();
+            System.out.println(message);
+            inbox.addAll(Arrays.asList(MessageSplitter.Split(message)));
+        }
+
     }
 }
 

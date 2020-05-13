@@ -14,7 +14,7 @@ public class NetworkCommandConstant {
 
     //server commands to client
     public final static String ASK_REMATCH = "ASK_REMATCH";
-    public final static String START_REMATCH = "START_REMATCH";
+    public final static String START_MATCH = "START_REMATCH";
     public final static String WAIT = "WAIT";
     public final static String COMMAND_NOT_ACCEPTED = "COMMAND_NOT_ACCEPTED";
     public final static String SET_ENEMY_NAME = "SET_ENEMY_NAME";
@@ -31,7 +31,7 @@ public class NetworkCommandConstant {
 
     //service
     public final static String EMPTY_STRING = "";
-    public final static String SPLIT_SYMBOL = ".";
+    public final static String SPLIT_SYMBOL = "|";
 
     //player type on client side
     public final static String YOU = "YOU";

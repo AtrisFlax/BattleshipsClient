@@ -6,7 +6,7 @@ import java.util.logging.LogManager;
 
 public class MyLogger {
 
-    public static java.util.logging.Logger GetLogger(Class className) {
+    public static <T> java.util.logging.Logger GetLogger(Class<T> className) {
         InputStream stream = className.getClassLoader().
                 getResourceAsStream("logging/logging.properties");
         try {

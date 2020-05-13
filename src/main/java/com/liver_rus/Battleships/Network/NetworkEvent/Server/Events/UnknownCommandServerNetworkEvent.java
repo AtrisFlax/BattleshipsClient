@@ -1,6 +1,5 @@
 package com.liver_rus.Battleships.Network.NetworkEvent.Server.Events;
 
-import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.CommandNotAcceptedNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
@@ -15,10 +14,7 @@ public class UnknownCommandServerNetworkEvent implements ServerNetworkEvent {
 
     @Override
     public Answer proceed(MetaInfo metaInfo) {
-        Answer string = new Answer();
-        string.add(metaInfo.getActivePlayer(), new CommandNotAcceptedNetworkEvent(
-                "Unknown command from client"  + unknownMsg));
-        return string;
+        return null;
     }
 
     @Override

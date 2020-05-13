@@ -4,6 +4,5 @@ import com.liver_rus.Battleships.Client.GUI.GUIActions;
 
 public interface ClientNetworkEvent {
     String proceed(GUIActions gui);
-
     String convertToString();
 }

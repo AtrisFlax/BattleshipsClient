@@ -24,7 +24,7 @@ class CreatorClientNetworkEventTest {
         checkDeserialize(COMMAND_NOT_ACCEPTED + "REASON FROM SERVER"  , CommandNotAcceptedNetworkEvent.class);
         checkDeserialize(DEPLOY + "21111"  , DeployNetworkEvent.class);
         checkDeserialize(DO_DISCONNECT  , DoDisconnectNetworkEvent.class);
-        checkDeserialize(START_REMATCH, StartRematchStatusNetworkEvent.class);
+        checkDeserialize(START_MATCH, StartMatchStatusNetworkEvent.class);
         checkDeserialize(HIT + "25" + YOU   , DrawHitNetworkEvent.class);
         checkDeserialize(MISS + "46" + ENEMY  , DrawMissNetworkEvent.class);
         checkDeserialize(NEAR + "56" + ENEMY  , DrawNearNetworkEvent.class);
@@ -45,7 +45,7 @@ class CreatorClientNetworkEventTest {
         checkDeserialize("FFF" + COMMAND_NOT_ACCEPTED + "REASON FROM SERVER", UnknownCommandClientNetworkEvent.class);
         checkDeserialize(DEPLOY + "211111", UnknownCommandClientNetworkEvent.class);
         checkDeserialize("DO" + DO_DISCONNECT + "1", UnknownCommandClientNetworkEvent.class);
-        checkDeserialize(" " + START_REMATCH, UnknownCommandClientNetworkEvent.class);
+        checkDeserialize(" " + START_MATCH, UnknownCommandClientNetworkEvent.class);
         checkDeserialize(HIT + "YOUR" + "25", UnknownCommandClientNetworkEvent.class);
         checkDeserialize(HIT + YOU + "233", UnknownCommandClientNetworkEvent.class);
         checkDeserialize(MISS + "ME" + "46", UnknownCommandClientNetworkEvent.class);

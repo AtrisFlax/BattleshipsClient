@@ -20,5 +20,4 @@ public class DisconnectNetworkEvent implements ServerNetworkEvent {
     public String convertToString() {
         return NetworkCommandConstant.DISCONNECT;
     }
-
 }
