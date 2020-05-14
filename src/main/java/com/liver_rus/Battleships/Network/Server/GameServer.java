@@ -2,6 +2,7 @@ package com.liver_rus.Battleships.Network.Server;
 
 import com.liver_rus.Battleships.Network.MessageSplitter;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.ConnectedNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.CreatorServerNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
@@ -31,21 +32,21 @@ import static java.nio.channels.SelectionKey.OP_ACCEPT;
 public class GameServer extends Thread implements Restartable {
     private static final Logger LOGGER = MyLogger.GetLogger(GameServer.class);
 
-    private static final int WRITE_BUFFER_SIZE = 16384;
-
     private ServerSocketChannel serverChannel;
     private final List<SocketChannel> openedClientChannels;
     private Selector selector;
 
     private final static int MAX_CONNECTIONS = MetaInfo.getMaxConnections();
 
-    private MetaInfo metaInfo;
-    private InetAddress inetAddress;
-    private int port;
+    private final MetaInfo metaInfo;
+    private final InetAddress inetAddress;
+    private final int port;
     private final CreatorServerNetworkEvent eventCreator;
-    private volatile boolean isRunning = true;
 
-    private ByteBuffer buffer = allocate(WRITE_BUFFER_SIZE);;
+    private static final int WRITE_BUFFER_SIZE = 16000;
+    private final ByteBuffer readBuffer = allocate(WRITE_BUFFER_SIZE);
+
+    private volatile boolean isRunning;
 
     public static GameServer create(String ip, int port) throws IOException {
         return new GameServer(ip, port, null);
@@ -69,17 +70,7 @@ public class GameServer extends Thread implements Restartable {
         this.metaInfo = MetaInfo.create(injectGameFields);
         this.openedClientChannels = new ArrayList<>(MAX_CONNECTIONS);
         configureServer();
-        LOGGER.info("GameServer started on ip" + ip + "port" + port);
-    }
-
-    @Override
-    public void restart(String ip, int port) throws IOException {
-        this.inetAddress = InetAddress.getByName(ip);
-        this.port = port;
-        this.metaInfo = MetaInfo.create(null);
-        configureServer();
-        startThread();
-        LOGGER.info("GameServer restarted on ip" + ip + "port" + port);
+        LOGGER.info("GameServer started ip : " + ip + " port : " + port);
     }
 
     public void stopConnection() {
@@ -89,7 +80,7 @@ public class GameServer extends Thread implements Restartable {
 
     public void sendMessage(SocketChannel socketChannel, String message) {
         message = MessageSplitter.AddSplitSymbol(message);
-        System.out.println("Server send= " + message + " to= " + socketChannel);
+        LOGGER.info("Server send=  " + message + " to= " + socketChannel);
         ByteBuffer messageBuffer = ByteBuffer.wrap(message.getBytes());
         try {
             socketChannel.write(messageBuffer);
@@ -97,7 +88,6 @@ public class GameServer extends Thread implements Restartable {
             LOGGER.log(Level.SEVERE, "Server failed to send message", e);
             e.printStackTrace();
         }
-        messageBuffer.rewind();
     }
 
     //return injected GameFields
@@ -111,6 +101,40 @@ public class GameServer extends Thread implements Restartable {
 
     public void setFirstTurn(TurnOrder turnOrder) {
         metaInfo.setInitTurnOrder(turnOrder);
+    }
+
+    /**
+     * Reading SelectionKey results and react on events
+     */
+    @Override
+    public void run() {
+        try {
+            Iterator<SelectionKey> iter;
+            SelectionKey key;
+            while (isRunning && serverChannel.isOpen()) {
+                //TODO delete println
+                selector.select();
+                if (selector.isOpen()) {
+                    iter = selector.selectedKeys().iterator();
+                    while (iter.hasNext()) {
+                        key = iter.next();
+                        iter.remove();
+                        if (!key.isValid()) {
+                            continue;
+                        }
+                        if (key.isValid() && key.isAcceptable()) {
+                            acceptConnection(key);
+                        }
+                        if (key.isValid() && key.isReadable()) {
+                            readMessage(key);
+                        }
+                    }
+                }
+            }
+        } catch (IOException e) {
+            LOGGER.info("Server Error:" + e);
+            close();
+        }
     }
 
     private void close() {
@@ -138,7 +162,7 @@ public class GameServer extends Thread implements Restartable {
         isRunning = false;
     }
 
-    private void sendMessage(SocketChannel socketChannel, ClientNetworkEvent event) {
+    private void sendEvent(SocketChannel socketChannel, ClientNetworkEvent event) {
         sendMessage(socketChannel, event.convertToString());
     }
 
@@ -148,6 +172,8 @@ public class GameServer extends Thread implements Restartable {
         serverChannel.socket().bind(new InetSocketAddress(inetAddress, port));
         selector = SelectorProvider.provider().openSelector();
         serverChannel.register(selector, OP_ACCEPT);
+        selector.wakeup();
+        startThread();
     }
 
     private void acceptConnection(SelectionKey key) throws IOException {
@@ -155,10 +181,11 @@ public class GameServer extends Thread implements Restartable {
         if (metaInfo.getNumAcceptedConnections() < MAX_CONNECTIONS) {
             String port = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
             socketChannel.configureBlocking(false);
-            socketChannel.register(selector, SelectionKey.OP_READ, port);
-            LOGGER.info("Accepted connection from: " + port);
+            LOGGER.info("GameServer Accepted connection from: " + port);
             openedClientChannels.add(socketChannel);
             metaInfo.addPlayer(socketChannel);
+            socketChannel.register(selector, SelectionKey.OP_READ, port);
+            sendEvent(socketChannel, new ConnectedNetworkEvent());
         } else {
             String msg = "Connection rejected. Too many connections. Max connections is " + MAX_CONNECTIONS;
             LOGGER.info(msg);
@@ -167,47 +194,11 @@ public class GameServer extends Thread implements Restartable {
         }
     }
 
-    /**
-     * Reading SelectionKey results and react on events
-     */
-    @Override
-    public void run() {
-        try {
-            Iterator<SelectionKey> keys;
-            SelectionKey key;
-            while (isRunning && serverChannel.isOpen()) {
-                System.out.println("before select");
-                selector.select();
-                System.out.println("after select");
-                if (selector.isOpen()) {
-                    keys = selector.selectedKeys().iterator();
-                    while (keys.hasNext()) {
-                        key = keys.next();
-                        keys.remove();
-                        if (key.isValid() && key.isAcceptable()) {
-                            System.out.println("accept");
-                            acceptConnection(key);
-                        }
-                        if (key.isValid() && key.isReadable()) {
-                            System.out.println("read");
-                            readMessage(key);
-                        }
-                    }
-                }
-                System.out.println("after perform");
-            }
-        } catch (IOException e) {
-            LOGGER.info("Server Error:" + e);
-            close();
-        }
-    }
-
     private void readMessage(SelectionKey key) throws IOException {
         SocketChannel socketChannel = (SocketChannel) key.channel();
         StringBuilder messageBuilder = new StringBuilder();
         readBuffer.clear();
         int read;
-        //not fix size. build message until readBuffer not empty
         while ((read = socketChannel.read(readBuffer)) > 0) {
             readBuffer.flip();
             byte[] bytes = new byte[readBuffer.limit()];
@@ -215,39 +206,37 @@ public class GameServer extends Thread implements Restartable {
             messageBuilder.append(new String(bytes));
             readBuffer.clear();
         }
-        String message = null;
+        String message;
         if (read < 0) {
-            LOGGER.info(key.attachment() + " left the server.");
-            socketChannel.close();
+            LOGGER.fine("socketChannel left " + socketChannel);
+            key.channel().close();
+            key.cancel();
+            return;
         } else {
             message = messageBuilder.toString();
         }
-
-        if (message != null) {
-            for (String singleSplitMessage : MessageSplitter.Split(message)) {
-                proceed(socketChannel, singleSplitMessage);
-            }
+        LOGGER.info("Server read=  " + message);
+        for (String singleSplitMessage : MessageSplitter.Split(message)) {
+            proceed(socketChannel, singleSplitMessage);
         }
     }
 
     private void proceed(SocketChannel socketChannel, String message) {
         metaInfo.setActivePlayer(socketChannel);
         ServerNetworkEvent event = eventCreator.deserializeMessage(message);
-
-        //TODO delete or wrap for debug
-        System.out.println("Server read= " + message);
-        System.out.println("Server event= " + event.getClass().getSimpleName());
-
+        LOGGER.info("Server event= " + event.getClass().getSimpleName());
         Answer answer = event.proceed(metaInfo);
         sendAnswer(answer);
     }
 
     private void sendAnswer(Answer answer) {
         if (answer != null) {
-            for (Pair<Player, ClientNetworkEvent> pair : answer) {
-                SocketChannel channel = pair.getKey().getChannel();
-                ClientNetworkEvent event = pair.getValue();
-                sendMessage(channel, event);
+            if (!answer.isEmpty()) {
+                for (Pair<Player, ClientNetworkEvent> pair : answer) {
+                    SocketChannel channel = pair.getKey().getChannel();
+                    ClientNetworkEvent event = pair.getValue();
+                    sendEvent(channel, event);
+                }
             }
         }
     }

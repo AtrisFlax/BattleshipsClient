@@ -5,7 +5,10 @@ import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.Ship;
+
+import java.util.List;
 
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_TYPE;
 
@@ -36,7 +39,7 @@ public class DrawShipNetworkEvent implements ClientNetworkEvent {
     }
 
     @Override
-    public String proceed(GUIActions action) {
+    public List<ServerNetworkEvent> proceed(GUIActions action) {
         action.draw(new RenderShip(x, y, shipType, isHorizontal, playerType));
         return null;
     }

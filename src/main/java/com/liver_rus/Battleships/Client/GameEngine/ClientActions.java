@@ -9,7 +9,7 @@ public interface ClientActions {
     void disconnect() throws IOException;
 
     //possible replace with builder pattern
-    void startClient(String ip, int port, String myName, boolean isSaveShooting) throws IOException;
+    void startClient(String ip, int port) throws IOException;
 
     void setController(FXMLDocumentMainController controller);
 

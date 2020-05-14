@@ -5,6 +5,9 @@ import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
+
+import java.util.List;
 
 public class DrawHitNetworkEvent implements ClientNetworkEvent {
     private final int x;
@@ -20,7 +23,7 @@ public class DrawHitNetworkEvent implements ClientNetworkEvent {
     }
 
     @Override
-    public String proceed(GUIActions action) {
+    public List<ServerNetworkEvent> proceed(GUIActions action) {
         action.hit(new RenderHit(x, y, playerType));
         return null;
     }

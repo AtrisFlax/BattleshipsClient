@@ -31,6 +31,10 @@ public interface GUIActions {
     void miss(RenderMiss renderHit);
 
     void endMatch(PlayerType playerType);
+
+    boolean isSaveShooting();
+
+    String getMyName();
 }
 
 

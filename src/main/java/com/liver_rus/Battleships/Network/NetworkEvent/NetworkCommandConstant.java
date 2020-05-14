@@ -21,6 +21,7 @@ public class NetworkCommandConstant {
     public final static String DEPLOY = "CAN_DEPLOY";
     public final static String CANNOT_DEPLOY = "CANNOT_DEPLOY";
     public final static String CAN_SHOOT = "CAN_SHOOT";
+    public final static String CONNECTED = "CONNECTED";
     public final static String DRAW_SHIP = "DRAW_SHIP";
     public final static String HIT = "HIT";
     public final static String DRAW_SHIP_LEFT = "DRAW_SHIP_LEFT";

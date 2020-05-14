@@ -13,6 +13,7 @@ import com.liver_rus.Battleships.Network.Server.GameServer;
 import com.liver_rus.Battleships.utils.MyLogger;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.logging.Logger;
 
 public class ClientGameEngine implements ClientActions {
@@ -29,25 +30,15 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void startClient(String ip, int port, String myName, boolean isSaveShooting) throws IOException {
-        if (netClient == null) {
-            netClient = NetworkClient.create(ip, port);
-            netClient.subscribeForInbox(this::proceedMessage);
-        } else {
-            netClient.restart(ip, port);
-            netClient.subscribeForInbox(this::proceedMessage);
-        }
-        initServerEvents(myName, isSaveShooting);
+    public void startClient(String ip, int port) {
+        netClient = NetworkClient.create(ip, port);
+        netClient.subscribeForInbox(this::proceedMessage);
     }
 
     @Override
     public void startServer(String ip, int port) throws IOException {
-        if (gameServer == null) {
-            gameServer = GameServer.create(ip, port);
-            gameServer.start();
-        } else {
-            gameServer.restart(ip, port);
-        }
+        gameServer = GameServer.create(ip, port);
+        gameServer.start();
     }
 
     @Override
@@ -84,27 +75,25 @@ public class ClientGameEngine implements ClientActions {
         sendEvent(new TryRematchStateNetworkEvent(wantRematch));
     }
 
-    private void initServerEvents(String myName, boolean isSaveShooting) {
-        sendEvent(new SetSaveShootingNetworkEvent(isSaveShooting));
-        sendEvent(new MyNameNetworkEvent(myName));
-    }
-
     private void sendEvent(ServerNetworkEvent event) {
         netClient.sendMessage(event.convertToString());
     }
 
     private void proceedMessage(String message) {
         ClientNetworkEvent event = eventCreator.deserializeMessage(message);
-
-        //TODO delete or wrap for debug
-        System.out.println("Client event= " + event.getClass().getSimpleName());
-
-        String answer = event.proceed(controller);
-        if (answer != null) {
-            netClient.sendMessage(answer);
-        }
+        LOGGER.info("Client event= " + event.getClass().getSimpleName());
+        List<ServerNetworkEvent> answer = event.proceed(controller);
+        sendAnswer(answer);
         if (event instanceof DoDisconnectNetworkEvent) {
             stopNetwork();
+        }
+    }
+
+    private void sendAnswer(List<ServerNetworkEvent> answer) {
+        if (answer != null) {
+            for (ServerNetworkEvent answerStr : answer) {
+                netClient.sendMessage(answerStr.convertToString());
+            }
         }
     }
 

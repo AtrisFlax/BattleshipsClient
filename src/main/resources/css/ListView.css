@@ -1,5 +1,4 @@
 .list-view {
-    -fx-focus-color:  transparent;
-    -fx-faint-focus-color: #5c5c5c;
-    -fx-selection-bar: grey;
+    -fx-faint-focus-color: transparent;
+     -fx-focus-color:rgba(0,0,0,0.2);
 }

@@ -175,6 +175,10 @@ public class MetaInfo {
         }
     }
 
+    public List<Player> getPlayers() {
+        return players;
+    }
+
     /**
      * @param gameFields injected game fields. Max size 2
      */
@@ -207,5 +211,7 @@ public class MetaInfo {
             return players.get(FIRST_CONNECTED_PLAYER_ID);
         }
     }
+
+
 
 }

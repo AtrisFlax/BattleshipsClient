@@ -24,4 +24,8 @@ public class Answer implements Iterable<Pair<Player, ClientNetworkEvent>> {
     public Iterator<Pair<Player, ClientNetworkEvent>> iterator() {
         return answer.iterator();
     }
+
+    public boolean isEmpty() {
+        return answer.isEmpty();
+    }
 }

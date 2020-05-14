@@ -5,6 +5,7 @@ import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import java.nio.channels.SocketChannel;
 
 public class Player {
+    //TODO possible replace channel witch selection key?
     private SocketChannel channel;
     private final GameField gameField;
     private boolean readyForDeployment;

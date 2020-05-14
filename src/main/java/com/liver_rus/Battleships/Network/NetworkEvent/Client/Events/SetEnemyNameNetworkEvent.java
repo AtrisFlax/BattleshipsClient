@@ -3,6 +3,9 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
+
+import java.util.List;
 
 //client do nothing
 public class SetEnemyNameNetworkEvent implements ClientNetworkEvent {
@@ -14,7 +17,7 @@ public class SetEnemyNameNetworkEvent implements ClientNetworkEvent {
     }
 
     @Override
-    public String proceed(GUIActions action) {
+    public List<ServerNetworkEvent> proceed(GUIActions action) {
         action.setEnemyName(enemy_name);
         return null;
     }

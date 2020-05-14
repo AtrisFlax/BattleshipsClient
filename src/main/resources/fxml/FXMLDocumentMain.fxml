@@ -8,127 +8,99 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <?import java.util.ArrayList?>
-<StackPane fx:id="topLevelStackPane" maxHeight="965.0" maxWidth="700.0" minHeight="965.0" minWidth="700.0"
-           onKeyReleased="#handlerKeyReleased" prefHeight="965.0" prefWidth="700.0"
-           xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController">
+<StackPane fx:id="topLevelStackPane" maxHeight="965.0" maxWidth="700.0" minHeight="965.0" minWidth="700.0" onKeyReleased="#handlerKeyReleased" prefHeight="965.0" prefWidth="700.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController">
     <children>
-        <ImageView fx:id="imgView" fitHeight="950.0" fitWidth="700.0" pickOnBounds="true" preserveRatio="true"
-                   smooth="false" StackPane.alignment="TOP_CENTER">
+        <ImageView fx:id="imgView" fitHeight="950.0" fitWidth="700.0" pickOnBounds="true" preserveRatio="true" smooth="false" StackPane.alignment="TOP_CENTER">
             <StackPane.margin>
-                <Insets top="25.0"/>
+                <Insets top="25.0" />
             </StackPane.margin>
             <image>
-                <Image url="@../img/Battleships_Paper_Game.jpg"/>
+                <Image url="@../img/Battleships_Paper_Game.jpg" />
             </image>
         </ImageView>
         <MenuBar fx:id="menuBarItem" StackPane.alignment="TOP_RIGHT">
             <menus>
                 <Menu fx:id="GameMenu" mnemonicParsing="false" text="Game">
                     <items>
-                        <MenuItem fx:id="menuItemConnect" mnemonicParsing="false" onAction="#handlerMenuItemConnectGame"
-                                  text="Connect"/>
-                        <MenuItem fx:id="menuItemDisconnect" disable="true" mnemonicParsing="false"
-                                  onAction="#handlerDisconnectMenuItem" text="Disconnect"/>
-                        <MenuItem fx:id="menuItemExit" mnemonicParsing="false" onAction="#handlerMenuItemExit"
-                                  text="Exit"/>
+                        <MenuItem fx:id="menuItemConnect" mnemonicParsing="false" onAction="#handlerMenuItemConnectGame" text="Connect" />
+                        <MenuItem fx:id="menuItemDisconnect" disable="true" mnemonicParsing="false" onAction="#handlerDisconnectMenuItem" text="Disconnect" />
+                        <MenuItem fx:id="menuItemExit" mnemonicParsing="false" onAction="#handlerMenuItemExit" text="Exit" />
                     </items>
                 </Menu>
                 <Menu fx:id="OptionsMenu" mnemonicParsing="false" text="Options">
                     <items>
-                        <MenuItem fx:id="menuItemSaveShooting" mnemonicParsing="false"
-                                  onAction="#handlerMenuItemSaveShooting" text="Save shooting : ✓"/>
+                        <MenuItem fx:id="menuItemSaveShooting" mnemonicParsing="false" onAction="#handlerMenuItemSaveShooting" text="Save shooting : ✓" />
                     </items>
                 </Menu>
                 <Menu fx:id="helpMenu" mnemonicParsing="false" text="Help">
                     <items>
-                        <MenuItem fx:id="menuItemAbout" mnemonicParsing="false" onAction="#handlerMenuItemAbout"
-                                  text="About Battleships"/>
+                        <MenuItem fx:id="menuItemAbout" mnemonicParsing="false" onAction="#handlerMenuItemAbout" text="About Battleships" />
                     </items>
                 </Menu>
             </menus>
         </MenuBar>
-        <Label fx:id="labelGameStatus" prefHeight="17.0" prefWidth="195.0" text="Game status: "
-               StackPane.alignment="TOP_LEFT">
+        <Label fx:id="labelGameStatus" prefHeight="17.0" prefWidth="175.0" text="Game status: " StackPane.alignment="TOP_LEFT">
             <StackPane.margin>
-                <Insets left="478.0" top="150.0"/>
+                <Insets left="478.0" top="160.0" />
             </StackPane.margin>
         </Label>
-        <Label fx:id="playerMeLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-               prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
+        <Label fx:id="playerMeLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
             <StackPane.margin>
-                <Insets right="170.0" top="47.0"/>
+                <Insets right="170.0" top="47.0" />
             </StackPane.margin>
             <font>
-                <Font name="Tahoma" size="12.0"/>
+                <Font name="Tahoma" size="12.0" />
             </font>
         </Label>
-        <Label fx:id="playerEnemyLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity"
-               prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
+        <Label fx:id="playerEnemyLabel" contentDisplay="CENTER" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="17.0" prefWidth="147.0" StackPane.alignment="TOP_RIGHT">
             <font>
-                <Font name="Tahoma" size="12.0"/>
+                <Font name="Tahoma" size="12.0" />
             </font>
             <StackPane.margin>
-                <Insets right="170.0" top="75.0"/>
+                <Insets right="170.0" top="75.0" />
             </StackPane.margin>
         </Label>
         <Canvas fx:id="canvasGeneral" height="950.0" width="700.0">
             <StackPane.margin>
-                <Insets top="25.0"/>
+                <Insets top="25.0" />
             </StackPane.margin>
         </Canvas>
-        <Canvas fx:id="canvasOverlay" height="950.0" onMouseClicked="#handlerToCanvasMouseClick"
-                onMouseMoved="#handlerOverlayCanvasMouseMoved" width="700.0">
+        <Canvas fx:id="canvasOverlay" height="950.0" onMouseClicked="#handlerToCanvasMouseClick" onMouseMoved="#handlerOverlayCanvasMouseMoved" width="700.0">
             <StackPane.margin>
-                <Insets top="25.0"/>
+                <Insets top="25.0" />
             </StackPane.margin>
         </Canvas>
-        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0"
-              prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER">
+        <VBox maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="64.0" prefWidth="116.0" stylesheets="@../css/TransparentButtonStyle.css" StackPane.alignment="CENTER">
             <children>
-                <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity"
-                        minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false"
-                        onAction="#handlerButtonShipType4" prefHeight="13.0" prefWidth="115.0"
-                        stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType4Button" focusTraversable="false" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType4" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <VBox.margin>
-                        <Insets/>
+                        <Insets />
                     </VBox.margin>
                     <padding>
-                        <Insets right="85.0"/>
+                        <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType3Button" focusTraversable="false" layoutX="10.0" layoutY="10.0"
-                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                        mnemonicParsing="false" onAction="#handlerButtonShipType3" prefHeight="13.0" prefWidth="115.0"
-                        stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType3Button" focusTraversable="false" layoutX="10.0" layoutY="10.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType3" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
-                        <Insets right="85.0"/>
+                        <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType2Button" focusTraversable="false" layoutX="10.0" layoutY="23.0"
-                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                        mnemonicParsing="false" onAction="#handlerButtonShipType2" prefHeight="13.0" prefWidth="115.0"
-                        stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType2Button" focusTraversable="false" layoutX="10.0" layoutY="23.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType2" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
-                        <Insets right="85.0"/>
+                        <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType1Button" focusTraversable="false" layoutX="10.0" layoutY="36.0"
-                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                        mnemonicParsing="false" onAction="#handlerButtonShipType1" prefHeight="13.0" prefWidth="115.0"
-                        stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType1Button" focusTraversable="false" layoutX="10.0" layoutY="36.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType1" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
-                        <Insets right="85.0"/>
+                        <Insets right="85.0" />
                     </padding>
                 </Button>
-                <Button fx:id="shipType0Button" focusTraversable="false" layoutX="10.0" layoutY="49.0"
-                        maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
-                        mnemonicParsing="false" onAction="#handlerButtonShipType0" prefHeight="13.0" prefWidth="115.0"
-                        stylesheets="@../css/TransparentButtonStyle.css">
+                <Button fx:id="shipType0Button" focusTraversable="false" layoutX="10.0" layoutY="49.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" mnemonicParsing="false" onAction="#handlerButtonShipType0" prefHeight="13.0" prefWidth="115.0" stylesheets="@../css/TransparentButtonStyle.css">
                     <padding>
-                        <Insets right="85.0"/>
+                        <Insets right="85.0" />
                     </padding>
                 </Button>
+
 
 
                 <fx:define>
@@ -143,29 +115,22 @@
 
             </children>
             <StackPane.margin>
-                <Insets left="192.0" top="850.0"/>
+                <Insets left="192.0" top="850.0" />
             </StackPane.margin>
         </VBox>
-        <Button fx:id="leftButton" alignment="TOP_CENTER" focusTraversable="false" layoutX="578.0" layoutY="127.0"
-                mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handlerLeftButton" prefHeight="25.0"
-                prefWidth="80.0" text="Yes" textAlignment="CENTER" visible="false" StackPane.alignment="TOP_RIGHT">
-            <StackPane.margin>
-                <Insets right="143.0" top="117.0"/>
-            </StackPane.margin>
+        <Button fx:id="leftButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="RIGHT_TO_LEFT" onAction="#handlerLeftButton" prefHeight="25.0" prefWidth="80.0" text="Yes" textAlignment="CENTER" visible="false" StackPane.alignment="TOP_RIGHT">
+         <StackPane.margin>
+            <Insets right="142.0" top="133.0" />
+         </StackPane.margin>
         </Button>
-        <Button fx:id="rightButton" alignment="TOP_CENTER" focusTraversable="false" mnemonicParsing="false"
-                nodeOrientation="RIGHT_TO_LEFT" onAction="#handlerRightButton" prefHeight="25.0" prefWidth="80.0"
-                text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
-            <StackPane.margin>
-                <Insets right="46.0" top="117.0"/>
-            </StackPane.margin>
+        <Button fx:id="rightButton" alignment="CENTER" focusTraversable="false" mnemonicParsing="false" nodeOrientation="LEFT_TO_RIGHT" onAction="#handlerRightButton" prefHeight="25.0" prefWidth="80.0" text="Reset Fleet" textAlignment="CENTER" StackPane.alignment="TOP_RIGHT">
+         <StackPane.margin>
+            <Insets right="47.0" top="133.0" />
+         </StackPane.margin>
         </Button>
-        <ListView fx:id="statusListView" cache="true" editable="true" maxHeight="-Infinity" maxWidth="-Infinity"
-                  minHeight="-Infinity" minWidth="-Infinity" onScrollFinished="#listViewScrollHandler"
-                  prefHeight="122.0" prefWidth="175.0" styleClass="listView" stylesheets="@../css/ListView.css"
-                  StackPane.alignment="TOP_RIGHT">
+        <ListView fx:id="statusListView" cache="true" editable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onScrollFinished="#listViewScrollHandler" prefHeight="118.0" prefWidth="175.0" styleClass="listView" stylesheets="@../css/ListView.css" StackPane.alignment="TOP_RIGHT">
             <StackPane.margin>
-                <Insets bottom="170.0" left="170.0" right="47.0" top="170.0"/>
+                <Insets bottom="170.0" left="170.0" right="47.0" top="180.0" />
             </StackPane.margin>
         </ListView>
     </children>

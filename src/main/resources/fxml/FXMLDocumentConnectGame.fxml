@@ -25,9 +25,9 @@
                <children>
                   <Label text="IP" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                   <Label text="Port" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <TextField fx:id="ipTextField" text="127.0.0.1" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                  <TextField fx:id="portTextField" text="48999" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                  <Button fx:id="buttonConnect" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleButtonConnect" text="Connect" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="5">
+                  <TextField fx:id="ipTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="127.0.0.1" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+                  <TextField fx:id="portTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="48999" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+                  <Button fx:id="buttonConnect" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleButtonConnect" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Connect" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="5">
                      <GridPane.margin>
                         <Insets left="20.0" top="18.0" />
                      </GridPane.margin></Button>
@@ -35,10 +35,10 @@
                      <GridPane.margin>
                         <Insets left="19.0" />
                      </GridPane.margin></Label>
-                  <TextField fx:id="nameTextField" text="Player 1" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                  <TextField fx:id="nameTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Player 1" GridPane.columnIndex="2" GridPane.rowIndex="3" />
                   <Label text="Name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                   <Label text="Create Server" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <CheckBox fx:id="checkBox" mnemonicParsing="false" selected="true" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                  <CheckBox fx:id="checkBox" mnemonicParsing="false" selected="true" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" GridPane.columnIndex="2" GridPane.rowIndex="4" />
                </children>
             </GridPane>
          </children>

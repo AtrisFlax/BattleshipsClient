@@ -15,6 +15,7 @@ import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_
 public class CreatorClientNetworkEvent {
     private final Pattern eventCannotDeployPattern;
     private final Pattern eventCanShootPattern;
+    private final Pattern eventConnectedPattern;
     private final Pattern eventCommandNotAcceptedPattern;
     private final Pattern eventDeployPattern;
     private final Pattern eventDoDisconnectPattern;
@@ -38,6 +39,7 @@ public class CreatorClientNetworkEvent {
         String state = "(" + ON + "|" + OFF + ")";
         eventCannotDeployPattern = Pattern.compile("^" + CANNOT_DEPLOY + xyto + "$");
         eventCanShootPattern = Pattern.compile("^" + CAN_SHOOT + "$");
+        eventConnectedPattern = Pattern.compile("^" + CONNECTED + "$");
         eventCommandNotAcceptedPattern = Pattern.compile("^" + COMMAND_NOT_ACCEPTED + "(.*)");
         eventDeployPattern = Pattern.compile("^" + DEPLOY + shipsLeftByType + "$");
         eventDoDisconnectPattern = Pattern.compile("^" + DO_DISCONNECT + "$");
@@ -65,6 +67,10 @@ public class CreatorClientNetworkEvent {
         matcher = eventCanShootPattern.matcher(msg);
         if (matcher.find()) {
             return new CanShootNetworkEvent();
+        }
+        matcher = eventConnectedPattern.matcher(msg);
+        if (matcher.find()) {
+            return new ConnectedNetworkEvent();
         }
         matcher = eventCommandNotAcceptedPattern.matcher(msg);
         if (matcher.find()) {

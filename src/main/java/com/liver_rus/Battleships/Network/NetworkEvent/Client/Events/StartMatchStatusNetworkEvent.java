@@ -3,6 +3,9 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
+
+import java.util.List;
 
 import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.OFF;
 import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.ON;
@@ -16,7 +19,7 @@ public class StartMatchStatusNetworkEvent implements ClientNetworkEvent {
     }
 
     @Override
-    public String proceed(GUIActions action) {
+    public List<ServerNetworkEvent> proceed(GUIActions action) {
         if (state) {
             action.startRematch();
         } else {

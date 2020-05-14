@@ -93,7 +93,10 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     private boolean isShipSelected;
     private boolean isDeploying;
     private boolean isShooting;
+
     private boolean isSaveShooting;
+    private String myName;
+
     private int[] shipLeftByTypeInit;
     private boolean askRematch;
 
@@ -276,7 +279,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             rightButton.setText("Reset");
             leftButton.setVisible(false);
             clientGameEngine.rematch(false);
-        } else { //while deploy
+        } else { //while deploying
             reset();
         }
     }
@@ -293,6 +296,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @FXML
     public void handlerOverlayCanvasMouseMoved(MouseEvent event) {
+        //TODO delete
+//        System.out.println("scene x=" + event.getSceneX() + ", y=" + event.getSceneY());
         if (isDeploying) {
             if (SceneCoord.isFromFirstPlayerField(event)) {
                 if (isShipSelected) {
@@ -302,13 +307,19 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                     }
                 }
                 return;
+            } else {
+                Draw.clearCanvas(overlayCanvas);
             }
         }
         if (isShooting) {
             if (SceneCoord.isFromSecondPlayerField(event)) {
                 int x = SceneCoord.transformToFieldX(event.getSceneX(), SecondPlayerGUIConstants.getGUIConstant());
                 int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
+                //TODO delete
+//                System.out.println("trans x=" + x + ", y=" + y);
                 drawOverlay(new RenderRedrawHitEnemy(x, y));
+            } else {
+                Draw.clearCanvas(overlayCanvas);
             }
         }
     }
@@ -331,8 +342,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                 if (dialog.isStartClient()) {
                     String ip = dialog.getHost();
                     int port = dialog.getPort();
-                    String myName = dialog.getMyName();
-                    setMyName(myName);
+                    myName = dialog.getMyName();
+                    setLabelMyName(myName);
                     if (dialog.isStartServer()) {
                         try {
                             clientGameEngine.startServer(ip, port);
@@ -341,12 +352,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                             createAlert("Server doesn't created");
                         }
                     }
-                    try {
-                        clientGameEngine.startClient(ip, port, dialog.getMyName(), isSaveShooting);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        createAlert("Client doesn't created");
-                    }
+                    clientGameEngine.startClient(ip, port);
                     menuItemSaveShooting.setDisable(true);
                     menuItemConnect.setDisable(true);
                     menuItemDisconnect.setDisable(false);
@@ -449,6 +455,14 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                 isDeploying = false;
             }
         });
+    }
+
+    public boolean isSaveShooting() {
+        return isSaveShooting;
+    }
+
+    public String getMyName() {
+        return myName;
     }
 
     private String getFromWho(PlayerType playerType) {
@@ -561,7 +575,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         });
     }
 
-    private void setMyName(String name) {
+    private void setLabelMyName(String name) {
         playerMeLabel.setText(name);
     }
 
