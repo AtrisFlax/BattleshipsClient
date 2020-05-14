@@ -261,7 +261,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     @FXML
     public void handlerLeftButton() {
         if (askRematch) {
-            //TODO make leftButton invisible
             askRematch = false;
             leftButton.setVisible(false);
             clientGameEngine.rematch(true);
@@ -296,8 +295,8 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @FXML
     public void handlerOverlayCanvasMouseMoved(MouseEvent event) {
-        //TODO delete
-//        System.out.println("scene x=" + event.getSceneX() + ", y=" + event.getSceneY());
+//        TODO delete
+        System.out.println("scene x=" + event.getSceneX() + ", y=" + event.getSceneY());
         if (isDeploying) {
             if (SceneCoord.isFromFirstPlayerField(event)) {
                 if (isShipSelected) {
@@ -316,7 +315,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                 int x = SceneCoord.transformToFieldX(event.getSceneX(), SecondPlayerGUIConstants.getGUIConstant());
                 int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
                 //TODO delete
-//                System.out.println("trans x=" + x + ", y=" + y);
+                System.out.println("trans x=" + x + ", y=" + y);
                 drawOverlay(new RenderRedrawHitEnemy(x, y));
             } else {
                 Draw.clearCanvas(overlayCanvas);

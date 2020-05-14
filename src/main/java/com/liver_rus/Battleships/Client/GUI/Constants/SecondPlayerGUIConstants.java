@@ -2,9 +2,9 @@ package com.liver_rus.Battleships.Client.GUI.Constants;
 
 public class SecondPlayerGUIConstants implements GUIConstants {
     private final static int LEFT_X = 304;
-    private final static int RIGHT_X = 652;
-    private final static int TOP_Y = 370;
-    private final static int BOTTOM_Y = 718;
+    private final static int RIGHT_X = 655;
+    private final static int TOP_Y = 387;
+    private final static int BOTTOM_Y = 737;
     private final static double WIDTH_CELL = 35.0;
 
     private static SecondPlayerGUIConstants instance;

@@ -10,7 +10,7 @@ import javafx.util.Duration;
 
 public class Draw {
     private final static double CELL_LINE_WIDTH = 2;
-    private final static double SHIP_LINE_WIDTH = 2.2;
+    private final static double SHIP_LINE_WIDTH = 2;
     private final static double DESTROY_LIST_WIDTH = 4;
 
     private final static Color MISS_CELL_COLOR = Color.BLACK;
@@ -29,12 +29,16 @@ public class Draw {
         double width = constants.getWidthCell();
         graphicContext.setStroke(MISS_CELL_COLOR);
         graphicContext.setLineWidth(CELL_LINE_WIDTH);
+        int shiftX = getShift(x);
+        int shiftY = getShift(y);
         graphicContext.strokeLine(
-                x * width + constants.getLeftX(),
-                y * width + constants.getTopY() + width,
-                x * width + constants.getLeftX() + width,
-                y * width + constants.getTopY());
+                x * width + constants.getLeftX() + shiftX,
+                y * width + constants.getTopY() + width / 2.0 + shiftY,
+                x * width + constants.getLeftX() + width + shiftX,
+                y * width + constants.getTopY() - width / 2.0 + shiftY
+        );
     }
+
 
     //see picture Battleships_Paper_Game.jpg
     //0 1 2   - first col of ships
@@ -66,17 +70,19 @@ public class Draw {
         double width = constants.getWidthCell();
         gc.setStroke(HIT_CELL_COLOR);
         gc.setLineWidth(CELL_LINE_WIDTH);
+        int shiftX = getShift(x);
+        int shiftY = getShift(y);
         gc.strokeLine(
-                x * width + constants.getLeftX(),
-                y * width + constants.getTopY(),
-                x * width + constants.getLeftX() + width,
-                y * width + constants.getTopY() + width
+                x * width + constants.getLeftX() + shiftX,
+                y * width + constants.getTopY() + shiftY - width / 2.0,
+                x * width + constants.getLeftX() + width + shiftX,
+                y * width + constants.getTopY() + shiftY + width / 2.0
         );
         gc.strokeLine(
-                x * width + constants.getLeftX(),
-                y * width + constants.getTopY() + width,
-                x * width + constants.getLeftX() + width,
-                y * width + constants.getTopY()
+                x * width + constants.getLeftX() + shiftX,
+                y * width + constants.getTopY() + shiftY + width /2.0,
+                x * width + constants.getLeftX() + width + shiftX,
+                y * width + constants.getTopY() + shiftY - width / 2.0
         );
     }
 
@@ -103,25 +109,36 @@ public class Draw {
         gc.setLineWidth(SHIP_LINE_WIDTH);
         gc.setLineDashes(0);
         int shipLength = convertTypeToShipLength(shipType);
+        double width = constant.getWidthCell();
         if (isHorizontal) {
             gc.strokeRect(
-                    constant.getLeftX() + x * constant.getWidthCell(),
-                    constant.getTopY() + y * constant.getWidthCell(),
-                    constant.getWidthCell() * shipLength,
-                    constant.getWidthCell()
+                    constant.getLeftX() + x * width ,
+                    constant.getTopY() + y * width - width / 2.0,
+                    width * shipLength,
+                    width
             );
         } else {
             gc.strokeRect(
-                    constant.getLeftX() + x * constant.getWidthCell(),
-                    constant.getTopY() + y * constant.getWidthCell(),
-                    constant.getWidthCell(),
-                    constant.getWidthCell() * shipLength
+                    constant.getLeftX() + x * width,
+                    constant.getTopY() + y * width - width / 2.0,
+                    width,
+                    width * shipLength
             );
         }
     }
 
     private static int convertTypeToShipLength(int type) {
         return type + 1;
+    }
+
+
+    //visual correct for current img size
+    private static int getShift(int i) {
+        if (i >= 5) {
+            return -1;
+        } else {
+            return 0;
+        }
     }
 }
 
