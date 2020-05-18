@@ -20,17 +20,17 @@ public class MetaInfo {
     private Player activePlayer; //msg from this one
     private Player turnHolderPlayer; //wait action from this one
 
-    private final GamePreferences gamePreferences;
+    private GamePreferences gamePreferences;
 
-    public static MetaInfo create(GameField[] injectedGameFields, GamePreferences preferences) {
+    public static MetaInfo create(GameField[] injectedGameFields) {
         if (injectedGameFields == null) {
             GameField[] fields = new GameField[MAX_CONNECTIONS];
             for (int i = 0; i < fields.length; i++) {
                 fields[i] = new GameField();
             }
-            return new MetaInfo(fields, preferences);
+            return new MetaInfo(fields);
         } else {
-            return new MetaInfo(injectedGameFields, preferences);
+            return new MetaInfo(injectedGameFields);
         }
     }
 
@@ -120,7 +120,7 @@ public class MetaInfo {
         return true;
     }
 
-    public boolean isPlayersReadyForGame() {
+    public boolean isPlayersInGame() {
         for (Player player : players) {
             if (!player.isReadyForGame()) {
                 return false;
@@ -185,14 +185,14 @@ public class MetaInfo {
     /**
      * @param gameFields injected game fields. Max size 2
      */
-    private MetaInfo(GameField[] gameFields, GamePreferences preferences) {
+    private MetaInfo(GameField[] gameFields) {
         if (gameFields.length != MAX_CONNECTIONS) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
         this.injectedGameFields = gameFields;
         this.numAcceptedConnections = 0;
         this.initTurnOrder = TurnOrder.RANDOM_TURN;
         this.players = new ArrayList<>(MAX_CONNECTIONS);
         this.activePlayer = null;
-        this.gamePreferences = preferences;
+        this.gamePreferences = new GamePreferences();
     }
 
     private Player getFirstConnectedPlayerChannel() {
@@ -213,6 +213,13 @@ public class MetaInfo {
             return players.get(SECOND_CONNECTED_PLAYER_ID);
         } else {
             return players.get(FIRST_CONNECTED_PLAYER_ID);
+        }
+    }
+
+    public void setPreferences(GamePreferences gamePreferences) {
+        this.gamePreferences = gamePreferences;
+        for (GameField injectedGameField : injectedGameFields) {
+            injectedGameField.setAdjacentShips(gamePreferences.isAdjacentShips());
         }
     }
 }

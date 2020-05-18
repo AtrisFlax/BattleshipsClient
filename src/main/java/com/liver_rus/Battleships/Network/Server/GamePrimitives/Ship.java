@@ -19,11 +19,7 @@ public class Ship {
     private List<FieldCoord> nearShipCoord;
 
     public static Ship create(int x, int y, int type, boolean isHorizontal, GameField field) {
-        if (checkField(x, y, type, isHorizontal, field)) {
-            return new Ship(x, y, type, isHorizontal, field);
-        } else {
-            return null;
-        }
+        return new Ship(x, y, type, isHorizontal, field);
     }
 
     //shipInfo format - XYZO
@@ -152,10 +148,6 @@ public class Ship {
         this.alive = true;
     }
 
-    private static boolean checkField(int x, int y, int shipType, boolean isHorizontal, GameField field) {
-        return field.isNotIntersectionShipWithBorder(x, y, shipType, isHorizontal) &&
-                field.isNotIntersectionWithShips(x, y, shipType, isHorizontal);
-    }
 
     private static char orientationToChar(boolean isHorizontal) {
         if (isHorizontal) {

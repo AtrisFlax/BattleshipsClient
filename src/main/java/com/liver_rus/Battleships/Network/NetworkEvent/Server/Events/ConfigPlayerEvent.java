@@ -29,7 +29,7 @@ public class ConfigPlayerEvent implements ServerNetworkEvent {
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();
         Player activePlayer = metaInfo.getActivePlayer();
-        if (!metaInfo.isPlayersReadyForGame()) {
+        if (!metaInfo.isPlayersInGame()) {
             activePlayer.setName(name);
             activePlayer.setSaveShooting(saveShooting);
             activePlayer.setReadyForDeployment(true);

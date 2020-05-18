@@ -5,6 +5,7 @@ import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Answer;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
+import com.liver_rus.Battleships.Network.Server.GamePreferences;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.TryingAddTooManyShipsOnFieldException;
 import com.liver_rus.Battleships.Network.Server.MetaInfo;
@@ -35,6 +36,7 @@ public class TryDeployShipNetworkEvent implements ServerNetworkEvent {
             GameField activePlayerField = activePlayer.getGameField();
             boolean shipCreated = false;
             try {
+                final GamePreferences gamePreferences = metaInfo.getGamePreferences();
                 shipCreated = activePlayerField.addShip(x, y, type, isHorizontal);
             } catch (TryingAddTooManyShipsOnFieldException e) {
                 e.printStackTrace();
@@ -47,7 +49,7 @@ public class TryDeployShipNetworkEvent implements ServerNetworkEvent {
             if (activePlayerField.isAllShipsDeployed()) {
                 activePlayer.setReadyForGame(true);
                 activePlayer.setReadyForDeployment(false);
-                if (metaInfo.isPlayersReadyForGame()) {
+                if (metaInfo.isPlayersInGame()) {
                     metaInfo.setTurnHolder();
                     answer.add(metaInfo.getTurnHolderPlayer(), new CanShootNetworkEvent());
                     answer.add(metaInfo.getNotTurnHolderPlayer(),

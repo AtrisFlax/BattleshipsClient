@@ -4,6 +4,7 @@ public class NetworkCommandConstant {
     //client commands to server
     public final static String IS_POSSIBLE_DEPLOY_SHIP = "IS_POSSIBLE_DEPLOY_SHIP";
     public final static String CONFIG_PLAYER = "CONFIG_PLAYER";
+    public final static String CONFIG_GAME = "CONFIG_GAME";
     public final static String NAME = "NAME";
     public final static String TRY_DEPLOY_SHIP = "TRY_DEPLOY_SHIP";
     public final static String SHOT = "SHOT";

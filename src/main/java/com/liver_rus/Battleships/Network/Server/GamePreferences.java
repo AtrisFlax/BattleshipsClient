@@ -4,6 +4,11 @@ public class GamePreferences {
     private boolean adjacentShips;
     private boolean salvoMode;
 
+    public GamePreferences() {
+        this.adjacentShips = false;
+        this.salvoMode = false;
+    }
+
     public GamePreferences(boolean adjacentShips, boolean salvoMode) {
         this.adjacentShips = adjacentShips;
         this.salvoMode = salvoMode;

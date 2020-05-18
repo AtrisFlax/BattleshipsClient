@@ -1,6 +1,7 @@
 package com.liver_rus.Battleships.Network.Server.GamePrimitives;
 
 import com.liver_rus.Battleships.Network.Server.FieldCell;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -16,7 +17,10 @@ public class GameField {
     private FieldCoord[][] field;
     private Fleet fleet;
 
+    private boolean isAdjacentShips;
+
     public GameField() {
+        isAdjacentShips = false;
         createGameField();
     }
 
@@ -29,15 +33,17 @@ public class GameField {
         this.field = createField();
     }
 
-    //return true if ship had been created; false if not
+    /**
+     *
+     * @param x horizontal coord
+     * @param y vertical coord
+     * @param type ship type
+     * @param isHorizontal ship orientation
+     * @return was the ship created
+     * @throws TryingAddTooManyShipsOnFieldException will be thrown if no more slots for ships
+     */
     public boolean addShip(int x, int y, int type, boolean isHorizontal) throws TryingAddTooManyShipsOnFieldException {
-        Ship ship;
-        if (fleet.getShipsLeftForDeploy() > 0) {
-            ship = Ship.create(x, y, type, isHorizontal, this);
-        } else {
-            throw new TryingAddTooManyShipsOnFieldException();
-        }
-
+        Ship ship = createShip(x, y, type, isHorizontal);
         if (ship == null) {
             return false;
         } else {
@@ -148,23 +154,21 @@ public class GameField {
 
     public boolean isNotIntersectionWithShips(int x, int y, int shipType, boolean isHorizontal) {
         if (isHorizontal) {
-            for (int i = x; i < x + shipType + 1; i++) {
-                if (field[i][y].getType() == FieldCell.SHIP || field[i][y].getType() == FieldCell.NEAR_WITH_SHIP) {
-                    return false;
-
-                }
-            }
+            return xTraversal(x, y, shipType, FieldCell.SHIP);
         } else {
-            for (int i = y; i < y + shipType + 1; i++) {
-                if (field[x][i].getType() == FieldCell.SHIP || field[x][i].getType() == FieldCell.NEAR_WITH_SHIP) {
-                    return false;
-                }
-            }
+            return yTraversal(x, y, shipType, FieldCell.SHIP);
         }
-        return true;
     }
 
-    public boolean isNotIntersectionShipWithBorder(int x, int y, int shipType, boolean isHorizontal) {
+    public boolean isNotIntersectionWithNearShip(int x, int y, int shipType, boolean isHorizontal) {
+        if (isHorizontal) {
+            return xTraversal(x, y, shipType, FieldCell.NEAR_WITH_SHIP);
+        } else {
+            return yTraversal(x, y, shipType, FieldCell.NEAR_WITH_SHIP);
+        }
+    }
+
+    public static boolean isNotIntersectionShipWithBorder(int x, int y, int shipType, boolean isHorizontal) {
         if (x < 0 || x >= FIELD_SIZE) return false;
         if (y < 0 || y >= FIELD_SIZE) return false;
         if (isHorizontal) {
@@ -270,5 +274,53 @@ public class GameField {
         if (x >= 0 && x < FIELD_SIZE && y >= 0 && y < FIELD_SIZE) {
             result.add(field[x][y]);
         }
+    }
+
+    private boolean checkField(int x, int y, int shipType, boolean isHorizontal, boolean adjacentShips) {
+        if (adjacentShips) {
+            return isNotIntersectionShipWithBorder(x, y, shipType, isHorizontal) &&
+                    isNotIntersectionWithShips(x, y, shipType, isHorizontal);
+        } else {
+            return isNotIntersectionShipWithBorder(x, y, shipType, isHorizontal) &&
+                    isNotIntersectionWithShips(x, y, shipType, isHorizontal) &&
+                    isNotIntersectionWithNearShip(x, y, shipType, isHorizontal);
+        }
+    }
+
+    @Nullable
+    private Ship createShip(int x, int y, int type, boolean isHorizontal) throws TryingAddTooManyShipsOnFieldException {
+        Ship ship;
+        if (fleet.getShipsLeftForDeploy() > 0) {
+            if (checkField(x, y, type, isHorizontal, isAdjacentShips)) {
+                ship = Ship.create(x, y, type, isHorizontal, this);
+            } else {
+                ship = null;
+            }
+        } else {
+            throw new TryingAddTooManyShipsOnFieldException();
+        }
+        return ship;
+    }
+
+    private boolean xTraversal(int x, int y, int shipType, FieldCell ship) {
+        for (int i = x; i < x + shipType + 1; i++) {
+            if (field[i][y].getType() == ship) {
+                return false;
+
+            }
+        }
+        return true;
+    }
+    private boolean yTraversal(int x, int y, int shipType, FieldCell nearWithShip) {
+        for (int i = y; i < y + shipType + 1; i++) {
+            if (field[x][i].getType() == nearWithShip) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void setAdjacentShips(boolean isAdjacentShips) {
+        this.isAdjacentShips = isAdjacentShips;
     }
 }

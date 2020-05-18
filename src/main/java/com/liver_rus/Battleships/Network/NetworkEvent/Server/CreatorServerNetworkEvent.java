@@ -10,6 +10,7 @@ import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConst
 //Common deserialize class
 public class CreatorServerNetworkEvent {
     private final Pattern configPlayerPattern;
+    private final Pattern configGamePattern;
     private final Pattern tryDeployShipPattern;
     private final Pattern shotPattern;
     private final Pattern disconnectPattern;
@@ -19,6 +20,7 @@ public class CreatorServerNetworkEvent {
     public CreatorServerNetworkEvent() {
         String state = "(" + ON + "|" + OFF + ")";
         configPlayerPattern = Pattern.compile("^" + CONFIG_PLAYER + state + NAME + "(.+)");
+        configGamePattern = Pattern.compile("^" + CONFIG_GAME + state + state);
         tryDeployShipPattern = Pattern.compile("^" + TRY_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");
         shotPattern = Pattern.compile("^" + SHOT + "(\\d)(\\d)" + "$");
         disconnectPattern = Pattern.compile("^" + DISCONNECT + "$");
@@ -32,6 +34,11 @@ public class CreatorServerNetworkEvent {
         matcher = configPlayerPattern.matcher(msg);
         if (matcher.find()) {
             return new ConfigPlayerEvent(matcher.group(1).equals(ON), matcher.group(2));
+        }
+
+        matcher = configGamePattern.matcher(msg);
+        if (matcher.find()) {
+            return new ConfigGameEvent(matcher.group(1).equals(ON), matcher.group(1).equals(ON));
         }
 
         matcher = tryDeployShipPattern.matcher(msg);

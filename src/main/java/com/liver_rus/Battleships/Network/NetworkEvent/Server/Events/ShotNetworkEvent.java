@@ -27,9 +27,9 @@ public class ShotNetworkEvent implements ServerNetworkEvent {
         Answer answer = new Answer();
         Player activePlayer = metaInfo.getActivePlayer();
         Player passivePlayer = metaInfo.getPassivePlayer();
-        GameField passivePlayerField = passivePlayer.getGameField();
-        if (metaInfo.isPlayersReadyForGame()) {
+        if (metaInfo.isPlayersInGame()) {
             if (activePlayer == metaInfo.getTurnHolderPlayer()) {
+                GameField passivePlayerField = passivePlayer.getGameField();
                 Ship destroyedShip = passivePlayerField.saveShoot(x, y);
                 //free shoot == turnHolder same. send CanShoot
                 if (activePlayer.isSaveShooting() && passivePlayerField.isFreeShot(x, y)) {
@@ -73,7 +73,7 @@ public class ShotNetworkEvent implements ServerNetworkEvent {
                     }
                     metaInfo.setTurnHolderPlayer(activePlayer);
                 } else {
-                    //draw miss
+                    //if miss draw miss
                     answer.add(activePlayer, new DrawMissNetworkEvent(x, y, PlayerType.ENEMY));
                     answer.add(passivePlayer, new DrawMissNetworkEvent(x, y, PlayerType.YOU));
                     metaInfo.setTurnHolderPlayer(passivePlayer);
