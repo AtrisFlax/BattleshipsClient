@@ -3,42 +3,41 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="220.0" prefWidth="262.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.GUI.FXMLDocumentConnectGame">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="231.0" prefWidth="228.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.liver_rus.Battleships.Client.GUI.FXMLDocumentConnectGame">
    <children>
-      <VBox layoutX="1.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" nodeOrientation="LEFT_TO_RIGHT" prefHeight="223.0" prefWidth="279.0">
+      <VBox alignment="TOP_CENTER" prefHeight="212.0" prefWidth="228.0">
          <children>
-            <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="280.0">
+            <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="20.0" prefWidth="60.0" text="New game" textAlignment="CENTER">
+               <VBox.margin>
+                  <Insets top="10.0" />
+               </VBox.margin>
+            </Label>
+            <GridPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="196.0" prefWidth="228.0">
               <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="15.0" minWidth="15.0" prefWidth="15.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="132.0" minWidth="10.0" prefWidth="78.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="241.0" minWidth="10.0" prefWidth="151.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="105.0" minWidth="15.0" prefWidth="51.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="10.0" minWidth="15.0" prefWidth="15.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="132.0" minWidth="10.0" prefWidth="70.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="132.0" minWidth="10.0" prefWidth="15.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="241.0" minWidth="10.0" prefWidth="123.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="54.0" minWidth="15.0" prefWidth="19.0" />
               </columnConstraints>
               <rowConstraints>
-                <RowConstraints maxHeight="83.0" minHeight="10.0" prefHeight="29.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="162.0" minHeight="0.0" prefHeight="36.0" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="209.0" minHeight="10.0" prefHeight="36.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="209.0" minHeight="4.0" prefHeight="33.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="209.0" minHeight="0.0" prefHeight="18.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="34.0" minHeight="10.0" prefHeight="16.0" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="162.0" minHeight="0.0" prefHeight="36.0" vgrow="ALWAYS" />
+                <RowConstraints maxHeight="209.0" minHeight="10.0" prefHeight="36.0" vgrow="ALWAYS" />
+                  <RowConstraints maxHeight="209.0" minHeight="4.0" prefHeight="33.0" vgrow="ALWAYS" />
+                  <RowConstraints maxHeight="209.0" minHeight="0.0" prefHeight="29.0" vgrow="ALWAYS" />
+                  <RowConstraints maxHeight="209.0" minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
               </rowConstraints>
                <children>
-                  <Label text="IP" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label text="Port" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                  <TextField fx:id="ipTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="127.0.0.1" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                  <TextField fx:id="portTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="48999" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                  <Button fx:id="buttonConnect" alignment="CENTER" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleButtonConnect" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Connect" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="5">
-                     <GridPane.margin>
-                        <Insets left="20.0" top="18.0" />
-                     </GridPane.margin></Button>
-                  <Label alignment="TOP_CENTER" contentDisplay="CENTER" prefHeight="17.0" prefWidth="58.0" text="New game" textAlignment="CENTER" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.valignment="CENTER">
-                     <GridPane.margin>
-                        <Insets left="19.0" />
-                     </GridPane.margin></Label>
-                  <TextField fx:id="nameTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Player 1" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-                  <Label text="Name" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                  <Label text="Create Server" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                  <CheckBox fx:id="checkBox" mnemonicParsing="false" selected="true" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" GridPane.columnIndex="2" GridPane.rowIndex="4" />
+                  <Label text="IP" GridPane.columnIndex="1" GridPane.halignment="RIGHT" />
+                  <Label text="Port" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="1" />
+                  <TextField fx:id="ipTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="127.0.0.1" GridPane.columnIndex="3" />
+                  <TextField fx:id="portTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="48999" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                  <TextField fx:id="nameTextField" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Player 1" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                  <Label text="Name" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="2" />
+                  <Label prefWidth="88.0" text="Create Server" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" />
+                  <CheckBox fx:id="checkBox" mnemonicParsing="false" selected="true" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" GridPane.columnIndex="3" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowIndex="3" />
+                  <Button fx:id="serverOptionsButton" alignment="CENTER_RIGHT" contentDisplay="CENTER" mnemonicParsing="false" onAction="#handlerServerOptionsButton" prefWidth="60.0" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Options" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="3" />
+                  <Button fx:id="buttonConnect" alignment="TOP_RIGHT" contentDisplay="TOP" mnemonicParsing="false" onAction="#handleButtonConnect" prefWidth="60.0" style="-fx-faint-focus-color: transparent; -fx-focus-color: rgba(0,0,0,0.2);" text="Connect" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="4" />
                </children>
             </GridPane>
          </children>

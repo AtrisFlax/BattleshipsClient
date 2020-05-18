@@ -9,6 +9,7 @@ import com.liver_rus.Battleships.Network.NetworkEvent.Client.CreatorClientNetwor
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.Events.DoDisconnectNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.*;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
+import com.liver_rus.Battleships.Network.Server.GamePreferences;
 import com.liver_rus.Battleships.Network.Server.GameServer;
 import com.liver_rus.Battleships.utils.MyLogger;
 
@@ -36,8 +37,8 @@ public class ClientGameEngine implements ClientActions {
     }
 
     @Override
-    public void startServer(String ip, int port) throws IOException {
-        gameServer = GameServer.create(ip, port);
+    public void startServer(String ip, int port, GamePreferences preferences) throws IOException {
+        gameServer = GameServer.create(ip, port, preferences);
         gameServer.start();
     }
 

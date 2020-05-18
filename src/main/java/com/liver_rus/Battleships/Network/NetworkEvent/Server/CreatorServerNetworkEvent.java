@@ -9,29 +9,29 @@ import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConst
 
 //Common deserialize class
 public class CreatorServerNetworkEvent {
-    private final Pattern myNamePattern;
+    private final Pattern configPlayerPattern;
     private final Pattern tryDeployShipPattern;
     private final Pattern shotPattern;
     private final Pattern disconnectPattern;
     private final Pattern tryRematchPattern;
     private final Pattern resetFleetWhileDeployPattern;
-    private final Pattern setSaveShootingPattern;
 
     public CreatorServerNetworkEvent() {
         String state = "(" + ON + "|" + OFF + ")";
-        myNamePattern = Pattern.compile("^" + MY_NAME + "(.+)");
+        configPlayerPattern = Pattern.compile("^" + CONFIG_PLAYER + state + NAME + "(.+)");
         tryDeployShipPattern = Pattern.compile("^" + TRY_DEPLOY_SHIP + "(\\d)(\\d)(\\d)([VH])" + "$");
         shotPattern = Pattern.compile("^" + SHOT + "(\\d)(\\d)" + "$");
         disconnectPattern = Pattern.compile("^" + DISCONNECT + "$");
         tryRematchPattern = Pattern.compile("^" + REMATCH_ANSWER + state + "$");
         resetFleetWhileDeployPattern = Pattern.compile("^" + RESET_FLEET_WHILE_DEPLOY + "$");
-        setSaveShootingPattern = Pattern.compile("^" + SET_SAVE_SHOOTING + state  + "$");
     }
 
     public ServerNetworkEvent deserializeMessage(String msg) {
-        Matcher matcher = myNamePattern.matcher(msg);
+        Matcher matcher;
+
+        matcher = configPlayerPattern.matcher(msg);
         if (matcher.find()) {
-            return new MyNameNetworkEvent(matcher.group(1));
+            return new ConfigPlayerEvent(matcher.group(1).equals(ON), matcher.group(2));
         }
 
         matcher = tryDeployShipPattern.matcher(msg);
@@ -63,11 +63,6 @@ public class CreatorServerNetworkEvent {
         matcher = resetFleetWhileDeployPattern.matcher(msg);
         if (matcher.find()) {
             return new ResetFleetWhileDeployNetworkEvent();
-        }
-
-        matcher = setSaveShootingPattern.matcher(msg);
-        if (matcher.find()) {
-            return new SetSaveShootingNetworkEvent(matcher.group(1).equals(ON));
         }
 
         return new UnknownCommandServerNetworkEvent(msg);

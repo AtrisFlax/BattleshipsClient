@@ -3,8 +3,7 @@ package com.liver_rus.Battleships.Network.NetworkEvent.Client.Events;
 import com.liver_rus.Battleships.Client.GUI.GUIActions;
 import com.liver_rus.Battleships.Network.NetworkEvent.Client.ClientNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.MyNameNetworkEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.SetSaveShootingNetworkEvent;
+import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.ConfigPlayerEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 
 import java.util.ArrayList;
@@ -14,9 +13,9 @@ public class ConnectedNetworkEvent implements ClientNetworkEvent {
 
     @Override
     public List<ServerNetworkEvent> proceed(GUIActions action) {
+        //TODO after auth client know what todo configGame  + configPlayer or only configPlayer
         List<ServerNetworkEvent> answer = new ArrayList<>();
-        answer.add(new SetSaveShootingNetworkEvent(action.isSaveShooting()));
-        answer.add(new MyNameNetworkEvent(action.getMyName()));
+        answer.add(new ConfigPlayerEvent(action.isSaveShooting(), action.getMyName()));
         return answer;
     }
 
@@ -24,5 +23,4 @@ public class ConnectedNetworkEvent implements ClientNetworkEvent {
     public String convertToString() {
         return NetworkCommandConstant.CONNECTED;
     }
-
 }

@@ -18,7 +18,7 @@
                 <Image url="@../img/Battleships_Paper_Game.jpg" />
             </image>
         </ImageView>
-        <MenuBar fx:id="menuBarItem" StackPane.alignment="TOP_RIGHT">
+        <MenuBar fx:id="menuBarItem" style="-fx-background-color: #ffffff;" StackPane.alignment="TOP_RIGHT">
             <menus>
                 <Menu fx:id="GameMenu" mnemonicParsing="false" text="Game">
                     <items>
@@ -39,7 +39,7 @@
                 </Menu>
             </menus>
         </MenuBar>
-        <Label fx:id="labelGameStatus" prefHeight="17.0" prefWidth="175.0" text="Game status: " StackPane.alignment="TOP_LEFT">
+        <Label fx:id="labelGameStatus" prefHeight="17.0" prefWidth="175.0" StackPane.alignment="TOP_LEFT">
             <StackPane.margin>
                 <Insets left="478.0" top="160.0" />
             </StackPane.margin>
@@ -105,11 +105,11 @@
 
                 <fx:define>
                     <ArrayList fx:id="shipTypeList">
-                        <fx:reference source="shipType0Button"/>
-                        <fx:reference source="shipType1Button"/>
-                        <fx:reference source="shipType2Button"/>
-                        <fx:reference source="shipType3Button"/>
-                        <fx:reference source="shipType4Button"/>
+                        <fx:reference source="shipType0Button" />
+                        <fx:reference source="shipType1Button" />
+                        <fx:reference source="shipType2Button" />
+                        <fx:reference source="shipType3Button" />
+                        <fx:reference source="shipType4Button" />
                     </ArrayList>
                 </fx:define>
 

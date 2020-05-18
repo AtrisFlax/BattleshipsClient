@@ -23,5 +23,6 @@ public class Constants {
         public final static double LEFT_Y_ROW1 = 183;
         public final static double WIDTH_CELL_X = 48;
         public final static double WIDTH_CELL_Y = 25;
+        public final static int NEXT_ROW_ID = 3;
     }
 }

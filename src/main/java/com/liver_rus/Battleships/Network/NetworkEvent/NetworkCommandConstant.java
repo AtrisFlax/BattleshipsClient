@@ -3,14 +3,14 @@ package com.liver_rus.Battleships.Network.NetworkEvent;
 public class NetworkCommandConstant {
     //client commands to server
     public final static String IS_POSSIBLE_DEPLOY_SHIP = "IS_POSSIBLE_DEPLOY_SHIP";
-    public final static String MY_NAME = "MY_NAME";
+    public final static String CONFIG_PLAYER = "CONFIG_PLAYER";
+    public final static String NAME = "NAME";
     public final static String TRY_DEPLOY_SHIP = "TRY_DEPLOY_SHIP";
     public final static String SHOT = "SHOT";
     public final static String DISCONNECT = "DISCONNECT";
     public final static String UNKNOWN_COMMAND = "UNKNOWN_COMMAND";
     public final static String REMATCH_ANSWER = "REMATCH_ANSWER";
     public final static String RESET_FLEET_WHILE_DEPLOY = "RESET_FLEET_WHILE_DEPLOY";
-    public final static String SET_SAVE_SHOOTING = "SET_SAVE_SHOOTING";
 
     //server commands to client
     public final static String ASK_REMATCH = "ASK_REMATCH";

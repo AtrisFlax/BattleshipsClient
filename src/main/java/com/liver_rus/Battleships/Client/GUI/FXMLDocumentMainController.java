@@ -7,6 +7,7 @@ import com.liver_rus.Battleships.Client.GUI.Constants.SecondPlayerGUIConstants;
 import com.liver_rus.Battleships.Client.GUI.DrawEvents.*;
 import com.liver_rus.Battleships.Client.GameEngine.ClientGameEngine;
 import com.liver_rus.Battleships.Network.NetworkEvent.PlayerType;
+import com.liver_rus.Battleships.Network.Server.GamePreferences;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -21,11 +22,13 @@ import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_MAX_SHIPS;
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.Fleet.NUM_TYPE;
 import static com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField.FIELD_SIZE;
 
@@ -147,7 +150,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     @Override
     public void waitSecondPlayer(String reason) {
         Platform.runLater(() -> {
-            labelGameStatus.setText("Wait Second Player:" + reason);
+            labelGameStatus.setText("Wait Second Player " + reason);
             isDeploying = false;
             disableShipButtons();
             menuItemConnect.setDisable(true);
@@ -159,13 +162,13 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     @Override
     public void deploy(int[] shipLeftByTypeInit) {
         Platform.runLater(() -> {
+            rightButton.setDisable(Arrays.stream(shipLeftByTypeInit).sum() >= NUM_MAX_SHIPS);
             isDeploying = true;
             this.shipLeftByTypeInit = shipLeftByTypeInit;
             initShipButtonText(shipLeftByTypeInit);
-            labelGameStatus.setText("Deploy fleet. Select and place ship");
+            labelGameStatus.setText("Deploy fleet. Select ship");
             menuItemConnect.setDisable(true);
             menuItemDisconnect.setDisable(false);
-            rightButton.setDisable(true);
         });
         enableShipButtons();
     }
@@ -174,6 +177,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
     public void disconnect() {
         Platform.runLater(() -> {
             isDeploying = false;
+            labelGameStatus.setText("Deploy fleet. Place ship");
             isShooting = false;
             labelGameStatus.setText("Player disconnected");
             menuItemConnect.setDisable(false);
@@ -181,6 +185,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             leftButton.setVisible(false);
             rightButton.setText("Reset");
             rightButton.setDisable(true);
+            menuItemSaveShooting.setDisable(false);
         });
     }
 
@@ -295,8 +300,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
 
     @FXML
     public void handlerOverlayCanvasMouseMoved(MouseEvent event) {
-//        TODO delete
-        System.out.println("scene x=" + event.getSceneX() + ", y=" + event.getSceneY());
         if (isDeploying) {
             if (SceneCoord.isFromFirstPlayerField(event)) {
                 if (isShipSelected) {
@@ -314,8 +317,6 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
             if (SceneCoord.isFromSecondPlayerField(event)) {
                 int x = SceneCoord.transformToFieldX(event.getSceneX(), SecondPlayerGUIConstants.getGUIConstant());
                 int y = SceneCoord.transformToFieldY(event.getSceneY(), SecondPlayerGUIConstants.getGUIConstant());
-                //TODO delete
-                System.out.println("trans x=" + x + ", y=" + y);
                 drawOverlay(new RenderRedrawHitEnemy(x, y));
             } else {
                 Draw.clearCanvas(overlayCanvas);
@@ -345,10 +346,10 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                     setLabelMyName(myName);
                     if (dialog.isStartServer()) {
                         try {
-                            clientGameEngine.startServer(ip, port);
+                            clientGameEngine.startServer(ip, port, new GamePreferences());
                         } catch (IOException e) {
                             e.printStackTrace();
-                            createAlert("Server doesn't created");
+                            createAlert();
                         }
                     }
                     clientGameEngine.startClient(ip, port);
@@ -363,9 +364,9 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
         }
     }
 
-    private void createAlert(String title) {
+    private void createAlert() {
         Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle(title);
+        alert.setTitle("Server doesn't created");
         alert.setHeaderText("Try another port");
         alert.setContentText("");
         alert.showAndWait();
@@ -529,6 +530,7 @@ public class FXMLDocumentMainController implements Initializable, GUIActions, Cl
                         Draw.clearCanvas(overlayCanvas);
                         isDeploying = false;
                         isShipSelected = false;
+                        labelGameStatus.setText("Deploy fleet. Select ship");
                         return;
                     }
                 }

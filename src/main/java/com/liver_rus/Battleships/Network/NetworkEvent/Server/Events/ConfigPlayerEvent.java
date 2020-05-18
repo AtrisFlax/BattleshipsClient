@@ -12,13 +12,16 @@ import com.liver_rus.Battleships.Network.Server.MetaInfo;
 import com.liver_rus.Battleships.Network.Server.Player;
 import com.liver_rus.Battleships.Network.Server.TurnOrder;
 
+import static com.liver_rus.Battleships.Network.NetworkEvent.NetworkCommandConstant.*;
 import static com.liver_rus.Battleships.utils.Debug.DEBUG_AUTO_DEPLOY;
 
 
-public class MyNameNetworkEvent implements ServerNetworkEvent {
+public class ConfigPlayerEvent implements ServerNetworkEvent {
+    private final boolean saveShooting;
     private final String name;
 
-    public MyNameNetworkEvent(String name) {
+    public ConfigPlayerEvent(boolean saveShooting, String name) {
+        this.saveShooting = saveShooting;
         this.name = name;
     }
 
@@ -26,8 +29,11 @@ public class MyNameNetworkEvent implements ServerNetworkEvent {
     public Answer proceed(MetaInfo metaInfo) {
         Answer answer = new Answer();
         Player activePlayer = metaInfo.getActivePlayer();
-        activePlayer.setName(name);
-        activePlayer.setReadyForDeployment(true);
+        if (!metaInfo.isPlayersReadyForGame()) {
+            activePlayer.setName(name);
+            activePlayer.setSaveShooting(saveShooting);
+            activePlayer.setReadyForDeployment(true);
+        }
         if (metaInfo.isPlayersReadyForDeployment()) {
             //TODO delete debug
             if (DEBUG_AUTO_DEPLOY) {
@@ -42,12 +48,12 @@ public class MyNameNetworkEvent implements ServerNetworkEvent {
                 } catch (TryingAddTooManyShipsOnFieldException e) {
                     e.printStackTrace();
                 }
-                for (Ship ship: activePlayerField.getShips()) {
+                for (Ship ship : activePlayerField.getShips()) {
                     answer.add(activePlayer, new DrawShipNetworkEvent(
                             ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU)
                     );
                 }
-                for (Ship ship: passivePlayerField.getShips()) {
+                for (Ship ship : passivePlayerField.getShips()) {
                     answer.add(passivePlayer, new DrawShipNetworkEvent(
                             ship.getX(), ship.getY(), ship.getType(), ship.isHorizontal(), PlayerType.YOU)
                     );
@@ -75,7 +81,7 @@ public class MyNameNetworkEvent implements ServerNetworkEvent {
     }
 
     public String convertToString() {
-        return NetworkCommandConstant.MY_NAME + name;
+        return NetworkCommandConstant.CONFIG_PLAYER + (saveShooting ? ON : OFF) + NAME + name;
     }
 
     private void addShipsPreset1(GameField field) throws TryingAddTooManyShipsOnFieldException {

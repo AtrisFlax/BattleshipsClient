@@ -20,18 +20,17 @@ public class MetaInfo {
     private Player activePlayer; //msg from this one
     private Player turnHolderPlayer; //wait action from this one
 
-    public static MetaInfo create(GameField[] injectedGameFields) {
+    private final GamePreferences gamePreferences;
+
+    public static MetaInfo create(GameField[] injectedGameFields, GamePreferences preferences) {
         if (injectedGameFields == null) {
             GameField[] fields = new GameField[MAX_CONNECTIONS];
             for (int i = 0; i < fields.length; i++) {
                 fields[i] = new GameField();
             }
-            return new MetaInfo(fields);
+            return new MetaInfo(fields, preferences);
         } else {
-            if (injectedGameFields.length != MAX_CONNECTIONS) {
-                throw new IllegalArgumentException("Illegal length injected game fields. Legal length equal 2");
-            }
-            return new MetaInfo(injectedGameFields);
+            return new MetaInfo(injectedGameFields, preferences);
         }
     }
 
@@ -179,16 +178,21 @@ public class MetaInfo {
         return players;
     }
 
+    public GamePreferences getGamePreferences() {
+        return gamePreferences;
+    }
+
     /**
      * @param gameFields injected game fields. Max size 2
      */
-    private MetaInfo(GameField[] gameFields) {
-        if (gameFields.length != 2) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
-        injectedGameFields = gameFields;
-        numAcceptedConnections = 0;
-        initTurnOrder = TurnOrder.RANDOM_TURN;
-        players = new ArrayList<>(MAX_CONNECTIONS);
-        activePlayer = null;
+    private MetaInfo(GameField[] gameFields, GamePreferences preferences) {
+        if (gameFields.length != MAX_CONNECTIONS) throw new IllegalArgumentException("Injected fields should be fields.length == 2");
+        this.injectedGameFields = gameFields;
+        this.numAcceptedConnections = 0;
+        this.initTurnOrder = TurnOrder.RANDOM_TURN;
+        this.players = new ArrayList<>(MAX_CONNECTIONS);
+        this.activePlayer = null;
+        this.gamePreferences = preferences;
     }
 
     private Player getFirstConnectedPlayerChannel() {
@@ -211,7 +215,4 @@ public class MetaInfo {
             return players.get(FIRST_CONNECTED_PLAYER_ID);
         }
     }
-
-
-
 }

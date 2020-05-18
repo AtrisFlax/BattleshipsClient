@@ -44,7 +44,7 @@ public class SceneCoord {
         int trCoord = (int)(Math.floor((coord - edge.get()) / width.get()));
         final int MAX_RANGE = 9;
         final int OUT_RANGE = MAX_RANGE + 1;
-        if (trCoord == OUT_RANGE) {
+        if (trCoord >= OUT_RANGE) {
             return MAX_RANGE;
         } else {
             return trCoord;

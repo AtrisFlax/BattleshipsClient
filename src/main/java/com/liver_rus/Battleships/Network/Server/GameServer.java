@@ -48,13 +48,15 @@ public class GameServer extends Thread implements Restartable {
 
     private volatile boolean isRunning;
 
-    public static GameServer create(String ip, int port) throws IOException {
-        return new GameServer(ip, port, null);
+    public static GameServer create(String ip, int port, GamePreferences preferences) throws IOException {
+        return new GameServer(ip, port, null, preferences);
     }
 
-    public static GameServer create(String ip, int port, GameField[] injectGameFields) throws IOException {
-        return new GameServer(ip, port, injectGameFields);
+    public static GameServer create(String ip, int port, GameField[] injectGameFields, GamePreferences preferences)
+            throws IOException {
+        return new GameServer(ip, port, injectGameFields, preferences);
     }
+
 
     /**
      * GameServer constructor with injection GameField[] for testing
@@ -63,11 +65,11 @@ public class GameServer extends Thread implements Restartable {
      * @param injectGameFields injected game primitives
      */
 
-    public GameServer(String ip, int port, GameField[] injectGameFields) throws IOException {
+    public GameServer(String ip, int port, GameField[] injectGameFields, GamePreferences preferences) throws IOException {
         this.inetAddress = InetAddress.getByName(ip);
         this.port = port;
         this.eventCreator = new CreatorServerNetworkEvent();
-        this.metaInfo = MetaInfo.create(injectGameFields);
+        this.metaInfo = MetaInfo.create(injectGameFields, preferences);
         this.openedClientChannels = new ArrayList<>(MAX_CONNECTIONS);
         configureServer();
         LOGGER.info("GameServer started ip : " + ip + " port : " + port);
@@ -177,20 +179,22 @@ public class GameServer extends Thread implements Restartable {
     }
 
     private void acceptConnection(SelectionKey key) throws IOException {
-        SocketChannel socketChannel = ((ServerSocketChannel) key.channel()).accept();
+        SocketChannel channel = ((ServerSocketChannel) key.channel()).accept();
         if (metaInfo.getNumAcceptedConnections() < MAX_CONNECTIONS) {
-            String port = socketChannel.socket().getInetAddress().toString() + ":" + socketChannel.socket().getPort();
-            socketChannel.configureBlocking(false);
-            LOGGER.info("GameServer Accepted connection from: " + port);
-            openedClientChannels.add(socketChannel);
-            metaInfo.addPlayer(socketChannel);
-            socketChannel.register(selector, SelectionKey.OP_READ, port);
-            sendEvent(socketChannel, new ConnectedNetworkEvent());
+            final InetAddress inetAddress = channel.socket().getInetAddress();
+            final int port = channel.socket().getPort();
+            String attachment = inetAddress.toString() + ":" + port;
+            channel.configureBlocking(false);
+            LOGGER.info("GameServer Accepted connection from: " + attachment);
+            openedClientChannels.add(channel);
+            metaInfo.addPlayer(channel);
+            channel.register(selector, SelectionKey.OP_READ, attachment);
+            sendEvent(channel, new ConnectedNetworkEvent());
         } else {
             String msg = "Connection rejected. Too many connections. Max connections is " + MAX_CONNECTIONS;
             LOGGER.info(msg);
-            sendMessage(socketChannel, msg);
-            socketChannel.close();
+            sendMessage(channel, msg);
+            channel.close();
         }
     }
 

@@ -8,6 +8,8 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
 
+import static com.liver_rus.Battleships.Client.GUI.Constants.Constants.DestroyedListGUI.NEXT_ROW_ID;
+
 public class Draw {
     private final static double CELL_LINE_WIDTH = 2;
     private final static double SHIP_LINE_WIDTH = 2;
@@ -18,8 +20,6 @@ public class Draw {
     private final static Color HIT_CELL_COLOR = Color.BLACK;
     private static final Color POSSIBLE_DEPLOY_COLOR = Color.BLACK;
     private static final Color IMPOSSIBLE_DEPLOY_COLOR = Color.RED;
-
-    private static final int NEXT_ROW_ID = 3;
 
     public static void clearCanvas(GraphicsContext context) {
         context.clearRect(0, 0, Constants.Window.WIDTH, Constants.Window.HEIGHT);
@@ -80,7 +80,7 @@ public class Draw {
         );
         gc.strokeLine(
                 x * width + constants.getLeftX() + shiftX,
-                y * width + constants.getTopY() + shiftY + width /2.0,
+                y * width + constants.getTopY() + shiftY + width / 2.0,
                 x * width + constants.getLeftX() + width + shiftX,
                 y * width + constants.getTopY() + shiftY - width / 2.0
         );
@@ -110,17 +110,19 @@ public class Draw {
         gc.setLineDashes(0);
         int shipLength = convertTypeToShipLength(shipType);
         double width = constant.getWidthCell();
+        int shiftX = getShift(x);
+        int shiftY = getShift(y);
         if (isHorizontal) {
             gc.strokeRect(
-                    constant.getLeftX() + x * width ,
-                    constant.getTopY() + y * width - width / 2.0,
+                    constant.getLeftX() + x * width + shiftX,
+                    constant.getTopY() + y * width + shiftY - width / 2.0,
                     width * shipLength,
                     width
             );
         } else {
             gc.strokeRect(
-                    constant.getLeftX() + x * width,
-                    constant.getTopY() + y * width - width / 2.0,
+                    constant.getLeftX() + x * width + shiftX,
+                    constant.getTopY() + y * width + shiftY - width / 2.0,
                     width,
                     width * shipLength
             );
@@ -130,7 +132,6 @@ public class Draw {
     private static int convertTypeToShipLength(int type) {
         return type + 1;
     }
-
 
     //visual correct for current img size
     private static int getShift(int i) {

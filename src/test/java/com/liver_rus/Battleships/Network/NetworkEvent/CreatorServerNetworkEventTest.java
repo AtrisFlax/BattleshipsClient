@@ -19,8 +19,8 @@ class CreatorServerNetworkEventTest {
     @Test
     void creationValidEvents() {
         checkDeserialize(NetworkCommandConstant.DISCONNECT, DisconnectNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.MY_NAME + "Player1", MyNameNetworkEvent.class);
-        checkDeserialize(NetworkCommandConstant.MY_NAME, MyNameNetworkEvent.class);
+        checkDeserialize(NetworkCommandConstant.MY_NAME + "Player1", ConfigGameEvent.class);
+        checkDeserialize(NetworkCommandConstant.MY_NAME, ConfigGameEvent.class);
         checkDeserialize(NetworkCommandConstant.SHOT + "56", ShotNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.TRY_DEPLOY_SHIP + "553H", TryDeployShipNetworkEvent.class);
         checkDeserialize(NetworkCommandConstant.REMATCH_ANSWER, TryRematchStateNetworkEvent.class);

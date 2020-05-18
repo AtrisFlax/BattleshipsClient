@@ -1,8 +1,6 @@
 package com.liver_rus.Battleships.Client;
 
 import com.liver_rus.Battleships.Network.Client.NetworkClient;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.MyNameNetworkEvent;
-import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.SetSaveShootingNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.Events.TryDeployShipNetworkEvent;
 import com.liver_rus.Battleships.Network.NetworkEvent.Server.ServerNetworkEvent;
 import com.liver_rus.Battleships.Network.Server.GamePrimitives.GameField;
@@ -138,7 +136,7 @@ class NetworkTest {
 
     private void sendInitSequence(NetworkClient client, String name, boolean saveShooting) {
         sendEvent(client, new SetSaveShootingNetworkEvent(saveShooting));
-        sendEvent(client, new MyNameNetworkEvent(name));
+        sendEvent(client, new ConfigGameEvent(name));
     }
 
     //firstClient==true -> client0

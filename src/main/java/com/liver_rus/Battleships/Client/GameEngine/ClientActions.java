@@ -2,6 +2,7 @@ package com.liver_rus.Battleships.Client.GameEngine;
 
 import com.liver_rus.Battleships.Client.GUI.FXMLDocumentMainController;
 import com.liver_rus.Battleships.Client.GUI.ShipInfo;
+import com.liver_rus.Battleships.Network.Server.GamePreferences;
 
 import java.io.IOException;
 
@@ -19,7 +20,7 @@ public interface ClientActions {
 
     void shot(int x, int y);
 
-    void startServer(String ip, int port) throws IOException;
+    void startServer(String ip, int port, GamePreferences preferences) throws IOException;
 
     void rematch(boolean wantRematch);
 }
